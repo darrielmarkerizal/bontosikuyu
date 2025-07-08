@@ -46,12 +46,12 @@ export function ArtikelHeader({ title, description }: ArtikelHeaderProps) {
   }, []);
 
   return (
-    <div className="bg-white border-b overflow-hidden">
+    <div className="bg-white border-b-2 border-brand-teal/20 overflow-hidden">
       <div className="container mx-auto px-4 py-8 sm:py-12 lg:py-16">
         <div className="max-w-4xl">
           <h1
             ref={titleRef}
-            className="font-sentient text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-4"
+            className="font-sentient text-3xl sm:text-4xl lg:text-5xl font-bold text-brand-navy mb-4"
           >
             {title}
           </h1>

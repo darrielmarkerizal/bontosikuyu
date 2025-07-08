@@ -17,6 +17,13 @@ const config: Config = {
         "plus-jakarta-sans": ["var(--font-plus-jakarta-sans)"],
       },
       colors: {
+        // Brand Colors
+        brand: {
+          navy: "#0B3B74",
+          teal: "#21BCA8",
+          yellow: "#F8B72C",
+        },
+        // Extend existing colors
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {

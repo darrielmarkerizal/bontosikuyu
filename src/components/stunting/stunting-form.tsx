@@ -18,9 +18,8 @@ import {
   Ruler,
   Calendar,
   Baby,
-  ChevronRight,
-  Shield,
-  Brain,
+  Activity,
+  Send,
 } from "lucide-react";
 import { PredictionInput } from "./types";
 
@@ -37,239 +36,216 @@ export const StuntingForm = forwardRef<HTMLDivElement, StuntingFormProps>(
     return (
       <Card
         ref={ref}
-        className="shadow-lg border-slate-200 bg-white/95 backdrop-blur-sm"
+        className="shadow-xl border-2 border-brand-teal/20 bg-white/95 backdrop-blur-sm"
       >
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl text-slate-900">
-            <User className="h-5 w-5 text-slate-600" />
+        <CardHeader className="text-center pb-6 border-b border-brand-teal/10">
+          <CardTitle className="text-2xl font-bold text-brand-navy flex items-center justify-center gap-2">
+            <User className="h-6 w-6 text-brand-teal" />
             Data Anak
           </CardTitle>
-          <CardDescription className="text-slate-600">
-            Masukkan data tumbuh kembang anak dengan lengkap dan akurat
+          <CardDescription className="text-slate-600 mt-2">
+            Masukkan data lengkap anak untuk mendapatkan prediksi akurat
           </CardDescription>
         </CardHeader>
-        <CardContent className="pt-2">
+        <CardContent className="pt-6">
           <form onSubmit={onSubmit} className="space-y-6">
-            {/* Gender Selection */}
+            {/* Jenis Kelamin */}
             <div className="space-y-3">
-              <Label className="text-slate-700 font-medium">
+              <Label className="text-sm font-semibold text-brand-navy flex items-center gap-2">
+                <User className="h-4 w-4 text-brand-teal" />
                 Jenis Kelamin
               </Label>
               <RadioGroup
                 value={formData.sex}
                 onValueChange={(value) => onInputChange("sex", value)}
-                className="flex flex-col sm:flex-row gap-4 sm:gap-6"
+                className="flex gap-6"
               >
-                <div className="flex items-center space-x-3 p-3 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors">
+                <div className="flex items-center space-x-2">
                   <RadioGroupItem
-                    value="M"
+                    value="male"
                     id="male"
-                    className="text-slate-600"
+                    className="border-brand-teal text-brand-teal"
                   />
-                  <Label
-                    htmlFor="male"
-                    className="cursor-pointer text-slate-700"
-                  >
+                  <Label htmlFor="male" className="text-slate-700">
                     Laki-laki
                   </Label>
                 </div>
-                <div className="flex items-center space-x-3 p-3 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors">
+                <div className="flex items-center space-x-2">
                   <RadioGroupItem
-                    value="F"
+                    value="female"
                     id="female"
-                    className="text-slate-600"
+                    className="border-brand-teal text-brand-teal"
                   />
-                  <Label
-                    htmlFor="female"
-                    className="cursor-pointer text-slate-700"
-                  >
+                  <Label htmlFor="female" className="text-slate-700">
                     Perempuan
                   </Label>
                 </div>
               </RadioGroup>
             </div>
 
-            {/* Age Input */}
-            <div className="space-y-2">
+            {/* Umur */}
+            <div className="space-y-3">
               <Label
                 htmlFor="age"
-                className="flex items-center gap-2 text-slate-700 font-medium"
+                className="text-sm font-semibold text-brand-navy flex items-center gap-2"
               >
-                <Calendar className="h-4 w-4 text-slate-500" />
-                Usia (bulan)
+                <Calendar className="h-4 w-4 text-brand-teal" />
+                Umur (bulan)
               </Label>
               <Input
                 id="age"
                 type="number"
+                placeholder="Contoh: 24"
                 min="0"
                 max="60"
                 value={formData.age || ""}
                 onChange={(e) =>
                   onInputChange("age", parseInt(e.target.value) || 0)
                 }
-                placeholder="Contoh: 24"
-                className="border-slate-200 focus:border-slate-400 h-11"
+                className="border-brand-teal/30 focus:border-brand-teal focus:ring-brand-teal/20"
               />
-              <p className="text-xs text-slate-500">
-                Usia anak dalam bulan (0-60 bulan)
-              </p>
             </div>
 
-            {/* Birth Data Section */}
-            <div className="space-y-4 p-4 bg-slate-50/50 rounded-lg border border-slate-100">
-              <div className="flex items-center gap-2 mb-3">
-                <Baby className="h-4 w-4 text-slate-500" />
-                <Label className="font-medium text-slate-700">
-                  Data Kelahiran
+            <div className="grid sm:grid-cols-2 gap-4">
+              {/* Berat Lahir */}
+              <div className="space-y-3">
+                <Label
+                  htmlFor="birth_weight"
+                  className="text-sm font-semibold text-brand-navy flex items-center gap-2"
+                >
+                  <Weight className="h-4 w-4 text-brand-teal" />
+                  Berat Lahir (kg)
                 </Label>
+                <Input
+                  id="birth_weight"
+                  type="number"
+                  step="0.1"
+                  placeholder="Contoh: 3.2"
+                  min="0"
+                  max="10"
+                  value={formData.birth_weight || ""}
+                  onChange={(e) =>
+                    onInputChange(
+                      "birth_weight",
+                      parseFloat(e.target.value) || 0
+                    )
+                  }
+                  className="border-brand-teal/30 focus:border-brand-teal focus:ring-brand-teal/20"
+                />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="birth_weight" className="text-slate-700">
-                    Berat Lahir (kg)
-                  </Label>
-                  <Input
-                    id="birth_weight"
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    max="10"
-                    value={formData.birth_weight || ""}
-                    onChange={(e) =>
-                      onInputChange(
-                        "birth_weight",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    placeholder="Contoh: 3.2"
-                    className="border-slate-200 focus:border-slate-400 h-11"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="birth_length" className="text-slate-700">
-                    Panjang Lahir (cm)
-                  </Label>
-                  <Input
-                    id="birth_length"
-                    type="number"
-                    min="0"
-                    max="70"
-                    value={formData.birth_length || ""}
-                    onChange={(e) =>
-                      onInputChange(
-                        "birth_length",
-                        parseInt(e.target.value) || 0
-                      )
-                    }
-                    placeholder="Contoh: 48"
-                    className="border-slate-200 focus:border-slate-400 h-11"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Current Data Section */}
-            <div className="space-y-4 p-4 bg-slate-50/50 rounded-lg border border-slate-100">
-              <div className="flex items-center gap-2 mb-3">
-                <Shield className="h-4 w-4 text-slate-500" />
-                <Label className="font-medium text-slate-700">
-                  Data Saat Ini
+              {/* Panjang Lahir */}
+              <div className="space-y-3">
+                <Label
+                  htmlFor="birth_length"
+                  className="text-sm font-semibold text-brand-navy flex items-center gap-2"
+                >
+                  <Ruler className="h-4 w-4 text-brand-teal" />
+                  Panjang Lahir (cm)
                 </Label>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="body_weight"
-                    className="flex items-center gap-2 text-slate-700"
-                  >
-                    <Weight className="h-4 w-4 text-slate-500" />
-                    Berat Badan (kg)
-                  </Label>
-                  <Input
-                    id="body_weight"
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    max="50"
-                    value={formData.body_weight || ""}
-                    onChange={(e) =>
-                      onInputChange(
-                        "body_weight",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    placeholder="Contoh: 12.5"
-                    className="border-slate-200 focus:border-slate-400 h-11"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="body_length"
-                    className="flex items-center gap-2 text-slate-700"
-                  >
-                    <Ruler className="h-4 w-4 text-slate-500" />
-                    Tinggi Badan (cm)
-                  </Label>
-                  <Input
-                    id="body_length"
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    max="150"
-                    value={formData.body_length || ""}
-                    onChange={(e) =>
-                      onInputChange(
-                        "body_length",
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    placeholder="Contoh: 85.5"
-                    className="border-slate-200 focus:border-slate-400 h-11"
-                  />
-                </div>
+                <Input
+                  id="birth_length"
+                  type="number"
+                  step="0.1"
+                  placeholder="Contoh: 50"
+                  min="0"
+                  max="100"
+                  value={formData.birth_length || ""}
+                  onChange={(e) =>
+                    onInputChange(
+                      "birth_length",
+                      parseFloat(e.target.value) || 0
+                    )
+                  }
+                  className="border-brand-teal/30 focus:border-brand-teal focus:ring-brand-teal/20"
+                />
               </div>
             </div>
 
-            {/* ASI Section */}
+            <div className="grid sm:grid-cols-2 gap-4">
+              {/* Berat Badan Saat Ini */}
+              <div className="space-y-3">
+                <Label
+                  htmlFor="body_weight"
+                  className="text-sm font-semibold text-brand-navy flex items-center gap-2"
+                >
+                  <Activity className="h-4 w-4 text-brand-teal" />
+                  Berat Badan Saat Ini (kg)
+                </Label>
+                <Input
+                  id="body_weight"
+                  type="number"
+                  step="0.1"
+                  placeholder="Contoh: 12.5"
+                  min="0"
+                  max="50"
+                  value={formData.body_weight || ""}
+                  onChange={(e) =>
+                    onInputChange(
+                      "body_weight",
+                      parseFloat(e.target.value) || 0
+                    )
+                  }
+                  className="border-brand-teal/30 focus:border-brand-teal focus:ring-brand-teal/20"
+                />
+              </div>
+
+              {/* Tinggi Badan Saat Ini */}
+              <div className="space-y-3">
+                <Label
+                  htmlFor="body_length"
+                  className="text-sm font-semibold text-brand-navy flex items-center gap-2"
+                >
+                  <Ruler className="h-4 w-4 text-brand-teal" />
+                  Tinggi Badan Saat Ini (cm)
+                </Label>
+                <Input
+                  id="body_length"
+                  type="number"
+                  step="0.1"
+                  placeholder="Contoh: 85"
+                  min="0"
+                  max="200"
+                  value={formData.body_length || ""}
+                  onChange={(e) =>
+                    onInputChange(
+                      "body_length",
+                      parseFloat(e.target.value) || 0
+                    )
+                  }
+                  className="border-brand-teal/30 focus:border-brand-teal focus:ring-brand-teal/20"
+                />
+              </div>
+            </div>
+
+            {/* ASI Eksklusif */}
             <div className="space-y-3">
-              <Label className="text-slate-700 font-medium">
-                Pemberian ASI Eksklusif
+              <Label className="text-sm font-semibold text-brand-navy flex items-center gap-2">
+                <Baby className="h-4 w-4 text-brand-teal" />
+                ASI Eksklusif
               </Label>
-              <p className="text-xs text-slate-500">
-                ASI eksklusif 6 bulan pertama tanpa makanan/minuman lain
-              </p>
               <RadioGroup
                 value={formData.asi_ekslusif}
                 onValueChange={(value) => onInputChange("asi_ekslusif", value)}
-                className="flex flex-col sm:flex-row gap-4 sm:gap-6"
+                className="flex gap-6"
               >
-                <div className="flex items-center space-x-3 p-3 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors">
+                <div className="flex items-center space-x-2">
                   <RadioGroupItem
-                    value="Yes"
+                    value="yes"
                     id="asi-yes"
-                    className="text-slate-600"
+                    className="border-brand-teal text-brand-teal"
                   />
-                  <Label
-                    htmlFor="asi-yes"
-                    className="cursor-pointer text-slate-700"
-                  >
+                  <Label htmlFor="asi-yes" className="text-slate-700">
                     Ya
                   </Label>
                 </div>
-                <div className="flex items-center space-x-3 p-3 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors">
+                <div className="flex items-center space-x-2">
                   <RadioGroupItem
-                    value="No"
+                    value="no"
                     id="asi-no"
-                    className="text-slate-600"
+                    className="border-brand-teal text-brand-teal"
                   />
-                  <Label
-                    htmlFor="asi-no"
-                    className="cursor-pointer text-slate-700"
-                  >
+                  <Label htmlFor="asi-no" className="text-slate-700">
                     Tidak
                   </Label>
                 </div>
@@ -279,19 +255,18 @@ export const StuntingForm = forwardRef<HTMLDivElement, StuntingFormProps>(
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
               disabled={!isFormValid() || loading}
+              className="w-full bg-brand-navy hover:bg-brand-navy/90 text-white py-6 text-lg font-semibold transition-all duration-300 hover:scale-[1.02] disabled:hover:scale-100 group"
             >
               {loading ? (
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Memproses dengan AI...
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Menganalisis...
                 </div>
               ) : (
-                <div className="flex items-center gap-2">
-                  <Brain className="h-4 w-4" />
-                  Mulai Evaluasi AI
-                  <ChevronRight className="h-4 w-4" />
+                <div className="flex items-center justify-center gap-2">
+                  <Send className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  Analisis Stunting
                 </div>
               )}
             </Button>

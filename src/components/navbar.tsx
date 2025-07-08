@@ -48,20 +48,20 @@ export default function Navbar() {
     const baseClass = "relative px-4 py-2 transition-all duration-300 group";
 
     if (pathname === currentPath) {
-      return `${baseClass} font-bold text-slate-900`;
+      return `${baseClass} font-bold text-brand-navy`;
     }
 
-    return `${baseClass} font-medium text-slate-600 hover:text-slate-900`;
+    return `${baseClass} font-medium text-slate-600 hover:text-brand-navy`;
   };
 
   return (
     <nav
       className={`fixed top-0 z-50 w-full font-sans transition-all duration-500 ${
-        isMenuOpen ? "bg-white shadow-lg" : ""
+        isMenuOpen ? "bg-white shadow-lg border-brand-teal border-2" : ""
       } ${
         isScrolled
-          ? "transform translate-y-2 scale-x-95 mx-4 rounded-xl bg-white/95 backdrop-blur-md shadow-lg border border-white/20"
-          : "bg-white/80 backdrop-blur-md border-b border-white/20"
+          ? "transform translate-y-2 scale-x-95 mx-4 rounded-xl bg-white/95 backdrop-blur-md shadow-lg border-2 border-brand-teal/20"
+          : "bg-white/80 backdrop-blur-md border-b-2 border-brand-teal/20"
       }`}
     >
       <div
@@ -77,8 +77,8 @@ export default function Navbar() {
                 isScrolled ? "text-lg md:text-xl" : "text-xl md:text-2xl"
               }`}
             >
-              <span className="font-bold italic text-slate-900">Laiyolo</span>
-              <span className="font-normal text-slate-600">Baru</span>
+              <span className="font-bold italic text-brand-navy">Laiyolo</span>
+              <span className="font-normal text-brand-teal">Baru</span>
             </span>
           </Link>
 
@@ -99,7 +99,7 @@ export default function Navbar() {
                 </span>
                 {/* Underline animation for non-active items */}
                 {pathname !== item.path && (
-                  <span className="absolute bottom-0 left-1/2 h-0.5 w-0 bg-slate-900 transition-all duration-300 group-hover:left-4 group-hover:w-[calc(100%-2rem)]"></span>
+                  <span className="absolute bottom-0 left-1/2 h-0.5 w-0 bg-brand-teal transition-all duration-300 group-hover:left-4 group-hover:w-[calc(100%-2rem)]"></span>
                 )}
               </Link>
             ))}
@@ -108,7 +108,7 @@ export default function Navbar() {
           {/* Mobile Menu Button */}
           <button
             onClick={toggleMenu}
-            className="md:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors duration-200"
+            className="md:hidden p-2 rounded-lg text-brand-navy hover:text-brand-teal hover:bg-brand-teal/10 transition-colors duration-200"
             aria-label="Toggle menu"
           >
             {isMenuOpen ? (
@@ -125,15 +125,15 @@ export default function Navbar() {
             isMenuOpen ? "max-h-64 mt-4" : "max-h-0"
           }`}
         >
-          <div className="py-2 space-y-1 border-t border-slate-100">
+          <div className="py-2 space-y-1 border-t-2 border-brand-teal/20">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 href={item.path}
                 className={`block px-4 py-3 rounded-lg transition-colors duration-200 ${
                   pathname === item.path
-                    ? "font-bold text-slate-900 bg-slate-50"
-                    : "font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                    ? "font-bold text-brand-navy bg-brand-teal/10"
+                    : "font-medium text-slate-600 hover:text-brand-navy hover:bg-brand-teal/10"
                 }`}
               >
                 {item.label}

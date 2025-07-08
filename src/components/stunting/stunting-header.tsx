@@ -1,50 +1,80 @@
-import { Brain, Zap } from "lucide-react";
+"use client";
+
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { Brain, Zap, AlertTriangle } from "lucide-react";
 
 export function StuntingHeader() {
+  const headerRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const descriptionRef = useRef<HTMLParagraphElement>(null);
+  const warningRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const tl = gsap.timeline();
+
+    tl.fromTo(
+      headerRef.current,
+      { y: -50, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8, ease: "power2.out" }
+    )
+      .fromTo(
+        titleRef.current,
+        { scale: 0.8, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(1.7)" },
+        "-=0.4"
+      )
+      .fromTo(
+        descriptionRef.current,
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, ease: "power2.out" },
+        "-=0.3"
+      )
+      .fromTo(
+        warningRef.current,
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" },
+        "-=0.2"
+      );
+  }, []);
+
   return (
-    <div className="text-center mb-8 sm:mb-12">
+    <div ref={headerRef} className="text-center mb-8 sm:mb-12">
       <div className="flex items-center justify-center gap-3 mb-4">
-        <div className="relative p-3 bg-white rounded-2xl shadow-lg border border-slate-200">
-          <Brain className="h-8 w-8 sm:h-10 sm:w-10 text-blue-600" />
-          <div className="absolute -top-1 -right-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full p-1">
-            <Zap className="h-3 w-3 text-white" />
-          </div>
-        </div>
-        <div className="text-left">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-1">
-            Cek Risiko Stunting
-          </h1>
-          <div className="flex items-center gap-2 text-sm text-blue-600 font-medium">
-            <Zap className="h-4 w-4" />
-            Powered by AI
+        <div className="relative p-3 bg-white rounded-2xl shadow-lg border-2 border-brand-teal">
+          <Brain className="h-8 w-8 sm:h-10 sm:w-10 text-brand-navy" />
+          <div className="absolute -top-1 -right-1 bg-brand-yellow rounded-full p-1">
+            <Zap className="h-3 w-3 text-brand-navy" />
           </div>
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto space-y-3">
-        <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-          Evaluasi awal risiko stunting menggunakan kecerdasan buatan
-          berdasarkan data tumbuh kembang anak.
-        </p>
+      <h1
+        ref={titleRef}
+        className="font-sentient text-3xl sm:text-4xl lg:text-5xl font-bold text-brand-navy mb-4 leading-tight"
+      >
+        Deteksi Dini <span className="text-brand-teal italic">Stunting</span>{" "}
+        dengan AI
+      </h1>
 
-        {/* AI Warning Card */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-4 mx-auto max-w-2xl">
-          <div className="flex items-start gap-3">
-            <div className="p-1 bg-blue-100 rounded-lg">
-              <Brain className="h-4 w-4 text-blue-600" />
-            </div>
-            <div className="text-left">
-              <p className="text-sm font-medium text-blue-900 mb-1">
-                🤖 Hasil Prediksi AI
-              </p>
-              <p className="text-xs text-blue-700 leading-relaxed">
-                Hasil ini adalah prediksi AI untuk skrining awal dan{" "}
-                <strong>tidak menggantikan diagnosa medis profesional</strong>.
-                Konsultasikan dengan dokter anak untuk evaluasi lebih lanjut.
-              </p>
-            </div>
-          </div>
-        </div>
+      <p
+        ref={descriptionRef}
+        className="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed mb-6"
+      >
+        Teknologi canggih untuk deteksi dini risiko stunting pada anak dengan
+        akurasi tinggi. Dapatkan analisis komprehensif dan rekomendasi yang
+        tepat untuk kesehatan buah hati Anda.
+      </p>
+
+      <div
+        ref={warningRef}
+        className="inline-flex items-center gap-2 bg-brand-yellow/10 text-brand-navy px-4 py-2 rounded-xl border border-brand-yellow/30"
+      >
+        <AlertTriangle className="h-5 w-5 text-brand-yellow" />
+        <span className="text-sm font-medium">
+          Hasil prediksi AI ini bersifat informatif dan tidak menggantikan
+          konsultasi medis
+        </span>
       </div>
     </div>
   );

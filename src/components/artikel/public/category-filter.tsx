@@ -15,56 +15,49 @@ export function CategoryFilter({
   activeCategory,
   onCategoryChange,
 }: CategoryFilterProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const filterRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const buttons = containerRef.current?.children;
-    if (!buttons) return;
-
-    gsap.fromTo(
-      Array.from(buttons),
-      {
-        y: 20,
-        opacity: 0,
-        scale: 0.8,
-      },
-      {
-        y: 0,
-        opacity: 1,
-        scale: 1,
-        duration: 0.6,
-        ease: "back.out(1.7)",
-        stagger: 0.1,
-      }
-    );
+    if (filterRef.current) {
+      gsap.fromTo(
+        filterRef.current?.children,
+        {
+          x: -30,
+          opacity: 0,
+        },
+        {
+          x: 0,
+          opacity: 1,
+          duration: 0.6,
+          ease: "power2.out",
+          stagger: 0.1,
+        }
+      );
+    }
   }, []);
 
-  const handleCategoryClick = (category: string) => {
-    onCategoryChange(category);
-
-    // Animate button press
-    const button = event?.target as HTMLElement;
-    if (button) {
-      gsap.to(button, {
-        scale: 0.95,
-        duration: 0.1,
-        yoyo: true,
-        repeat: 1,
-        ease: "power2.inOut",
-      });
-    }
-  };
-
   return (
-    <div className="mb-6">
-      <div ref={containerRef} className="flex flex-wrap gap-2">
+    <div className="mb-8">
+      <div
+        ref={filterRef}
+        className="flex flex-wrap gap-2 sm:gap-3 justify-center"
+        role="tablist"
+        aria-label="Filter artikel berdasarkan kategori"
+      >
         {categories.map((category) => (
           <Button
             key={category}
-            variant={category === activeCategory ? "default" : "outline"}
+            variant={activeCategory === category ? "default" : "outline"}
             size="sm"
-            className="text-sm transition-all duration-300 hover:scale-105"
-            onClick={() => handleCategoryClick(category)}
+            onClick={() => onCategoryChange(category)}
+            role="tab"
+            aria-selected={activeCategory === category}
+            aria-controls="articles-list"
+            className={`transition-all duration-300 hover:scale-105 font-medium px-4 py-2 min-h-[40px] ${
+              activeCategory === category
+                ? "bg-brand-navy text-white hover:bg-brand-navy/90 shadow-md border-brand-navy"
+                : "border-2 border-brand-teal text-brand-navy bg-white hover:bg-brand-teal hover:text-white hover:border-brand-teal shadow-sm"
+            }`}
           >
             {category}
           </Button>
