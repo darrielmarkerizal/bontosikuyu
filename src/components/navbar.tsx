@@ -16,7 +16,7 @@ const navItems = [
   },
   {
     label: "Artikel",
-    path: "/dashboard/artikel",
+    path: "/artikel",
   },
 ];
 

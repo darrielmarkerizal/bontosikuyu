@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Search, FileText, Plus } from "lucide-react";
-import { ArticleCard } from "./article-card";
+import { ArticleCard } from "./public/article-card";
 import { Article } from "./article-types";
 
 interface ArticleListProps {
