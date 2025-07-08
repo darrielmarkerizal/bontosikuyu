@@ -18,6 +18,95 @@ interface AISuggestionsProps {
   };
 }
 
+// Function to format AI response with proper styling
+const formatAIResponse = (text: string) => {
+  // Split by double asterisks for main sections
+  const sections = text.split(/\*\*([^*]+)\*\*/);
+  const formattedContent = [];
+
+  for (let i = 0; i < sections.length; i++) {
+    const section = sections[i];
+
+    if (i % 2 === 1) {
+      // This is a heading (between **)
+      formattedContent.push(
+        <h3
+          key={i}
+          className="font-bold text-slate-900 text-base mt-6 mb-3 first:mt-0 flex items-center gap-2"
+        >
+          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+          {section}
+        </h3>
+      );
+    } else {
+      // This is content
+      if (section.trim()) {
+        // Split by single asterisks for sub-items
+        const subItems = section.split(/\*\s+/);
+
+        if (subItems.length > 1) {
+          // Has bullet points
+          formattedContent.push(
+            <div key={i} className="space-y-2">
+              {subItems[0].trim() && (
+                <p className="text-slate-700 text-sm leading-relaxed mb-3">
+                  {subItems[0].trim()}
+                </p>
+              )}
+              <ul className="space-y-2 ml-4">
+                {subItems.slice(1).map((item, idx) => {
+                  if (!item.trim()) return null;
+
+                  // Check if item has bold parts (with ** around them)
+                  const parts = item.split(/\*\*([^*]+)\*\*/);
+
+                  return (
+                    <li key={idx} className="flex items-start gap-3 text-sm">
+                      <div className="w-1.5 h-1.5 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="text-slate-700 leading-relaxed">
+                        {parts.map((part, partIdx) => {
+                          if (partIdx % 2 === 1) {
+                            return (
+                              <strong
+                                key={partIdx}
+                                className="font-semibold text-slate-900"
+                              >
+                                {part}
+                              </strong>
+                            );
+                          }
+                          return part;
+                        })}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        } else {
+          // Regular paragraph
+          const paragraphs = section.split("\n").filter((p) => p.trim());
+          paragraphs.forEach((paragraph, idx) => {
+            if (paragraph.trim()) {
+              formattedContent.push(
+                <p
+                  key={`${i}-${idx}`}
+                  className="text-slate-700 text-sm leading-relaxed mb-3"
+                >
+                  {paragraph.trim()}
+                </p>
+              );
+            }
+          });
+        }
+      }
+    }
+  }
+
+  return formattedContent;
+};
+
 export function AISuggestions({ prediction, childData }: AISuggestionsProps) {
   const [aiSuggestion, setAiSuggestion] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -131,18 +220,27 @@ export function AISuggestions({ prediction, childData }: AISuggestionsProps) {
               </Button>
             </div>
 
-            <div className="prose prose-sm max-w-none">
-              <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
-                <div className="whitespace-pre-wrap text-slate-700 leading-relaxed text-sm">
-                  {aiSuggestion}
-                </div>
+            {/* Formatted AI Response */}
+            <div className="bg-gradient-to-br from-purple-50/50 to-blue-50/50 border border-purple-200/50 rounded-xl p-6">
+              <div className="prose prose-sm max-w-none">
+                {formatAIResponse(aiSuggestion)}
               </div>
             </div>
 
-            <div className="text-xs text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-100">
-              <strong>Catatan:</strong> Saran ini dihasilkan oleh AI dan
-              bersifat informatif. Selalu konsultasikan dengan dokter anak atau
-              ahli gizi untuk mendapatkan penanganan yang tepat.
+            {/* Disclaimer */}
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-5 h-5 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                </div>
+                <div className="text-xs text-amber-800">
+                  <strong className="font-semibold">Catatan Penting:</strong>{" "}
+                  Saran ini dihasilkan oleh AI dan bersifat informatif. Selalu
+                  konsultasikan dengan dokter anak atau ahli gizi untuk
+                  mendapatkan penanganan yang tepat sesuai kondisi spesifik anak
+                  Anda.
+                </div>
+              </div>
             </div>
           </div>
         )}
