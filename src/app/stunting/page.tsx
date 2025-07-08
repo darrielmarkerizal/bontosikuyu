@@ -55,6 +55,8 @@ export default function StuntingPredictionPage() {
         process.env.NEXT_PUBLIC_STUNTING_API_URL ||
         "http://127.0.0.1:8080/predict";
 
+      console.log("Submitting form data:", formData); // Debug log
+
       const response = await axios.post<PredictionResponse>(apiUrl, formData, {
         headers: {
           "Content-Type": "application/json",
@@ -62,27 +64,18 @@ export default function StuntingPredictionPage() {
         timeout: 30000,
       });
 
+      console.log("API Response:", response.data); // Debug log
       setPrediction(response.data);
 
-      // Smooth transition animation
-      if (formCardRef.current && resultsRef.current && containerRef.current) {
+      // Animate transition to results
+      if (formCardRef.current) {
         gsap.to(formCardRef.current, {
           duration: 0.4,
           y: -20,
           opacity: 0,
           ease: "power2.inOut",
           onComplete: () => {
-            setShowForm(false);
-            gsap.fromTo(
-              resultsRef.current,
-              { y: 20, opacity: 0 },
-              {
-                duration: 0.5,
-                y: 0,
-                opacity: 1,
-                ease: "power2.out",
-              }
-            );
+            setShowForm(false); // Hide form after animation
           },
         });
       }
@@ -109,6 +102,7 @@ export default function StuntingPredictionPage() {
   };
 
   const handleReset = () => {
+    // Reset all states first
     setFormData({
       sex: "",
       age: 0,
@@ -121,26 +115,15 @@ export default function StuntingPredictionPage() {
     setPrediction(null);
     setError(null);
 
-    if (resultsRef.current && containerRef.current) {
+    // Animate transition back to form
+    if (resultsRef.current) {
       gsap.to(resultsRef.current, {
         duration: 0.3,
         y: 20,
         opacity: 0,
         ease: "power2.inOut",
         onComplete: () => {
-          setShowForm(true);
-          if (formCardRef.current) {
-            gsap.fromTo(
-              formCardRef.current,
-              { y: -20, opacity: 0 },
-              {
-                duration: 0.4,
-                y: 0,
-                opacity: 1,
-                ease: "power2.out",
-              }
-            );
-          }
+          setShowForm(true); // Show form after animation
         },
       });
     }
@@ -158,15 +141,37 @@ export default function StuntingPredictionPage() {
     );
   };
 
+  // Animation for results when prediction is available
   useEffect(() => {
-    if (formCardRef.current) {
+    if (prediction && !showForm && resultsRef.current) {
+      gsap.fromTo(
+        resultsRef.current,
+        { y: 20, opacity: 0 },
+        {
+          duration: 0.5,
+          y: 0,
+          opacity: 1,
+          ease: "power2.out",
+        }
+      );
+    }
+  }, [prediction, showForm]);
+
+  // Initial form animation
+  useEffect(() => {
+    if (showForm && formCardRef.current) {
       gsap.fromTo(
         formCardRef.current,
         { y: 20, opacity: 0 },
         { duration: 0.6, y: 0, opacity: 1, ease: "power2.out" }
       );
     }
-  }, []);
+  }, [showForm]);
+
+  // Debug logs
+  useEffect(() => {
+    console.log("Current state:", { showForm, prediction, error, loading });
+  }, [showForm, prediction, error, loading]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 py-4 sm:py-8">
@@ -187,7 +192,7 @@ export default function StuntingPredictionPage() {
           )}
 
           {/* Results Section */}
-          {!showForm && (
+          {!showForm && (prediction || error) && (
             <PredictionResults
               ref={resultsRef}
               prediction={prediction}
