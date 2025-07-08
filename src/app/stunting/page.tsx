@@ -31,46 +31,11 @@ import {
   Activity,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-
-interface PredictionInput {
-  sex: string;
-  age: number;
-  birth_weight: number;
-  birth_length: number;
-  body_weight: number;
-  body_length: number;
-  asi_ekslusif: string;
-}
-
-interface PredictionResponse {
-  disclaimer: string;
-  input_summary: {
-    asi_eksklusif: string;
-    berat_badan_kg: number;
-    berat_lahir_kg: number;
-    jenis_kelamin: string;
-    panjang_lahir_cm: number;
-    tinggi_badan_cm: number;
-    umur_bulan: number;
-  };
-  interpretation: {
-    explanation: string;
-    threshold_info: {
-      "30-49%": string;
-      "50-69%": string;
-      "<30%": string;
-      "≥70%": string;
-    };
-  };
-  next_steps: string[];
-  prediction: {
-    percentage: string;
-    raw_score: number;
-    risk_level: string;
-    status: string;
-  };
-  recommendation: string;
-}
+import { AISuggestions } from "@/components/stunting/ai-suggestions";
+import {
+  PredictionInput,
+  PredictionResponse,
+} from "@/components/stunting/types";
 
 // Enhanced color scheme based on percentage and risk level
 const getRiskStyle = (riskLevel: string, percentage: string) => {
@@ -699,6 +664,20 @@ export default function StuntingPredictionPage() {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* AI Generated Suggestions - NEW */}
+                <AISuggestions
+                  prediction={prediction}
+                  childData={{
+                    age: formData.age,
+                    sex: formData.sex,
+                    weight: formData.body_weight,
+                    height: formData.body_length,
+                    birth_weight: formData.birth_weight,
+                    birth_length: formData.birth_length,
+                    asi_exclusive: formData.asi_ekslusif,
+                  }}
+                />
 
                 {/* Data Summary */}
                 <Card className="shadow-sm border-slate-200 bg-white/95 backdrop-blur-sm">
