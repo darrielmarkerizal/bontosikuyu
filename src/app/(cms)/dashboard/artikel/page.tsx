@@ -8,7 +8,7 @@ import { mockArticles } from "@/components/artikel/article-data";
 
 export default function ArtikelPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [articles, setArticles] = useState(mockArticles);
+  const [articles] = useState(mockArticles);
 
   const handleMoreOptions = (id: number) => {
     // TODO: Implement more options functionality (delete, duplicate, etc.)

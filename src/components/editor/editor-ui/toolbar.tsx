@@ -15,6 +15,7 @@ import {
   INDENT_CONTENT_COMMAND,
   OUTDENT_CONTENT_COMMAND,
   COMMAND_PRIORITY_CRITICAL,
+  $createParagraphNode,
 } from "lexical";
 import {
   $isHeadingNode,
@@ -29,7 +30,7 @@ import {
   REMOVE_LIST_COMMAND,
 } from "@lexical/list";
 import { $setBlocksType } from "@lexical/selection";
-import { $createParagraphNode, $getNearestNodeOfType } from "lexical";
+import { $getNearestNodeOfType } from "@lexical/utils"; // Import from utils instead
 import { mergeRegister } from "@lexical/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -51,14 +52,13 @@ import {
   AlignJustify,
   List,
   ListOrdered,
-  Quote,
   Code,
   Undo,
   Redo,
   Indent,
   Outdent,
   Link,
-  Image,
+  ImageIcon, // Rename to avoid conflict
   Minus,
 } from "lucide-react";
 
@@ -120,7 +120,9 @@ export function Toolbar() {
         const selection = $getSelection();
         if ($isRangeSelection(selection)) {
           $setBlocksType(selection, () =>
-            $createHeadingNode(headingSize as any)
+            $createHeadingNode(
+              headingSize as "h1" | "h2" | "h3" | "h4" | "h5" | "h6"
+            )
           );
         }
       });
@@ -166,7 +168,7 @@ export function Toolbar() {
     return mergeRegister(
       editor.registerCommand(
         SELECTION_CHANGE_COMMAND,
-        (_payload) => {
+        () => {
           updateToolbar();
           return false;
         },
@@ -394,7 +396,7 @@ export function Toolbar() {
             console.log("Insert image");
           }}
         >
-          <Image className="h-4 w-4" />
+          <ImageIcon className="h-4 w-4" />
         </Button>
         <Button
           variant="ghost"

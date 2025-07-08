@@ -13,8 +13,7 @@ import { Toolbar } from "@/components/editor/editor-ui/toolbar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function Plugins() {
-  const [floatingAnchorElem, setFloatingAnchorElem] =
-    useState<HTMLDivElement | null>(null);
+  const [, setFloatingAnchorElem] = useState<HTMLDivElement | null>(null);
 
   const onRef = (_floatingAnchorElem: HTMLDivElement) => {
     if (_floatingAnchorElem !== null) {
