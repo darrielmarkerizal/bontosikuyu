@@ -9,7 +9,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Search, FileText, Plus } from "lucide-react";
 import { ArticleCard } from "./public/article-card";
-import { Article } from "./article-types";
+import { Article } from "./public/types"; // Use the correct Article type
 
 interface ArticleListProps {
   articles: Article[];
@@ -24,8 +24,7 @@ export function ArticleList({
   articles,
   searchTerm,
   onSearchChange,
-  onEditArticle,
-  onMoreOptions,
+
   onAddFirstArticle,
 }: ArticleListProps) {
   const filteredArticles = articles.filter(
@@ -58,13 +57,8 @@ export function ArticleList({
 
         {/* Articles Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredArticles.map((article) => (
-            <ArticleCard
-              key={article.id}
-              article={article}
-              onEdit={onEditArticle}
-              onMoreOptions={onMoreOptions}
-            />
+          {filteredArticles.map((article, index) => (
+            <ArticleCard key={article.id} article={article} index={index} />
           ))}
         </div>
 

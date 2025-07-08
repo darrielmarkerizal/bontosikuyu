@@ -134,26 +134,26 @@ const sidebarArticles: SidebarArticleType[] = [
 
 export default function ArtikelPage() {
   const [activeCategory, setActiveCategory] = useState("Semua");
-  const [displayedArticles, setDisplayedArticles] = useState(
-    articles.slice(1, 5)
-  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const articlesPerPage = 4;
 
   const filteredArticles =
     activeCategory === "Semua"
-      ? displayedArticles
-      : displayedArticles.filter(
-          (article) => article.category === activeCategory
-        );
+      ? articles.slice(1) // Exclude featured article
+      : articles
+          .slice(1)
+          .filter((article) => article.category === activeCategory);
 
-  const handleLoadMore = () => {
-    // Simulate loading more articles
-    setDisplayedArticles((prev) => [
-      ...prev,
-      ...articles.slice(prev.length + 1, prev.length + 3),
-    ]);
+  const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
+  const startIndex = (currentPage - 1) * articlesPerPage;
+  const displayedArticles = filteredArticles.slice(
+    startIndex,
+    startIndex + articlesPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
-
-  const hasMore = displayedArticles.length < articles.length - 1;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -175,9 +175,10 @@ export default function ArtikelPage() {
             />
 
             <ArticlesGrid
-              articles={filteredArticles}
-              onLoadMore={handleLoadMore}
-              hasMore={hasMore}
+              articles={displayedArticles}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
             />
           </div>
 

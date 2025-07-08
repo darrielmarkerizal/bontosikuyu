@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
+import { LenisProvider } from "@/components/lenis-provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -94,8 +95,10 @@ export default function RootLayout({
       <body
         className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${sentient.variable} antialiased bg-slate-50 font-plus-jakarta-sans`}
       >
-        <Navbar />
-        <main className="pt-20">{children}</main>
+        <LenisProvider>
+          <Navbar />
+          <main className="pt-20">{children}</main>
+        </LenisProvider>
       </body>
     </html>
   );
