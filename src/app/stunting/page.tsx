@@ -19,13 +19,16 @@ import {
   Brain,
   CheckCircle,
   Info,
-  TrendingUp,
   User,
   Weight,
   Ruler,
   Calendar,
   Baby,
   RotateCcw,
+  ChevronRight,
+  Shield,
+  Zap,
+  Activity,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -69,27 +72,44 @@ interface PredictionResponse {
   recommendation: string;
 }
 
-const getRiskColor = (riskLevel: string) => {
-  switch (riskLevel) {
-    case "Tinggi":
-      return "bg-red-100 text-red-800 border-red-200";
-    case "Sedang":
-      return "bg-yellow-100 text-yellow-800 border-yellow-200";
-    case "Rendah":
-      return "bg-blue-100 text-blue-800 border-blue-200";
-    default:
-      return "bg-green-100 text-green-800 border-green-200";
+// Enhanced color scheme based on percentage and risk level
+const getRiskStyle = (riskLevel: string, percentage: string) => {
+  const numPercentage = parseFloat(percentage.replace("%", ""));
+
+  if (riskLevel === "Tinggi" || numPercentage >= 70) {
+    return "bg-red-50 text-red-900 border-red-200 shadow-red-100";
+  } else if (
+    riskLevel === "Sedang" ||
+    (numPercentage >= 50 && numPercentage < 70)
+  ) {
+    return "bg-amber-50 text-amber-900 border-amber-200 shadow-amber-100";
+  } else if (
+    riskLevel === "Rendah" ||
+    (numPercentage >= 30 && numPercentage < 50)
+  ) {
+    return "bg-blue-50 text-blue-900 border-blue-200 shadow-blue-100";
+  } else {
+    return "bg-green-50 text-green-900 border-green-200 shadow-green-100";
   }
 };
 
-const getRiskIcon = (riskLevel: string) => {
-  switch (riskLevel) {
-    case "Tinggi":
-      return <AlertTriangle className="h-5 w-5" />;
-    case "Sedang":
-      return <Info className="h-5 w-5" />;
-    default:
-      return <CheckCircle className="h-5 w-5" />;
+const getRiskIcon = (riskLevel: string, percentage: string) => {
+  const numPercentage = parseFloat(percentage.replace("%", ""));
+
+  if (riskLevel === "Tinggi" || numPercentage >= 70) {
+    return <AlertTriangle className="h-5 w-5 text-red-600" />;
+  } else if (
+    riskLevel === "Sedang" ||
+    (numPercentage >= 50 && numPercentage < 70)
+  ) {
+    return <Info className="h-5 w-5 text-amber-600" />;
+  } else if (
+    riskLevel === "Rendah" ||
+    (numPercentage >= 30 && numPercentage < 50)
+  ) {
+    return <Activity className="h-5 w-5 text-blue-600" />;
+  } else {
+    return <CheckCircle className="h-5 w-5 text-green-600" />;
   }
 };
 
@@ -144,23 +164,21 @@ export default function StuntingPredictionPage() {
 
       setPrediction(response.data);
 
-      // Animate form card out and results in
+      // Smooth transition animation
       if (formCardRef.current && resultsRef.current && containerRef.current) {
-        // First animate form card out
         gsap.to(formCardRef.current, {
-          duration: 0.5,
-          x: -100,
+          duration: 0.4,
+          y: -20,
           opacity: 0,
           ease: "power2.inOut",
           onComplete: () => {
             setShowForm(false);
-            // Animate results container from right side
             gsap.fromTo(
               resultsRef.current,
-              { x: 100, opacity: 0 },
+              { y: 20, opacity: 0 },
               {
-                duration: 0.6,
-                x: 0,
+                duration: 0.5,
+                y: 0,
                 opacity: 1,
                 ease: "power2.out",
               }
@@ -174,18 +192,16 @@ export default function StuntingPredictionPage() {
         if (err.response?.data?.message) {
           setError(err.response.data.message);
         } else if (err.code === "ECONNABORTED") {
-          setError("Koneksi timeout. Silakan coba lagi.");
+          setError("Koneksi terputus. Silakan coba lagi.");
         } else if (err.code === "ERR_NETWORK") {
           setError(
-            "Tidak dapat terhubung ke server. Pastikan server AI berjalan di http://127.0.0.1:8080"
+            "Tidak dapat terhubung ke server. Pastikan koneksi internet Anda stabil."
           );
         } else {
-          setError("Network error occurred.");
+          setError("Terjadi kesalahan jaringan.");
         }
       } else {
-        setError(
-          "Terjadi kesalahan saat melakukan prediksi. Silakan coba lagi."
-        );
+        setError("Terjadi kesalahan. Silakan coba lagi.");
       }
     } finally {
       setLoading(false);
@@ -193,7 +209,6 @@ export default function StuntingPredictionPage() {
   };
 
   const handleReset = () => {
-    // Reset form data
     setFormData({
       sex: "",
       age: 0,
@@ -206,24 +221,21 @@ export default function StuntingPredictionPage() {
     setPrediction(null);
     setError(null);
 
-    // Animate back to form view
     if (resultsRef.current && containerRef.current) {
       gsap.to(resultsRef.current, {
-        duration: 0.4,
-        x: 100,
+        duration: 0.3,
+        y: 20,
         opacity: 0,
         ease: "power2.inOut",
         onComplete: () => {
           setShowForm(true);
-
-          // Animate form card back in
           if (formCardRef.current) {
             gsap.fromTo(
               formCardRef.current,
-              { x: -100, opacity: 0 },
+              { y: -20, opacity: 0 },
               {
-                duration: 0.6,
-                x: 0,
+                duration: 0.4,
+                y: 0,
                 opacity: 1,
                 ease: "power2.out",
               }
@@ -246,392 +258,571 @@ export default function StuntingPredictionPage() {
     );
   };
 
-  // Initial animation on mount
   useEffect(() => {
     if (formCardRef.current) {
       gsap.fromTo(
         formCardRef.current,
-        { y: 30, opacity: 0 },
-        { duration: 0.8, y: 0, opacity: 1, ease: "power2.out" }
+        { y: 20, opacity: 0 },
+        { duration: 0.6, y: 0, opacity: 1, ease: "power2.out" }
       );
     }
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <Brain className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Prediksi Stunting dengan AI</h1>
-        </div>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
-          Sistem prediksi stunting menggunakan artificial intelligence untuk
-          melakukan skrining awal berdasarkan data antropometri anak. Hasil ini
-          tidak menggantikan pemeriksaan medis profesional.
-        </p>
-      </div>
-
-      <div ref={containerRef} className="w-full max-w-2xl mx-auto">
-        {/* Form Input - Only show when showForm is true */}
-        {showForm && (
-          <Card ref={formCardRef}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Data Anak
-              </CardTitle>
-              <CardDescription>
-                Masukkan data antropometri anak untuk prediksi stunting
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Jenis Kelamin with Radio */}
-                <div className="space-y-3">
-                  <Label>Jenis Kelamin *</Label>
-                  <RadioGroup
-                    value={formData.sex}
-                    onValueChange={(value) => handleInputChange("sex", value)}
-                    className="flex gap-6"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="M" id="male" />
-                      <Label htmlFor="male">Laki-laki</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="F" id="female" />
-                      <Label htmlFor="female">Perempuan</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                {/* Umur */}
-                <div className="space-y-2">
-                  <Label htmlFor="age" className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    Umur (bulan) *
-                  </Label>
-                  <Input
-                    id="age"
-                    type="number"
-                    min="0"
-                    max="60"
-                    value={formData.age || ""}
-                    onChange={(e) =>
-                      handleInputChange("age", parseInt(e.target.value) || 0)
-                    }
-                    placeholder="Contoh: 39"
-                  />
-                </div>
-
-                {/* Data Kelahiran */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <Baby className="h-4 w-4" />
-                    <Label className="font-medium">Data Kelahiran</Label>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="birth_weight">Berat Lahir (kg) *</Label>
-                      <Input
-                        id="birth_weight"
-                        type="number"
-                        step="0.1"
-                        min="0"
-                        value={formData.birth_weight || ""}
-                        onChange={(e) =>
-                          handleInputChange(
-                            "birth_weight",
-                            parseFloat(e.target.value) || 0
-                          )
-                        }
-                        placeholder="Contoh: 2.8"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="birth_length">Panjang Lahir (cm) *</Label>
-                      <Input
-                        id="birth_length"
-                        type="number"
-                        min="0"
-                        value={formData.birth_length || ""}
-                        onChange={(e) =>
-                          handleInputChange(
-                            "birth_length",
-                            parseInt(e.target.value) || 0
-                          )
-                        }
-                        placeholder="Contoh: 48"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Data Saat Ini */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4" />
-                    <Label className="font-medium">Data Saat Ini</Label>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="body_weight"
-                        className="flex items-center gap-2"
-                      >
-                        <Weight className="h-4 w-4" />
-                        Berat Badan (kg) *
-                      </Label>
-                      <Input
-                        id="body_weight"
-                        type="number"
-                        step="0.1"
-                        min="0"
-                        value={formData.body_weight || ""}
-                        onChange={(e) =>
-                          handleInputChange(
-                            "body_weight",
-                            parseFloat(e.target.value) || 0
-                          )
-                        }
-                        placeholder="Contoh: 7.9"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="body_length"
-                        className="flex items-center gap-2"
-                      >
-                        <Ruler className="h-4 w-4" />
-                        Tinggi Badan (cm) *
-                      </Label>
-                      <Input
-                        id="body_length"
-                        type="number"
-                        step="0.1"
-                        min="0"
-                        value={formData.body_length || ""}
-                        onChange={(e) =>
-                          handleInputChange(
-                            "body_length",
-                            parseFloat(e.target.value) || 0
-                          )
-                        }
-                        placeholder="Contoh: 75.8"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* ASI Eksklusif with Radio */}
-                <div className="space-y-3">
-                  <Label>ASI Eksklusif *</Label>
-                  <RadioGroup
-                    value={formData.asi_ekslusif}
-                    onValueChange={(value) =>
-                      handleInputChange("asi_ekslusif", value)
-                    }
-                    className="flex gap-6"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="Yes" id="asi-yes" />
-                      <Label htmlFor="asi-yes">Ya</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="No" id="asi-no" />
-                      <Label htmlFor="asi-no">Tidak</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={!isFormValid() || loading}
-                >
-                  {loading ? "Memproses..." : "Prediksi Stunting"}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Results */}
-        <div ref={resultsRef} className="space-y-6">
-          {/* Reset Button - Only show when form is hidden and prediction exists */}
-          {!showForm && prediction && (
-            <div className="flex justify-end">
-              <Button
-                variant="outline"
-                onClick={handleReset}
-                className="flex items-center gap-2"
-              >
-                <RotateCcw className="h-4 w-4" />
-                Prediksi Baru
-              </Button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 py-4 sm:py-8">
+      <div className="container mx-auto px-4 max-w-4xl">
+        {/* Enhanced Header with AI warning */}
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="relative p-3 bg-white rounded-2xl shadow-lg border border-slate-200">
+              <Brain className="h-8 w-8 sm:h-10 sm:w-10 text-blue-600" />
+              <div className="absolute -top-1 -right-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full p-1">
+                <Zap className="h-3 w-3 text-white" />
+              </div>
             </div>
+            <div className="text-left">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-1">
+                Cek Risiko Stunting
+              </h1>
+              <div className="flex items-center gap-2 text-sm text-blue-600 font-medium">
+                <Zap className="h-4 w-4" />
+                Powered by AI
+              </div>
+            </div>
+          </div>
+
+          <div className="max-w-3xl mx-auto space-y-3">
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+              Evaluasi awal risiko stunting menggunakan kecerdasan buatan
+              berdasarkan data tumbuh kembang anak.
+            </p>
+
+            {/* AI Warning Card */}
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-4 mx-auto max-w-2xl">
+              <div className="flex items-start gap-3">
+                <div className="p-1 bg-blue-100 rounded-lg">
+                  <Brain className="h-4 w-4 text-blue-600" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-medium text-blue-900 mb-1">
+                    🤖 Hasil Prediksi AI
+                  </p>
+                  <p className="text-xs text-blue-700 leading-relaxed">
+                    Hasil ini adalah prediksi AI untuk skrining awal dan{" "}
+                    <strong>
+                      tidak menggantikan diagnosa medis profesional
+                    </strong>
+                    . Konsultasikan dengan dokter anak untuk evaluasi lebih
+                    lanjut.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div ref={containerRef} className="w-full max-w-3xl mx-auto">
+          {/* Form Input - Enhanced responsive design */}
+          {showForm && (
+            <Card
+              ref={formCardRef}
+              className="shadow-lg border-slate-200 bg-white/95 backdrop-blur-sm"
+            >
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-lg sm:text-xl text-slate-900">
+                  <User className="h-5 w-5 text-slate-600" />
+                  Data Anak
+                </CardTitle>
+                <CardDescription className="text-slate-600">
+                  Masukkan data tumbuh kembang anak dengan lengkap dan akurat
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-2">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Gender Selection - Improved mobile layout */}
+                  <div className="space-y-3">
+                    <Label className="text-slate-700 font-medium">
+                      Jenis Kelamin
+                    </Label>
+                    <RadioGroup
+                      value={formData.sex}
+                      onValueChange={(value) => handleInputChange("sex", value)}
+                      className="flex flex-col sm:flex-row gap-4 sm:gap-6"
+                    >
+                      <div className="flex items-center space-x-3 p-3 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors">
+                        <RadioGroupItem
+                          value="M"
+                          id="male"
+                          className="text-slate-600"
+                        />
+                        <Label
+                          htmlFor="male"
+                          className="cursor-pointer text-slate-700"
+                        >
+                          Laki-laki
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors">
+                        <RadioGroupItem
+                          value="F"
+                          id="female"
+                          className="text-slate-600"
+                        />
+                        <Label
+                          htmlFor="female"
+                          className="cursor-pointer text-slate-700"
+                        >
+                          Perempuan
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  {/* Age Input */}
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="age"
+                      className="flex items-center gap-2 text-slate-700 font-medium"
+                    >
+                      <Calendar className="h-4 w-4 text-slate-500" />
+                      Usia (bulan)
+                    </Label>
+                    <Input
+                      id="age"
+                      type="number"
+                      min="0"
+                      max="60"
+                      value={formData.age || ""}
+                      onChange={(e) =>
+                        handleInputChange("age", parseInt(e.target.value) || 0)
+                      }
+                      placeholder="Contoh: 24"
+                      className="border-slate-200 focus:border-slate-400 h-11"
+                    />
+                    <p className="text-xs text-slate-500">
+                      Usia anak dalam bulan (0-60 bulan)
+                    </p>
+                  </div>
+
+                  {/* Birth Data Section */}
+                  <div className="space-y-4 p-4 bg-slate-50/50 rounded-lg border border-slate-100">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Baby className="h-4 w-4 text-slate-500" />
+                      <Label className="font-medium text-slate-700">
+                        Data Kelahiran
+                      </Label>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="birth_weight"
+                          className="text-slate-700"
+                        >
+                          Berat Lahir (kg)
+                        </Label>
+                        <Input
+                          id="birth_weight"
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          max="10"
+                          value={formData.birth_weight || ""}
+                          onChange={(e) =>
+                            handleInputChange(
+                              "birth_weight",
+                              parseFloat(e.target.value) || 0
+                            )
+                          }
+                          placeholder="Contoh: 3.2"
+                          className="border-slate-200 focus:border-slate-400 h-11"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="birth_length"
+                          className="text-slate-700"
+                        >
+                          Panjang Lahir (cm)
+                        </Label>
+                        <Input
+                          id="birth_length"
+                          type="number"
+                          min="0"
+                          max="70"
+                          value={formData.birth_length || ""}
+                          onChange={(e) =>
+                            handleInputChange(
+                              "birth_length",
+                              parseInt(e.target.value) || 0
+                            )
+                          }
+                          placeholder="Contoh: 48"
+                          className="border-slate-200 focus:border-slate-400 h-11"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Current Data Section */}
+                  <div className="space-y-4 p-4 bg-slate-50/50 rounded-lg border border-slate-100">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Shield className="h-4 w-4 text-slate-500" />
+                      <Label className="font-medium text-slate-700">
+                        Data Saat Ini
+                      </Label>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="body_weight"
+                          className="flex items-center gap-2 text-slate-700"
+                        >
+                          <Weight className="h-4 w-4 text-slate-500" />
+                          Berat Badan (kg)
+                        </Label>
+                        <Input
+                          id="body_weight"
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          max="50"
+                          value={formData.body_weight || ""}
+                          onChange={(e) =>
+                            handleInputChange(
+                              "body_weight",
+                              parseFloat(e.target.value) || 0
+                            )
+                          }
+                          placeholder="Contoh: 12.5"
+                          className="border-slate-200 focus:border-slate-400 h-11"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="body_length"
+                          className="flex items-center gap-2 text-slate-700"
+                        >
+                          <Ruler className="h-4 w-4 text-slate-500" />
+                          Tinggi Badan (cm)
+                        </Label>
+                        <Input
+                          id="body_length"
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          max="150"
+                          value={formData.body_length || ""}
+                          onChange={(e) =>
+                            handleInputChange(
+                              "body_length",
+                              parseFloat(e.target.value) || 0
+                            )
+                          }
+                          placeholder="Contoh: 85.5"
+                          className="border-slate-200 focus:border-slate-400 h-11"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ASI Section */}
+                  <div className="space-y-3">
+                    <Label className="text-slate-700 font-medium">
+                      Pemberian ASI Eksklusif
+                    </Label>
+                    <p className="text-xs text-slate-500">
+                      ASI eksklusif 6 bulan pertama tanpa makanan/minuman lain
+                    </p>
+                    <RadioGroup
+                      value={formData.asi_ekslusif}
+                      onValueChange={(value) =>
+                        handleInputChange("asi_ekslusif", value)
+                      }
+                      className="flex flex-col sm:flex-row gap-4 sm:gap-6"
+                    >
+                      <div className="flex items-center space-x-3 p-3 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors">
+                        <RadioGroupItem
+                          value="Yes"
+                          id="asi-yes"
+                          className="text-slate-600"
+                        />
+                        <Label
+                          htmlFor="asi-yes"
+                          className="cursor-pointer text-slate-700"
+                        >
+                          Ya
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-3 p-3 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors">
+                        <RadioGroupItem
+                          value="No"
+                          id="asi-no"
+                          className="text-slate-600"
+                        />
+                        <Label
+                          htmlFor="asi-no"
+                          className="cursor-pointer text-slate-700"
+                        >
+                          Tidak
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  {/* Submit Button */}
+                  <Button
+                    type="submit"
+                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+                    disabled={!isFormValid() || loading}
+                  >
+                    {loading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Memproses dengan AI...
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Brain className="h-4 w-4" />
+                        Mulai Evaluasi AI
+                        <ChevronRight className="h-4 w-4" />
+                      </div>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           )}
 
-          {error && (
-            <Alert variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+          {/* Results Section - Enhanced with colored alerts */}
+          <div ref={resultsRef} className="space-y-6">
+            {!showForm && prediction && (
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  onClick={handleReset}
+                  className="flex items-center gap-2 border-slate-200 hover:border-slate-300"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  Evaluasi Baru
+                </Button>
+              </div>
+            )}
 
-          {prediction && (
-            <>
-              {/* Disclaimer */}
-              <Alert>
-                <Info className="h-4 w-4" />
-                <AlertTitle>Penting</AlertTitle>
-                <AlertDescription className="text-sm">
-                  {prediction.disclaimer}
+            {error && (
+              <Alert variant="destructive" className="border-red-200 bg-red-50">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle className="text-red-900">
+                  Terjadi Kesalahan
+                </AlertTitle>
+                <AlertDescription className="text-red-700">
+                  {error}
                 </AlertDescription>
               </Alert>
+            )}
 
-              {/* Hasil Prediksi */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Brain className="h-5 w-5" />
-                    Hasil Prediksi
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div
-                    className={`p-4 rounded-lg border-2 ${getRiskColor(prediction.prediction.risk_level)}`}
-                  >
-                    <div className="flex items-center gap-3 mb-2">
-                      {getRiskIcon(prediction.prediction.risk_level)}
+            {prediction && (
+              <>
+                {/* Important Notice */}
+                <Alert className="border-blue-200 bg-blue-50">
+                  <Info className="h-4 w-4 text-blue-600" />
+                  <AlertTitle className="text-blue-900">
+                    Catatan Penting
+                  </AlertTitle>
+                  <AlertDescription className="text-blue-700 text-sm leading-relaxed">
+                    {prediction.disclaimer}
+                  </AlertDescription>
+                </Alert>
+
+                {/* Main Result Card - Enhanced with colors */}
+                <Card className="shadow-lg border-slate-200 bg-white/95 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-slate-900">
+                      <Brain className="h-5 w-5 text-blue-600" />
+                      Hasil Evaluasi AI
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div
+                      className={`p-6 rounded-xl border-2 shadow-lg ${getRiskStyle(
+                        prediction.prediction.risk_level,
+                        prediction.prediction.percentage
+                      )}`}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <div className="flex items-center gap-3">
+                          {getRiskIcon(
+                            prediction.prediction.risk_level,
+                            prediction.prediction.percentage
+                          )}
+                          <div>
+                            <div className="font-semibold text-lg">
+                              {prediction.prediction.status}
+                            </div>
+                            <div className="text-sm opacity-75">
+                              Tingkat Risiko: {prediction.prediction.risk_level}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="sm:ml-auto">
+                          <div className="text-3xl font-bold">
+                            {prediction.prediction.percentage}
+                          </div>
+                          <div className="text-xs opacity-75 text-center">
+                            Confidence Score
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 space-y-4">
                       <div>
-                        <div className="font-semibold text-lg">
-                          {prediction.prediction.status}
-                        </div>
-                        <div className="text-sm opacity-75">
-                          Risiko: {prediction.prediction.risk_level}
-                        </div>
+                        <Label className="font-medium text-slate-900 mb-2 block">
+                          Penjelasan AI
+                        </Label>
+                        <p className="text-sm text-slate-700 leading-relaxed">
+                          {prediction.interpretation.explanation}
+                        </p>
                       </div>
-                      <div className="ml-auto text-2xl font-bold">
-                        {prediction.prediction.percentage}
+
+                      <div>
+                        <Label className="font-medium text-slate-900 mb-2 block">
+                          Rekomendasi
+                        </Label>
+                        <p className="text-sm text-slate-700 leading-relaxed">
+                          {prediction.recommendation}
+                        </p>
                       </div>
                     </div>
-                  </div>
+                  </CardContent>
+                </Card>
 
-                  <div className="space-y-2">
-                    <Label className="font-medium">Penjelasan:</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {prediction.interpretation.explanation}
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label className="font-medium">Rekomendasi:</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {prediction.recommendation}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Ringkasan Input */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Ringkasan Data</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium">Jenis Kelamin:</span>
-                      <span className="ml-2">
-                        {prediction.input_summary.jenis_kelamin}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="font-medium">Umur:</span>
-                      <span className="ml-2">
-                        {prediction.input_summary.umur_bulan} bulan
-                      </span>
-                    </div>
-                    <div>
-                      <span className="font-medium">Berat Lahir:</span>
-                      <span className="ml-2">
-                        {prediction.input_summary.berat_lahir_kg} kg
-                      </span>
-                    </div>
-                    <div>
-                      <span className="font-medium">Panjang Lahir:</span>
-                      <span className="ml-2">
-                        {prediction.input_summary.panjang_lahir_cm} cm
-                      </span>
-                    </div>
-                    <div>
-                      <span className="font-medium">Berat Badan:</span>
-                      <span className="ml-2">
-                        {prediction.input_summary.berat_badan_kg} kg
-                      </span>
-                    </div>
-                    <div>
-                      <span className="font-medium">Tinggi Badan:</span>
-                      <span className="ml-2">
-                        {prediction.input_summary.tinggi_badan_cm} cm
-                      </span>
-                    </div>
-                    <div className="col-span-2">
-                      <span className="font-medium">ASI Eksklusif:</span>
-                      <span className="ml-2">
-                        {prediction.input_summary.asi_eksklusif}
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Langkah Selanjutnya */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Langkah Selanjutnya</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 text-sm">
-                    {prediction.next_steps.map((step, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <div className="mt-1 h-2 w-2 rounded-full bg-primary flex-shrink-0" />
-                        <span>{step}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-
-              {/* Interpretasi Risiko */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Interpretasi Tingkat Risiko</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    {Object.entries(
-                      prediction.interpretation.threshold_info
-                    ).map(([range, description]) => (
-                      <div key={range} className="flex justify-between">
-                        <span className="font-medium">{range}:</span>
-                        <span className="text-muted-foreground">
-                          {description}
+                {/* Data Summary */}
+                <Card className="shadow-sm border-slate-200 bg-white/95 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="text-slate-900">
+                      Ringkasan Data
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                      <div className="p-3 bg-slate-50 rounded-lg">
+                        <span className="font-medium text-slate-900 block">
+                          Jenis Kelamin
+                        </span>
+                        <span className="text-slate-700">
+                          {prediction.input_summary.jenis_kelamin}
                         </span>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </>
-          )}
+                      <div className="p-3 bg-slate-50 rounded-lg">
+                        <span className="font-medium text-slate-900 block">
+                          Usia
+                        </span>
+                        <span className="text-slate-700">
+                          {prediction.input_summary.umur_bulan} bulan
+                        </span>
+                      </div>
+                      <div className="p-3 bg-slate-50 rounded-lg">
+                        <span className="font-medium text-slate-900 block">
+                          Berat Lahir
+                        </span>
+                        <span className="text-slate-700">
+                          {prediction.input_summary.berat_lahir_kg} kg
+                        </span>
+                      </div>
+                      <div className="p-3 bg-slate-50 rounded-lg">
+                        <span className="font-medium text-slate-900 block">
+                          Panjang Lahir
+                        </span>
+                        <span className="text-slate-700">
+                          {prediction.input_summary.panjang_lahir_cm} cm
+                        </span>
+                      </div>
+                      <div className="p-3 bg-slate-50 rounded-lg">
+                        <span className="font-medium text-slate-900 block">
+                          Berat Badan
+                        </span>
+                        <span className="text-slate-700">
+                          {prediction.input_summary.berat_badan_kg} kg
+                        </span>
+                      </div>
+                      <div className="p-3 bg-slate-50 rounded-lg">
+                        <span className="font-medium text-slate-900 block">
+                          Tinggi Badan
+                        </span>
+                        <span className="text-slate-700">
+                          {prediction.input_summary.tinggi_badan_cm} cm
+                        </span>
+                      </div>
+                      <div className="p-3 bg-slate-50 rounded-lg sm:col-span-2 lg:col-span-1">
+                        <span className="font-medium text-slate-900 block">
+                          ASI Eksklusif
+                        </span>
+                        <span className="text-slate-700">
+                          {prediction.input_summary.asi_eksklusif}
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Next Steps */}
+                <Card className="shadow-sm border-slate-200 bg-white/95 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="text-slate-900">
+                      Langkah Selanjutnya
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {prediction.next_steps.map((step, index) => (
+                        <div
+                          key={index}
+                          className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-100"
+                        >
+                          <div className="mt-1 h-2 w-2 rounded-full bg-blue-500 flex-shrink-0" />
+                          <span className="text-sm text-slate-700 leading-relaxed">
+                            {step}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Risk Interpretation */}
+                <Card className="shadow-sm border-slate-200 bg-white/95 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="text-slate-900">
+                      Panduan Tingkat Risiko
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {Object.entries(
+                        prediction.interpretation.threshold_info
+                      ).map(([range, description]) => (
+                        <div
+                          key={range}
+                          className="flex flex-col sm:flex-row sm:justify-between gap-2 p-3 bg-slate-50 rounded-lg border border-slate-100"
+                        >
+                          <span className="font-medium text-slate-900">
+                            {range}
+                          </span>
+                          <span className="text-sm text-slate-700">
+                            {description}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
