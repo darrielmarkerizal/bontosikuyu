@@ -73,7 +73,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="transition-all duration-300">
             <span
-              className={`transition-all duration-300 ${
+              className={`font-sentient transition-all duration-300 ${
                 isScrolled ? "text-lg md:text-xl" : "text-xl md:text-2xl"
               }`}
             >
