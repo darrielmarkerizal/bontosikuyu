@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
 
@@ -71,6 +72,12 @@ const sentient = localFont({
   variable: "--font-sentient",
 });
 
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-plus-jakarta-sans",
+  weight: ["200", "300", "400", "500", "600", "700", "800"],
+});
+
 export const metadata: Metadata = {
   title: "Laiyolobaru.com - Desa Laiyolo Baru",
   description:
@@ -85,7 +92,7 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${sentient.variable} antialiased bg-slate-50`}
+        className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${sentient.variable} antialiased bg-slate-50 font-plus-jakarta-sans`}
       >
         <Navbar />
         <main className="pt-20">{children}</main>

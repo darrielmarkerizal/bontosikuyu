@@ -11,9 +11,10 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-geist-sans)"],
+        sans: ["var(--font-plus-jakarta-sans)", "var(--font-geist-sans)"],
         mono: ["var(--font-geist-mono)"],
         sentient: ["var(--font-sentient)"],
+        "plus-jakarta-sans": ["var(--font-plus-jakarta-sans)"],
       },
       colors: {
         background: "hsl(var(--background))",
