@@ -1,6 +1,7 @@
 import Hero from "@/components/hero";
 import TransitionSection from "@/components/transition-section";
 import VillageSection from "@/components/village-section";
+import ArticlesSection from "@/components/articles-section";
 
 export default function Home() {
   return (
@@ -8,6 +9,7 @@ export default function Home() {
       <Hero />
       <VillageSection />
       <TransitionSection />
+      <ArticlesSection />
     </div>
   );
 }
