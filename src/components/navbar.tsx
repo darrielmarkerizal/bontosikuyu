@@ -24,9 +24,28 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 1);
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Set isScrolled when scrolled more than 1px
+      setIsScrolled(currentScrollY > 1);
+
+      // Hide/show navbar based on scroll direction
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down & past threshold - hide navbar
+        setIsVisible(false);
+      } else {
+        // Scrolling up or at top - show navbar
+        setIsVisible(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
     const handleResize = () => window.innerWidth >= 768 && setIsMenuOpen(false);
 
     window.addEventListener("scroll", handleScroll);
@@ -36,7 +55,7 @@ export default function Navbar() {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [lastScrollY]);
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -60,9 +79,9 @@ export default function Navbar() {
         isMenuOpen ? "bg-white shadow-lg border-brand-teal border-2" : ""
       } ${
         isScrolled
-          ? "transform translate-y-2 scale-x-95 mx-4 rounded-xl bg-white/95 backdrop-blur-md shadow-lg border-2 border-brand-teal/20"
+          ? "bg-white/95 backdrop-blur-md shadow-lg border-b-2 border-brand-teal/20"
           : "bg-white/80 backdrop-blur-md border-b-2 border-brand-teal/20"
-      }`}
+      } ${isVisible ? "translate-y-0" : "-translate-y-full"}`}
     >
       <div
         className={`transition-all duration-500 ${
@@ -72,11 +91,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="transition-all duration-300">
-            <span
-              className={`font-sentient transition-all duration-300 ${
-                isScrolled ? "text-lg md:text-xl" : "text-xl md:text-2xl"
-              }`}
-            >
+            <span className="font-sentient text-xl md:text-2xl">
               <span className="font-bold italic text-brand-navy">Laiyolo</span>
               <span className="font-normal text-brand-teal">Baru</span>
             </span>
@@ -90,13 +105,7 @@ export default function Navbar() {
                 href={item.path}
                 className={getNavItemClass(item.path)}
               >
-                <span
-                  className={`transition-all duration-300 ${
-                    isScrolled ? "text-sm" : "text-base"
-                  }`}
-                >
-                  {item.label}
-                </span>
+                <span className="text-base">{item.label}</span>
                 {/* Underline animation for non-active items */}
                 {pathname !== item.path && (
                   <span className="absolute bottom-0 left-1/2 h-0.5 w-0 bg-brand-teal transition-all duration-300 group-hover:left-4 group-hover:w-[calc(100%-2rem)]"></span>

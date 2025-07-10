@@ -17,11 +17,15 @@ const config: Config = {
         "plus-jakarta-sans": ["var(--font-plus-jakarta-sans)"],
       },
       colors: {
-        // Brand Colors
+        // Brand Colors - Updated with new branding
         brand: {
-          navy: "#0B3B74",
-          teal: "#21BCA8",
+          primary: "#F8B72C", // Warna utama (kuning)
+          secondary: "#173A57", // Warna sekunder (navy)
+          accent: "#21BCA8", // Warna aksen (teal)
+          // Aliases untuk backward compatibility
           yellow: "#F8B72C",
+          navy: "#173A57",
+          teal: "#21BCA8",
         },
         // Extend existing colors
         background: "hsl(var(--background))",
