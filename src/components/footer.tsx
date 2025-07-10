@@ -209,8 +209,7 @@ export default function Footer() {
                   />
                 </div>
                 <span className="text-xs text-gray-500 font-plus-jakarta-sans">
-                  Tim KKN PPM UGM PERIODE II TAHUN {currentYear + 1} SIRUNTU
-                  SELAYAR
+                  Tim KKN PPM UGM PERIODE II TAHUN 2025 SIRUNTU SELAYAR
                 </span>
               </div>
             </div>
