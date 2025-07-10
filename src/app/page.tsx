@@ -1,4 +1,5 @@
 import Hero from "@/components/hero";
+import TransitionSection from "@/components/transition-section";
 import VillageSection from "@/components/village-section";
 
 export default function Home() {
@@ -6,6 +7,7 @@ export default function Home() {
     <div>
       <Hero />
       <VillageSection />
+      <TransitionSection />
     </div>
   );
 }
