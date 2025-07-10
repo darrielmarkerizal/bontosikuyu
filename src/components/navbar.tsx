@@ -86,7 +86,7 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 z-50 w-full font-plus-jakarta-sans transition-all duration-500 ${
+      className={`sticky top-0 z-50 w-full font-plus-jakarta-sans transition-all duration-500 ${
         isMenuOpen ? "bg-white shadow-lg border-brand-primary border-2" : ""
       } ${
         isScrolled
@@ -95,7 +95,7 @@ export default function Navbar() {
       } ${isVisible ? "translate-y-0" : "-translate-y-full"}`}
     >
       <div
-        className={`transition-all duration-500 ${
+        className={`transition-all duration-300 ${
           isScrolled ? "px-6 py-3" : "px-4 py-4 md:px-8"
         }`}
       >
