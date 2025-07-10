@@ -17,6 +17,18 @@ const navItems = [
     label: "Artikel",
     path: "/artikel",
   },
+  {
+    label: "Infografis",
+    path: "/infografis",
+  },
+  {
+    label: "Wisata",
+    path: "/wisata",
+  },
+  {
+    label: "UMKM",
+    path: "/umkm",
+  },
 ];
 
 export default function Navbar() {
