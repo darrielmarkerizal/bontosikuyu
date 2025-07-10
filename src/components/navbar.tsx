@@ -67,20 +67,20 @@ export default function Navbar() {
     const baseClass = "relative px-4 py-2 transition-all duration-300 group";
 
     if (pathname === currentPath) {
-      return `${baseClass} font-bold text-brand-navy`;
+      return `${baseClass} font-bold text-brand-secondary`;
     }
 
-    return `${baseClass} font-medium text-slate-600 hover:text-brand-navy`;
+    return `${baseClass} font-medium text-slate-600 hover:text-brand-secondary`;
   };
 
   return (
     <nav
-      className={`fixed top-0 z-50 w-full font-sans transition-all duration-500 ${
-        isMenuOpen ? "bg-white shadow-lg border-brand-teal border-2" : ""
+      className={`fixed top-0 z-50 w-full font-plus-jakarta-sans transition-all duration-500 ${
+        isMenuOpen ? "bg-white shadow-lg border-brand-primary border-2" : ""
       } ${
         isScrolled
-          ? "bg-white/95 backdrop-blur-md shadow-lg border-b-2 border-brand-teal/20"
-          : "bg-white/80 backdrop-blur-md border-b-2 border-brand-teal/20"
+          ? "bg-white/95 backdrop-blur-md shadow-lg border-b-2 border-brand-primary/20"
+          : "bg-white/80 backdrop-blur-md border-b-2 border-brand-primary/20"
       } ${isVisible ? "translate-y-0" : "-translate-y-full"}`}
     >
       <div
@@ -89,12 +89,48 @@ export default function Navbar() {
         }`}
       >
         <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="transition-all duration-300">
-            <span className="font-sentient text-xl md:text-2xl">
-              <span className="font-bold italic text-brand-navy">Laiyolo</span>
-              <span className="font-normal text-brand-teal">Baru</span>
-            </span>
+          {/* Enhanced Logo with Stylish Underline */}
+          <Link
+            href="/"
+            className="relative group transition-all duration-300 hover:scale-105"
+          >
+            <div className="relative">
+              <span className="font-sentient text-xl md:text-2xl relative">
+                <span className="font-bold italic text-brand-secondary">
+                  Laiyolo
+                </span>
+                <span className="font-normal text-brand-accent">Baru</span>
+
+                {/* Stylish underline that covers the entire logo */}
+                <svg
+                  className="absolute -bottom-1 left-0 w-full h-3 text-brand-primary opacity-70 group-hover:opacity-100 transition-all duration-300"
+                  viewBox="0 0 120 12"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  preserveAspectRatio="none"
+                >
+                  <path
+                    d="M3 8c25-3 45-4 70-1s40 2 44-1"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    className="group-hover:animate-pulse"
+                  />
+                  {/* Additional decorative stroke */}
+                  <path
+                    d="M5 9.5c20-2 35-2 65 0s35 1 42-0.5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    opacity="0.5"
+                    className="group-hover:opacity-80 transition-opacity duration-300"
+                  />
+                </svg>
+              </span>
+
+              {/* Background glow effect on hover */}
+              <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/10 to-brand-accent/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 blur-sm transform -translate-x-1 -translate-y-1 scale-110"></div>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
@@ -105,10 +141,12 @@ export default function Navbar() {
                 href={item.path}
                 className={getNavItemClass(item.path)}
               >
-                <span className="text-base">{item.label}</span>
+                <span className="text-base font-plus-jakarta-sans">
+                  {item.label}
+                </span>
                 {/* Underline animation for non-active items */}
                 {pathname !== item.path && (
-                  <span className="absolute bottom-0 left-1/2 h-0.5 w-0 bg-brand-teal transition-all duration-300 group-hover:left-4 group-hover:w-[calc(100%-2rem)]"></span>
+                  <span className="absolute bottom-0 left-1/2 h-0.5 w-0 bg-brand-primary transition-all duration-300 group-hover:left-4 group-hover:w-[calc(100%-2rem)]"></span>
                 )}
               </Link>
             ))}
@@ -117,7 +155,7 @@ export default function Navbar() {
           {/* Mobile Menu Button */}
           <button
             onClick={toggleMenu}
-            className="md:hidden p-2 rounded-lg text-brand-navy hover:text-brand-teal hover:bg-brand-teal/10 transition-colors duration-200"
+            className="md:hidden p-2 rounded-lg text-brand-secondary hover:text-brand-primary hover:bg-brand-primary/10 transition-colors duration-200"
             aria-label="Toggle menu"
           >
             {isMenuOpen ? (
@@ -134,15 +172,15 @@ export default function Navbar() {
             isMenuOpen ? "max-h-64 mt-4" : "max-h-0"
           }`}
         >
-          <div className="py-2 space-y-1 border-t-2 border-brand-teal/20">
+          <div className="py-2 space-y-1 border-t-2 border-brand-primary/20">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 href={item.path}
-                className={`block px-4 py-3 rounded-lg transition-colors duration-200 ${
+                className={`block px-4 py-3 rounded-lg transition-colors duration-200 font-plus-jakarta-sans ${
                   pathname === item.path
-                    ? "font-bold text-brand-navy bg-brand-teal/10"
-                    : "font-medium text-slate-600 hover:text-brand-navy hover:bg-brand-teal/10"
+                    ? "font-bold text-brand-secondary bg-brand-primary/10"
+                    : "font-medium text-slate-600 hover:text-brand-secondary hover:bg-brand-primary/10"
                 }`}
               >
                 {item.label}
