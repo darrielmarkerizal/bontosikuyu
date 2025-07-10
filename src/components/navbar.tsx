@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
 
 const navItems = [
   {
@@ -95,41 +94,30 @@ export default function Navbar() {
             className="relative group transition-all duration-300 hover:scale-105"
           >
             <div className="relative">
-              <span className="font-sentient text-xl md:text-2xl relative">
-                <span className="font-bold italic text-brand-secondary">
+              <span className="font-sentient text-xl md:text-2xl">
+                <span className="font-bold italic text-brand-secondary relative">
                   Laiyolo
+                  {/* Decorative underline stroke */}
+                  <svg
+                    className="absolute -bottom-1 left-0 w-full h-2 text-brand-primary opacity-80 group-hover:opacity-100 transition-opacity duration-300"
+                    viewBox="0 0 100 8"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M2 6c20-4 40-4 60 0s36 4 36 0"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      className="animate-pulse"
+                    />
+                  </svg>
                 </span>
-                <span className="font-normal text-brand-accent">Baru</span>
-
-                {/* Stylish underline that covers the entire logo */}
-                <svg
-                  className="absolute -bottom-1 left-0 w-full h-3 text-brand-primary opacity-70 group-hover:opacity-100 transition-all duration-300"
-                  viewBox="0 0 120 12"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  preserveAspectRatio="none"
-                >
-                  <path
-                    d="M3 8c25-3 45-4 70-1s40 2 44-1"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    className="group-hover:animate-pulse"
-                  />
-                  {/* Additional decorative stroke */}
-                  <path
-                    d="M5 9.5c20-2 35-2 65 0s35 1 42-0.5"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    opacity="0.5"
-                    className="group-hover:opacity-80 transition-opacity duration-300"
-                  />
-                </svg>
+                <span className="font-normal text-brand-accent ml-1">Baru</span>
               </span>
 
               {/* Background glow effect on hover */}
-              <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/10 to-brand-accent/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 blur-sm transform -translate-x-1 -translate-y-1 scale-110"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-brand-primary/10 to-brand-accent/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 blur-sm"></div>
             </div>
           </Link>
 
@@ -152,17 +140,48 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Enhanced Animated Mobile Menu Button */}
           <button
             onClick={toggleMenu}
-            className="md:hidden p-2 rounded-lg text-brand-secondary hover:text-brand-primary hover:bg-brand-primary/10 transition-colors duration-200"
+            className="md:hidden relative p-3 rounded-xl text-brand-secondary hover:text-brand-primary hover:bg-brand-primary/10 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 group"
             aria-label="Toggle menu"
           >
-            {isMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
+            {/* Animated Hamburger Lines */}
+            <div className="relative w-6 h-6 flex flex-col justify-center items-center">
+              {/* Top Line */}
+              <span
+                className={`absolute h-0.5 w-6 bg-current transform transition-all duration-300 ease-in-out ${
+                  isMenuOpen
+                    ? "rotate-45 translate-y-0"
+                    : "-translate-y-2 group-hover:w-7"
+                }`}
+              />
+
+              {/* Middle Line */}
+              <span
+                className={`absolute h-0.5 w-6 bg-current transform transition-all duration-300 ease-in-out ${
+                  isMenuOpen
+                    ? "opacity-0 scale-0"
+                    : "opacity-100 scale-100 group-hover:w-5"
+                }`}
+              />
+
+              {/* Bottom Line */}
+              <span
+                className={`absolute h-0.5 w-6 bg-current transform transition-all duration-300 ease-in-out ${
+                  isMenuOpen
+                    ? "-rotate-45 translate-y-0"
+                    : "translate-y-2 group-hover:w-7"
+                }`}
+              />
+            </div>
+
+            {/* Ripple Effect Background */}
+            <div
+              className={`absolute inset-0 rounded-xl bg-brand-primary/20 transform transition-all duration-300 ${
+                isMenuOpen ? "scale-100 opacity-100" : "scale-0 opacity-0"
+              }`}
+            />
           </button>
         </div>
 
