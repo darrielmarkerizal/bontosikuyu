@@ -28,7 +28,7 @@ export function NumberTicker({
     damping: 60,
     stiffness: 100,
   });
-  const isInView = useInView(ref, { once: true, margin: "0px" });
+  const isInView = useInView(ref, { once: false, margin: "0px" });
 
   useEffect(() => {
     if (isInView) {
@@ -36,6 +36,9 @@ export function NumberTicker({
         motionValue.set(direction === "down" ? startValue : value);
       }, delay * 1000);
       return () => clearTimeout(timer);
+    } else {
+      // Reset to start value when out of view
+      motionValue.set(direction === "down" ? value : startValue);
     }
   }, [motionValue, isInView, delay, value, direction, startValue]);
 
@@ -49,7 +52,7 @@ export function NumberTicker({
           }).format(Number(latest.toFixed(decimalPlaces)));
         }
       }),
-    [springValue, decimalPlaces],
+    [springValue, decimalPlaces]
   );
 
   return (
@@ -57,7 +60,7 @@ export function NumberTicker({
       ref={ref}
       className={cn(
         "inline-block tabular-nums tracking-wider text-black dark:text-white",
-        className,
+        className
       )}
       {...props}
     >
