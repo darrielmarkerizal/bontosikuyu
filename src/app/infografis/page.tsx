@@ -304,39 +304,44 @@ export default function InfografisPage() {
                     </p>
                   </div>
                 </div>
-                <div>
+                <div className="flex flex-col justify-center">
                   <h4 className="text-lg font-sentient font-semibold text-center mb-4 text-brand-secondary">
                     Diagram Distribusi Gender
                   </h4>
-                  <ChartContainer config={chartConfig} className="h-[300px]">
-                    <PieChart>
-                      <Pie
-                        data={genderChartData}
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={100}
-                        dataKey="value"
-                        label={({ name, percentage }) =>
-                          `${name}: ${percentage}%`
-                        }
-                        labelLine={false}
-                      >
-                        {genderChartData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.fill} />
-                        ))}
-                      </Pie>
-                      <ChartTooltip
-                        content={
-                          <ChartTooltipContent
-                            formatter={(value, name) => [
-                              `${value} orang`,
-                              name as string,
-                            ]}
-                          />
-                        }
-                      />
-                    </PieChart>
-                  </ChartContainer>
+                  <div className="flex items-center justify-center">
+                    <ChartContainer
+                      config={chartConfig}
+                      className="h-[300px] w-full"
+                    >
+                      <PieChart>
+                        <Pie
+                          data={genderChartData}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={100}
+                          dataKey="value"
+                          label={({ name, percentage }) =>
+                            `${name}: ${percentage}%`
+                          }
+                          labelLine={false}
+                        >
+                          {genderChartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                        <ChartTooltip
+                          content={
+                            <ChartTooltipContent
+                              formatter={(value, name) => [
+                                `${value} orang`,
+                                name as string,
+                              ]}
+                            />
+                          }
+                        />
+                      </PieChart>
+                    </ChartContainer>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -367,37 +372,42 @@ export default function InfografisPage() {
                     </div>
                   ))}
                 </div>
-                <div>
+                <div className="flex flex-col justify-center">
                   <h4 className="text-lg font-sentient font-semibold text-center mb-4 text-brand-secondary">
                     Diagram Distribusi Agama
                   </h4>
-                  <ChartContainer config={chartConfig} className="h-[300px]">
-                    <BarChart
-                      data={religionChartData}
-                      margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                  <div className="flex items-center justify-center">
+                    <ChartContainer
+                      config={chartConfig}
+                      className="h-[300px] w-full"
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                      <XAxis
-                        dataKey="name"
-                        tick={{ fontSize: 12 }}
-                        angle={-45}
-                        textAnchor="end"
-                        height={80}
-                      />
-                      <YAxis tick={{ fontSize: 12 }} />
-                      <ChartTooltip
-                        content={
-                          <ChartTooltipContent
-                            formatter={(value, name) => [
-                              `${value} orang`,
-                              name as string,
-                            ]}
-                          />
-                        }
-                      />
-                      <Bar dataKey="value" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ChartContainer>
+                      <BarChart
+                        data={religionChartData}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                        <XAxis
+                          dataKey="name"
+                          tick={{ fontSize: 12 }}
+                          angle={-45}
+                          textAnchor="end"
+                          height={80}
+                        />
+                        <YAxis tick={{ fontSize: 12 }} />
+                        <ChartTooltip
+                          content={
+                            <ChartTooltipContent
+                              formatter={(value, name) => [
+                                `${value} orang`,
+                                name as string,
+                              ]}
+                            />
+                          }
+                        />
+                        <Bar dataKey="value" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ChartContainer>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -449,37 +459,42 @@ export default function InfografisPage() {
                     </div>
                   ))}
                 </div>
-                <div>
+                <div className="flex flex-col justify-center">
                   <h4 className="text-lg font-sentient font-semibold text-center mb-4 text-brand-secondary">
                     Diagram Kelompok Usia
                   </h4>
-                  <ChartContainer config={chartConfig} className="h-[300px]">
-                    <PieChart>
-                      <Pie
-                        data={ageChartData}
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={100}
-                        dataKey="value"
-                        label={({ percentage }) => `${percentage}%`}
-                      >
-                        {ageChartData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.fill} />
-                        ))}
-                      </Pie>
-                      <ChartTooltip
-                        content={
-                          <ChartTooltipContent
-                            formatter={(value, name) => [
-                              `${value} orang`,
-                              name as string,
-                            ]}
-                          />
-                        }
-                      />
-                      <ChartLegend content={<ChartLegendContent />} />
-                    </PieChart>
-                  </ChartContainer>
+                  <div className="flex items-center justify-center">
+                    <ChartContainer
+                      config={chartConfig}
+                      className="h-[300px] w-full"
+                    >
+                      <PieChart>
+                        <Pie
+                          data={ageChartData}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={100}
+                          dataKey="value"
+                          label={({ percentage }) => `${percentage}%`}
+                        >
+                          {ageChartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                        <ChartTooltip
+                          content={
+                            <ChartTooltipContent
+                              formatter={(value, name) => [
+                                `${value} orang`,
+                                name as string,
+                              ]}
+                            />
+                          }
+                        />
+                        <ChartLegend content={<ChartLegendContent />} />
+                      </PieChart>
+                    </ChartContainer>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -529,43 +544,48 @@ export default function InfografisPage() {
                     );
                   })}
                 </div>
-                <div>
+                <div className="flex flex-col justify-center">
                   <h4 className="text-lg font-sentient font-semibold text-center mb-4 text-brand-secondary">
                     Diagram Tingkat Pendidikan
                   </h4>
-                  <ChartContainer config={chartConfig} className="h-[300px]">
-                    <AreaChart
-                      data={educationChartData}
-                      margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                  <div className="flex items-center justify-center">
+                    <ChartContainer
+                      config={chartConfig}
+                      className="h-[300px] w-full"
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                      <XAxis
-                        dataKey="name"
-                        tick={{ fontSize: 12 }}
-                        angle={-45}
-                        textAnchor="end"
-                        height={80}
-                      />
-                      <YAxis tick={{ fontSize: 12 }} />
-                      <ChartTooltip
-                        content={
-                          <ChartTooltipContent
-                            formatter={(value, name) => [
-                              `${value} orang`,
-                              name as string,
-                            ]}
-                          />
-                        }
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="value"
-                        stroke="#173A57"
-                        fill="#173A57"
-                        fillOpacity={0.6}
-                      />
-                    </AreaChart>
-                  </ChartContainer>
+                      <AreaChart
+                        data={educationChartData}
+                        margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                        <XAxis
+                          dataKey="name"
+                          tick={{ fontSize: 12 }}
+                          angle={-45}
+                          textAnchor="end"
+                          height={80}
+                        />
+                        <YAxis tick={{ fontSize: 12 }} />
+                        <ChartTooltip
+                          content={
+                            <ChartTooltipContent
+                              formatter={(value, name) => [
+                                `${value} orang`,
+                                name as string,
+                              ]}
+                            />
+                          }
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="value"
+                          stroke="#173A57"
+                          fill="#173A57"
+                          fillOpacity={0.6}
+                        />
+                      </AreaChart>
+                    </ChartContainer>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -638,37 +658,42 @@ export default function InfografisPage() {
                     );
                   })}
                 </div>
-                <div>
+                <div className="flex flex-col justify-center">
                   <h4 className="text-lg font-sentient font-semibold text-center mb-4 text-brand-secondary">
                     Diagram Mata Pencaharian
                   </h4>
-                  <ChartContainer config={chartConfig} className="h-[350px]">
-                    <BarChart
-                      data={occupationChartData}
-                      layout="horizontal"
-                      margin={{ top: 20, right: 30, left: 80, bottom: 20 }}
+                  <div className="flex items-center justify-center">
+                    <ChartContainer
+                      config={chartConfig}
+                      className="h-[350px] w-full"
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                      <XAxis type="number" tick={{ fontSize: 12 }} />
-                      <YAxis
-                        type="category"
-                        dataKey="name"
-                        tick={{ fontSize: 10 }}
-                        width={75}
-                      />
-                      <ChartTooltip
-                        content={
-                          <ChartTooltipContent
-                            formatter={(value, name, props) => [
-                              `${value} orang`,
-                              props.payload?.fullName || (name as string),
-                            ]}
-                          />
-                        }
-                      />
-                      <Bar dataKey="value" radius={[0, 4, 4, 0]} />
-                    </BarChart>
-                  </ChartContainer>
+                      <BarChart
+                        data={occupationChartData}
+                        layout="horizontal"
+                        margin={{ top: 20, right: 30, left: 80, bottom: 20 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                        <XAxis type="number" tick={{ fontSize: 12 }} />
+                        <YAxis
+                          type="category"
+                          dataKey="name"
+                          tick={{ fontSize: 10 }}
+                          width={75}
+                        />
+                        <ChartTooltip
+                          content={
+                            <ChartTooltipContent
+                              formatter={(value, name, props) => [
+                                `${value} orang`,
+                                props.payload?.fullName || (name as string),
+                              ]}
+                            />
+                          }
+                        />
+                        <Bar dataKey="value" radius={[0, 4, 4, 0]} />
+                      </BarChart>
+                    </ChartContainer>
+                  </div>
                 </div>
               </div>
 
