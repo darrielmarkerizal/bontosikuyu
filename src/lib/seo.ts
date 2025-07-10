@@ -1,5 +1,3 @@
-import { Metadata } from "next";
-
 export interface SEOProps {
   title?: string;
   description?: string;
