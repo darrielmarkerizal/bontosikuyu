@@ -461,7 +461,7 @@ export default function InfografisPage() {
                         cy="50%"
                         outerRadius={100}
                         dataKey="value"
-                        label={({ name, percentage }) => `${percentage}%`}
+                        label={({ percentage }) => `${percentage}%`}
                       >
                         {ageChartData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.fill} />
