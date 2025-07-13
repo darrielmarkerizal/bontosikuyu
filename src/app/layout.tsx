@@ -97,10 +97,9 @@ export default function RootLayout({
       <body
         className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${sentient.variable} antialiased font-plus-jakarta-sans`}
         style={{
-          backgroundColor: "#0f172a", // Dark background to match hero
+          backgroundColor: "#173A57", // Brand secondary color
           margin: 0,
           padding: 0,
-          overflow: "hidden", // Prevent any scrolling during loading
         }}
       >
         <ClientLayout>

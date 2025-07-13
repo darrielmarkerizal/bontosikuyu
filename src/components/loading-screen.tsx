@@ -6,18 +6,15 @@ import { HyperText } from "@/components/magicui/hyper-text";
 
 interface LoadingScreenProps {
   onComplete: () => void;
-  onTransitionStart?: () => void;
 }
 
-export default function LoadingScreen({
-  onComplete,
-  onTransitionStart,
-}: LoadingScreenProps) {
+export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const circleRef = useRef<HTMLDivElement>(null);
   const particlesRef = useRef<HTMLDivElement>(null);
   const waveRef = useRef<HTMLDivElement>(null);
   const morphRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
   const [isAnimating, setIsAnimating] = useState(true);
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [triggerAnimation, setTriggerAnimation] = useState(0);
@@ -30,8 +27,10 @@ export default function LoadingScreen({
     const particles = particlesRef.current;
     const wave = waveRef.current;
     const morph = morphRef.current;
+    const overlay = overlayRef.current;
 
-    if (!container || !circle || !particles || !wave || !morph) return;
+    if (!container || !circle || !particles || !wave || !morph || !overlay)
+      return;
 
     // Initial setup
     gsap.set(container, { y: "0%", opacity: 1 });
@@ -39,6 +38,7 @@ export default function LoadingScreen({
     gsap.set(particles, { opacity: 0 });
     gsap.set(wave, { scaleX: 0, transformOrigin: "center" });
     gsap.set(morph, { scale: 0, opacity: 0 });
+    gsap.set(overlay, { opacity: 1 });
 
     // Start first animation
     setTimeout(() => {
@@ -52,11 +52,6 @@ export default function LoadingScreen({
         if (nextIndex >= texts.length) {
           clearInterval(textInterval);
 
-          // Call transition start callback
-          if (onTransitionStart) {
-            onTransitionStart();
-          }
-
           // SUPER ADVANCED EXIT ANIMATION
           setTimeout(() => {
             const masterTl = gsap.timeline({
@@ -66,13 +61,17 @@ export default function LoadingScreen({
               },
             });
 
-            // Phase 1: Particle explosion
+            // Phase 1: Particle explosion (keep overlay)
             masterTl
-              .to(particles, {
-                opacity: 1,
-                duration: 0.3,
-                ease: "power2.out",
-              })
+              .to(
+                particles,
+                {
+                  opacity: 1,
+                  duration: 0.3,
+                  ease: "power2.out",
+                },
+                0
+              )
               .to(
                 ".particle",
                 {
@@ -154,31 +153,40 @@ export default function LoadingScreen({
               1.8
             );
 
-            // Phase 5: Final container transformation - reveal content behind
+            // Phase 5: Container transformation
+            masterTl.to(
+              container,
+              {
+                y: "-50%",
+                scale: 0.95,
+                opacity: 0.5,
+                duration: 0.8,
+                ease: "power2.inOut",
+              },
+              2.5
+            );
+
+            // Phase 6: Final fade - overlay and container together
             masterTl
               .to(
-                container,
+                [overlay, container],
                 {
-                  scale: 1.1,
-                  opacity: 0.7, // More transparent to show content behind
-                  duration: 0.5,
+                  opacity: 0,
+                  duration: 0.6,
                   ease: "power2.inOut",
                 },
-                2.5
+                3.2
               )
               .to(
                 container,
                 {
                   y: "-100%",
-                  scale: 0.9,
-                  opacity: 0,
-                  rotationX: -90,
-                  duration: 1,
-                  ease: "power3.inOut",
+                  duration: 0.4,
+                  ease: "power2.inOut",
                 },
-                2.8
+                3.2
               );
-          }, 200); // Reduced delay
+          }, 200);
           return prev;
         }
         setTriggerAnimation(nextIndex + 1);
@@ -189,123 +197,138 @@ export default function LoadingScreen({
     return () => {
       clearInterval(textInterval);
     };
-  }, [onComplete, onTransitionStart, texts.length]);
+  }, [onComplete, texts.length]);
 
   if (!isAnimating) return null;
 
   return (
-    <div
-      ref={containerRef}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-brand-secondary overflow-hidden"
-      style={{ perspective: "1000px" }}
-    >
-      {/* Morphing background */}
+    <>
+      {/* Background overlay - stays until the very end */}
       <div
-        ref={morphRef}
-        className="absolute w-96 h-96 rounded-full"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(248,183,44,0.3) 0%, rgba(33,188,168,0.2) 50%, transparent 100%)",
-          filter: "blur(2px)",
-        }}
+        ref={overlayRef}
+        className="fixed inset-0 z-[99] bg-brand-secondary"
       />
 
-      {/* Wave effect */}
+      {/* Main loading screen */}
       <div
-        ref={waveRef}
-        className="absolute w-96 h-96 rounded-full border-4 border-brand-primary/30"
+        ref={containerRef}
+        className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
         style={{
-          background:
-            "conic-gradient(from 0deg, transparent, rgba(248,183,44,0.1), transparent)",
+          perspective: "1000px",
+          background: "transparent",
         }}
-      />
-
-      {/* Main circle */}
-      <div
-        ref={circleRef}
-        className="absolute w-96 h-96 rounded-full bg-brand-primary/10"
-        style={{
-          boxShadow:
-            "0 0 100px rgba(248,183,44,0.2), inset 0 0 50px rgba(248,183,44,0.1)",
-        }}
-      />
-
-      {/* Particle system */}
-      <div ref={particlesRef} className="absolute inset-0 pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="particle absolute w-2 h-2 rounded-full bg-brand-primary"
-            style={{
-              left: `${50 + Math.sin(i * 0.5) * 20}%`,
-              top: `${50 + Math.cos(i * 0.5) * 20}%`,
-              opacity: 0.6,
-              filter: "blur(0.5px)",
-              boxShadow: "0 0 10px rgba(248,183,44,0.5)",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Geometric shapes */}
-      <div className="absolute inset-0 pointer-events-none">
+      >
+        {/* Morphing background */}
         <div
-          className="absolute w-32 h-32 border border-brand-primary/20 rotate-45"
-          style={{
-            left: "20%",
-            top: "30%",
-            animation: "float 6s ease-in-out infinite",
-          }}
-        />
-        <div
-          className="absolute w-24 h-24 rounded-full border border-brand-accent/20"
-          style={{
-            right: "25%",
-            bottom: "35%",
-            animation: "float 4s ease-in-out infinite reverse",
-          }}
-        />
-        <div
-          className="absolute w-16 h-16 bg-brand-primary/10 rotate-12"
-          style={{
-            left: "70%",
-            top: "20%",
-            clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
-            animation: "float 5s ease-in-out infinite",
-          }}
-        />
-      </div>
-
-      {/* Loading Text */}
-      <div className="relative z-10 text-center">
-        <HyperText
-          className="text-4xl md:text-6xl lg:text-7xl font-sentient font-bold text-brand-primary"
-          duration={800}
-          delay={0}
-          startOnView={false}
-          animateOnHover={false}
-          key={`${currentTextIndex}-${triggerAnimation}`}
-          style={{
-            textShadow:
-              "0 4px 20px rgba(248,183,44,0.4), 0 0 40px rgba(248,183,44,0.2)",
-            filter: "drop-shadow(0 0 10px rgba(248,183,44,0.3))",
-          }}
-        >
-          {texts[currentTextIndex]}
-        </HyperText>
-      </div>
-
-      {/* Ambient light effects */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute w-full h-full opacity-30"
+          ref={morphRef}
+          className="absolute w-96 h-96 rounded-full"
           style={{
             background:
-              "radial-gradient(ellipse at top left, rgba(248,183,44,0.1) 0%, transparent 50%), radial-gradient(ellipse at bottom right, rgba(33,188,168,0.1) 0%, transparent 50%)",
-            animation: "pulse 4s ease-in-out infinite alternate",
+              "radial-gradient(circle, rgba(248,183,44,0.3) 0%, rgba(33,188,168,0.2) 50%, transparent 100%)",
+            filter: "blur(2px)",
           }}
         />
+
+        {/* Wave effect */}
+        <div
+          ref={waveRef}
+          className="absolute w-96 h-96 rounded-full border-4 border-brand-primary/30"
+          style={{
+            background:
+              "conic-gradient(from 0deg, transparent, rgba(248,183,44,0.1), transparent)",
+          }}
+        />
+
+        {/* Main circle */}
+        <div
+          ref={circleRef}
+          className="absolute w-96 h-96 rounded-full bg-brand-primary/10"
+          style={{
+            boxShadow:
+              "0 0 100px rgba(248,183,44,0.2), inset 0 0 50px rgba(248,183,44,0.1)",
+          }}
+        />
+
+        {/* Particle system */}
+        <div
+          ref={particlesRef}
+          className="absolute inset-0 pointer-events-none"
+        >
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="particle absolute w-2 h-2 rounded-full bg-brand-primary"
+              style={{
+                left: `${50 + Math.sin(i * 0.5) * 20}%`,
+                top: `${50 + Math.cos(i * 0.5) * 20}%`,
+                opacity: 0.6,
+                filter: "blur(0.5px)",
+                boxShadow: "0 0 10px rgba(248,183,44,0.5)",
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Geometric shapes */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div
+            className="absolute w-32 h-32 border border-brand-primary/20 rotate-45"
+            style={{
+              left: "20%",
+              top: "30%",
+              animation: "float 6s ease-in-out infinite",
+            }}
+          />
+          <div
+            className="absolute w-24 h-24 rounded-full border border-brand-accent/20"
+            style={{
+              right: "25%",
+              bottom: "35%",
+              animation: "float 4s ease-in-out infinite reverse",
+            }}
+          />
+          <div
+            className="absolute w-16 h-16 bg-brand-primary/10 rotate-12"
+            style={{
+              left: "70%",
+              top: "20%",
+              clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
+              animation: "float 5s ease-in-out infinite",
+            }}
+          />
+        </div>
+
+        {/* Loading Text */}
+        <div className="relative z-10 text-center">
+          <HyperText
+            className="text-4xl md:text-6xl lg:text-7xl font-sentient font-bold text-brand-primary"
+            duration={800}
+            delay={0}
+            startOnView={false}
+            animateOnHover={false}
+            key={`${currentTextIndex}-${triggerAnimation}`}
+            style={{
+              textShadow:
+                "0 4px 20px rgba(248,183,44,0.4), 0 0 40px rgba(248,183,44,0.2)",
+              filter: "drop-shadow(0 0 10px rgba(248,183,44,0.3))",
+            }}
+          >
+            {texts[currentTextIndex]}
+          </HyperText>
+        </div>
+
+        {/* Ambient light effects */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div
+            className="absolute w-full h-full opacity-30"
+            style={{
+              background:
+                "radial-gradient(ellipse at top left, rgba(248,183,44,0.1) 0%, transparent 50%), radial-gradient(ellipse at bottom right, rgba(33,188,168,0.1) 0%, transparent 50%)",
+              animation: "pulse 4s ease-in-out infinite alternate",
+            }}
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 }

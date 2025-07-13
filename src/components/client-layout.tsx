@@ -20,7 +20,6 @@ interface ClientLayoutProps {
 export default function ClientLayout({ children }: ClientLayoutProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingComplete, setIsLoadingComplete] = useState(false);
-  const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
     // Prevent scroll during loading
@@ -29,9 +28,6 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     } else {
       document.body.style.overflow = "unset";
     }
-
-    // Show content immediately on mount
-    setShowContent(true);
 
     return () => {
       document.body.style.overflow = "unset";
@@ -49,32 +45,24 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     }, 100);
   };
 
-  const handleTransitionStart = () => {
-    // This will be called when loading screen starts exit animation
-    // Content is already visible, no need to do anything
-  };
-
   return (
     <LoadingContext.Provider value={{ isLoadingComplete }}>
-      {/* Content always visible behind loading screen */}
+      {/* Normal document flow - can scroll */}
       <div
         style={{
-          position: "fixed",
-          inset: 0,
+          minHeight: "100vh",
+          position: "relative",
           zIndex: 1,
-          visibility: showContent ? "visible" : "hidden",
+          visibility: isLoading ? "hidden" : "visible",
+          opacity: isLoading ? 0 : 1,
+          transition: isLoading ? "none" : "opacity 0.3s ease-out",
         }}
       >
         {children}
       </div>
 
       {/* Loading screen overlays content */}
-      {isLoading && (
-        <LoadingScreen
-          onComplete={handleLoadingComplete}
-          onTransitionStart={handleTransitionStart}
-        />
-      )}
+      {isLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
     </LoadingContext.Provider>
   );
 }
