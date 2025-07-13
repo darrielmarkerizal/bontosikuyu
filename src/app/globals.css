@@ -109,11 +109,24 @@
   }
 }
 
-/* Prevent white flash */
+/* Remove any background that might cause blue flash */
 html,
 body {
-  background-color: #0f172a; /* Dark background to match hero */
+  background: transparent;
   min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure smooth transitions */
+* {
+  box-sizing: border-box;
+}
+
+/* Remove any default backgrounds */
+#__next,
+[data-nextjs-scroll-focus-boundary] {
+  background: transparent;
 }
 
 /* Smooth transitions for all elements */

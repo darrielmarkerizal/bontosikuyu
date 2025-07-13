@@ -6,9 +6,13 @@ import { HyperText } from "@/components/magicui/hyper-text";
 
 interface LoadingScreenProps {
   onComplete: () => void;
+  onTransitionStart?: () => void;
 }
 
-export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
+export default function LoadingScreen({
+  onComplete,
+  onTransitionStart,
+}: LoadingScreenProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const circleRef = useRef<HTMLDivElement>(null);
   const particlesRef = useRef<HTMLDivElement>(null);
@@ -47,6 +51,11 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
         const nextIndex = prev + 1;
         if (nextIndex >= texts.length) {
           clearInterval(textInterval);
+
+          // Call transition start callback
+          if (onTransitionStart) {
+            onTransitionStart();
+          }
 
           // SUPER ADVANCED EXIT ANIMATION
           setTimeout(() => {
@@ -145,13 +154,13 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
               1.8
             );
 
-            // Phase 5: Final container transformation
+            // Phase 5: Final container transformation - reveal content behind
             masterTl
               .to(
                 container,
                 {
                   scale: 1.1,
-                  opacity: 0.8,
+                  opacity: 0.7, // More transparent to show content behind
                   duration: 0.5,
                   ease: "power2.inOut",
                 },
@@ -169,7 +178,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
                 },
                 2.8
               );
-          }, 500);
+          }, 200); // Reduced delay
           return prev;
         }
         setTriggerAnimation(nextIndex + 1);
@@ -180,7 +189,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
     return () => {
       clearInterval(textInterval);
     };
-  }, [onComplete, texts.length]);
+  }, [onComplete, onTransitionStart, texts.length]);
 
   if (!isAnimating) return null;
 

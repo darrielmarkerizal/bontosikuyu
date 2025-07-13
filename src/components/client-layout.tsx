@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, createContext, useContext } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
 import LoadingScreen from "@/components/loading-screen";
 
 interface LoadingContextType {
@@ -20,7 +20,7 @@ interface ClientLayoutProps {
 export default function ClientLayout({ children }: ClientLayoutProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingComplete, setIsLoadingComplete] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
     // Prevent scroll during loading
@@ -30,37 +30,51 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
       document.body.style.overflow = "unset";
     }
 
+    // Show content immediately on mount
+    setShowContent(true);
+
     return () => {
       document.body.style.overflow = "unset";
     };
   }, [isLoading]);
 
   const handleLoadingComplete = () => {
-    // Immediately set loading complete and remove loading screen
+    // Remove loading screen immediately
     setIsLoading(false);
 
-    // Wait a bit then trigger BoxReveal
+    // Trigger BoxReveal after loading is done
     setTimeout(() => {
       setIsLoadingComplete(true);
       window.dispatchEvent(new Event("loadingComplete"));
     }, 100);
   };
 
+  const handleTransitionStart = () => {
+    // This will be called when loading screen starts exit animation
+    // Content is already visible, no need to do anything
+  };
+
   return (
     <LoadingContext.Provider value={{ isLoadingComplete }}>
-      {isLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
+      {/* Content always visible behind loading screen */}
       <div
-        ref={contentRef}
         style={{
-          visibility: "visible",
-          position: "relative",
+          position: "fixed",
+          inset: 0,
           zIndex: 1,
-          opacity: isLoading ? 0 : 1, // Simple opacity control
-          transition: isLoading ? "none" : "opacity 0.8s ease-out",
+          visibility: showContent ? "visible" : "hidden",
         }}
       >
         {children}
       </div>
+
+      {/* Loading screen overlays content */}
+      {isLoading && (
+        <LoadingScreen
+          onComplete={handleLoadingComplete}
+          onTransitionStart={handleTransitionStart}
+        />
+      )}
     </LoadingContext.Provider>
   );
 }

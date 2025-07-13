@@ -95,8 +95,13 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body
-        className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${sentient.variable} antialiased bg-slate-50 font-plus-jakarta-sans`}
-        style={{ backgroundColor: "#0f172a" }} // Set initial background to match hero
+        className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${sentient.variable} antialiased font-plus-jakarta-sans`}
+        style={{
+          backgroundColor: "#0f172a", // Dark background to match hero
+          margin: 0,
+          padding: 0,
+          overflow: "hidden", // Prevent any scrolling during loading
+        }}
       >
         <ClientLayout>
           <LenisProvider>
