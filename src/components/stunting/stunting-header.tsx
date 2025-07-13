@@ -40,26 +40,26 @@ export function StuntingHeader() {
 
   return (
     <div ref={headerRef} className="text-center mb-8 sm:mb-12">
-      <div className="flex items-center justify-center gap-3 mb-4">
-        <div className="relative p-3 bg-white rounded-2xl shadow-lg border-2 border-brand-teal">
-          <Brain className="h-8 w-8 sm:h-10 sm:w-10 text-brand-navy" />
-          <div className="absolute -top-1 -right-1 bg-brand-yellow rounded-full p-1">
-            <Zap className="h-3 w-3 text-brand-navy" />
+      <div className="flex items-center justify-center gap-3 mb-6">
+        <div className="relative p-4 bg-white rounded-2xl shadow-xl border-2 border-brand-accent/30">
+          <Brain className="h-8 w-8 sm:h-10 sm:w-10 text-brand-secondary" />
+          <div className="absolute -top-2 -right-2 bg-brand-primary rounded-full p-2 shadow-lg">
+            <Zap className="h-4 w-4 text-brand-secondary" />
           </div>
         </div>
       </div>
 
       <h1
         ref={titleRef}
-        className="font-sentient text-3xl sm:text-4xl lg:text-5xl font-bold text-brand-navy mb-4 leading-tight"
+        className="font-sentient text-3xl sm:text-4xl lg:text-5xl font-bold text-brand-secondary mb-6 leading-tight"
       >
-        Deteksi Dini <span className="text-brand-teal italic">Stunting</span>{" "}
+        Deteksi Dini <span className="text-brand-accent italic">Stunting</span>{" "}
         dengan AI
       </h1>
 
       <p
         ref={descriptionRef}
-        className="text-lg sm:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed mb-6"
+        className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-8 font-plus-jakarta-sans"
       >
         Teknologi canggih untuk deteksi dini risiko stunting pada anak dengan
         akurasi tinggi. Dapatkan analisis komprehensif dan rekomendasi yang
@@ -68,10 +68,10 @@ export function StuntingHeader() {
 
       <div
         ref={warningRef}
-        className="inline-flex items-center gap-2 bg-brand-yellow/10 text-brand-navy px-4 py-2 rounded-xl border border-brand-yellow/30"
+        className="inline-flex items-center gap-3 bg-brand-primary/10 text-brand-secondary px-6 py-4 rounded-2xl border-2 border-brand-primary/30 shadow-lg backdrop-blur-sm"
       >
-        <AlertTriangle className="h-5 w-5 text-brand-yellow" />
-        <span className="text-sm font-medium">
+        <AlertTriangle className="h-5 w-5 text-brand-primary flex-shrink-0" />
+        <span className="text-sm font-medium font-plus-jakarta-sans">
           Hasil prediksi AI ini bersifat informatif dan tidak menggantikan
           konsultasi medis
         </span>

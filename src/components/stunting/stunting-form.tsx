@@ -36,47 +36,55 @@ export const StuntingForm = forwardRef<HTMLDivElement, StuntingFormProps>(
     return (
       <Card
         ref={ref}
-        className="shadow-xl border-2 border-brand-teal/20 bg-white/95 backdrop-blur-sm"
+        className="shadow-2xl border-2 border-brand-accent/20 bg-white/95 backdrop-blur-sm hover:shadow-xl transition-all duration-300"
       >
-        <CardHeader className="text-center pb-6 border-b border-brand-teal/10">
-          <CardTitle className="text-2xl font-bold text-brand-navy flex items-center justify-center gap-2">
-            <User className="h-6 w-6 text-brand-teal" />
+        <CardHeader className="text-center pb-6 border-b border-brand-accent/20 bg-gradient-to-r from-brand-primary/5 to-brand-accent/5">
+          <CardTitle className="text-2xl font-sentient font-bold text-brand-secondary flex items-center justify-center gap-3">
+            <div className="p-2 bg-brand-accent/10 rounded-xl">
+              <User className="h-6 w-6 text-brand-accent" />
+            </div>
             Data Anak
           </CardTitle>
-          <CardDescription className="text-slate-600 mt-2">
+          <CardDescription className="text-gray-600 mt-3 font-plus-jakarta-sans">
             Masukkan data lengkap anak untuk mendapatkan prediksi akurat
           </CardDescription>
         </CardHeader>
-        <CardContent className="pt-6">
-          <form onSubmit={onSubmit} className="space-y-6">
+        <CardContent className="pt-8">
+          <form onSubmit={onSubmit} className="space-y-8">
             {/* Jenis Kelamin */}
-            <div className="space-y-3">
-              <Label className="text-sm font-semibold text-brand-navy flex items-center gap-2">
-                <User className="h-4 w-4 text-brand-teal" />
+            <div className="space-y-4">
+              <Label className="text-sm font-semibold text-brand-secondary flex items-center gap-2 font-plus-jakarta-sans">
+                <User className="h-4 w-4 text-brand-accent" />
                 Jenis Kelamin
               </Label>
               <RadioGroup
                 value={formData.sex}
                 onValueChange={(value) => onInputChange("sex", value)}
-                className="flex gap-6"
+                className="flex gap-8"
               >
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3 p-3 rounded-xl hover:bg-brand-primary/5 transition-colors">
                   <RadioGroupItem
                     value="male"
                     id="male"
-                    className="border-brand-teal text-brand-teal"
+                    className="border-brand-accent text-brand-accent data-[state=checked]:bg-brand-accent"
                   />
-                  <Label htmlFor="male" className="text-slate-700">
+                  <Label
+                    htmlFor="male"
+                    className="text-gray-700 font-plus-jakarta-sans cursor-pointer"
+                  >
                     Laki-laki
                   </Label>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3 p-3 rounded-xl hover:bg-brand-primary/5 transition-colors">
                   <RadioGroupItem
                     value="female"
                     id="female"
-                    className="border-brand-teal text-brand-teal"
+                    className="border-brand-accent text-brand-accent data-[state=checked]:bg-brand-accent"
                   />
-                  <Label htmlFor="female" className="text-slate-700">
+                  <Label
+                    htmlFor="female"
+                    className="text-gray-700 font-plus-jakarta-sans cursor-pointer"
+                  >
                     Perempuan
                   </Label>
                 </div>
@@ -84,12 +92,12 @@ export const StuntingForm = forwardRef<HTMLDivElement, StuntingFormProps>(
             </div>
 
             {/* Umur */}
-            <div className="space-y-3">
+            <div className="space-y-4">
               <Label
                 htmlFor="age"
-                className="text-sm font-semibold text-brand-navy flex items-center gap-2"
+                className="text-sm font-semibold text-brand-secondary flex items-center gap-2 font-plus-jakarta-sans"
               >
-                <Calendar className="h-4 w-4 text-brand-teal" />
+                <Calendar className="h-4 w-4 text-brand-accent" />
                 Umur (bulan)
               </Label>
               <Input
@@ -102,18 +110,18 @@ export const StuntingForm = forwardRef<HTMLDivElement, StuntingFormProps>(
                 onChange={(e) =>
                   onInputChange("age", parseInt(e.target.value) || 0)
                 }
-                className="border-brand-teal/30 focus:border-brand-teal focus:ring-brand-teal/20"
+                className="border-2 border-brand-accent/30 focus:border-brand-accent focus:ring-brand-accent/20 rounded-xl py-3 font-plus-jakarta-sans"
               />
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 gap-6">
               {/* Berat Lahir */}
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <Label
                   htmlFor="birth_weight"
-                  className="text-sm font-semibold text-brand-navy flex items-center gap-2"
+                  className="text-sm font-semibold text-brand-secondary flex items-center gap-2 font-plus-jakarta-sans"
                 >
-                  <Weight className="h-4 w-4 text-brand-teal" />
+                  <Weight className="h-4 w-4 text-brand-accent" />
                   Berat Lahir (kg)
                 </Label>
                 <Input
@@ -130,17 +138,17 @@ export const StuntingForm = forwardRef<HTMLDivElement, StuntingFormProps>(
                       parseFloat(e.target.value) || 0
                     )
                   }
-                  className="border-brand-teal/30 focus:border-brand-teal focus:ring-brand-teal/20"
+                  className="border-2 border-brand-accent/30 focus:border-brand-accent focus:ring-brand-accent/20 rounded-xl py-3 font-plus-jakarta-sans"
                 />
               </div>
 
               {/* Panjang Lahir */}
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <Label
                   htmlFor="birth_length"
-                  className="text-sm font-semibold text-brand-navy flex items-center gap-2"
+                  className="text-sm font-semibold text-brand-secondary flex items-center gap-2 font-plus-jakarta-sans"
                 >
-                  <Ruler className="h-4 w-4 text-brand-teal" />
+                  <Ruler className="h-4 w-4 text-brand-accent" />
                   Panjang Lahir (cm)
                 </Label>
                 <Input
@@ -157,19 +165,19 @@ export const StuntingForm = forwardRef<HTMLDivElement, StuntingFormProps>(
                       parseFloat(e.target.value) || 0
                     )
                   }
-                  className="border-brand-teal/30 focus:border-brand-teal focus:ring-brand-teal/20"
+                  className="border-2 border-brand-accent/30 focus:border-brand-accent focus:ring-brand-accent/20 rounded-xl py-3 font-plus-jakarta-sans"
                 />
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 gap-6">
               {/* Berat Badan Saat Ini */}
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <Label
                   htmlFor="body_weight"
-                  className="text-sm font-semibold text-brand-navy flex items-center gap-2"
+                  className="text-sm font-semibold text-brand-secondary flex items-center gap-2 font-plus-jakarta-sans"
                 >
-                  <Activity className="h-4 w-4 text-brand-teal" />
+                  <Activity className="h-4 w-4 text-brand-accent" />
                   Berat Badan Saat Ini (kg)
                 </Label>
                 <Input
@@ -186,17 +194,17 @@ export const StuntingForm = forwardRef<HTMLDivElement, StuntingFormProps>(
                       parseFloat(e.target.value) || 0
                     )
                   }
-                  className="border-brand-teal/30 focus:border-brand-teal focus:ring-brand-teal/20"
+                  className="border-2 border-brand-accent/30 focus:border-brand-accent focus:ring-brand-accent/20 rounded-xl py-3 font-plus-jakarta-sans"
                 />
               </div>
 
               {/* Tinggi Badan Saat Ini */}
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <Label
                   htmlFor="body_length"
-                  className="text-sm font-semibold text-brand-navy flex items-center gap-2"
+                  className="text-sm font-semibold text-brand-secondary flex items-center gap-2 font-plus-jakarta-sans"
                 >
-                  <Ruler className="h-4 w-4 text-brand-teal" />
+                  <Ruler className="h-4 w-4 text-brand-accent" />
                   Tinggi Badan Saat Ini (cm)
                 </Label>
                 <Input
@@ -213,39 +221,45 @@ export const StuntingForm = forwardRef<HTMLDivElement, StuntingFormProps>(
                       parseFloat(e.target.value) || 0
                     )
                   }
-                  className="border-brand-teal/30 focus:border-brand-teal focus:ring-brand-teal/20"
+                  className="border-2 border-brand-accent/30 focus:border-brand-accent focus:ring-brand-accent/20 rounded-xl py-3 font-plus-jakarta-sans"
                 />
               </div>
             </div>
 
             {/* ASI Eksklusif */}
-            <div className="space-y-3">
-              <Label className="text-sm font-semibold text-brand-navy flex items-center gap-2">
-                <Baby className="h-4 w-4 text-brand-teal" />
+            <div className="space-y-4">
+              <Label className="text-sm font-semibold text-brand-secondary flex items-center gap-2 font-plus-jakarta-sans">
+                <Baby className="h-4 w-4 text-brand-accent" />
                 ASI Eksklusif
               </Label>
               <RadioGroup
                 value={formData.asi_ekslusif}
                 onValueChange={(value) => onInputChange("asi_ekslusif", value)}
-                className="flex gap-6"
+                className="flex gap-8"
               >
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3 p-3 rounded-xl hover:bg-brand-primary/5 transition-colors">
                   <RadioGroupItem
                     value="yes"
                     id="asi-yes"
-                    className="border-brand-teal text-brand-teal"
+                    className="border-brand-accent text-brand-accent data-[state=checked]:bg-brand-accent"
                   />
-                  <Label htmlFor="asi-yes" className="text-slate-700">
+                  <Label
+                    htmlFor="asi-yes"
+                    className="text-gray-700 font-plus-jakarta-sans cursor-pointer"
+                  >
                     Ya
                   </Label>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-3 p-3 rounded-xl hover:bg-brand-primary/5 transition-colors">
                   <RadioGroupItem
                     value="no"
                     id="asi-no"
-                    className="border-brand-teal text-brand-teal"
+                    className="border-brand-accent text-brand-accent data-[state=checked]:bg-brand-accent"
                   />
-                  <Label htmlFor="asi-no" className="text-slate-700">
+                  <Label
+                    htmlFor="asi-no"
+                    className="text-gray-700 font-plus-jakarta-sans cursor-pointer"
+                  >
                     Tidak
                   </Label>
                 </div>
@@ -256,15 +270,15 @@ export const StuntingForm = forwardRef<HTMLDivElement, StuntingFormProps>(
             <Button
               type="submit"
               disabled={!isFormValid() || loading}
-              className="w-full bg-brand-navy hover:bg-brand-navy/90 text-white py-6 text-lg font-semibold transition-all duration-300 hover:scale-[1.02] disabled:hover:scale-100 group"
+              className="w-full bg-gradient-to-r from-brand-secondary to-brand-secondary/90 hover:from-brand-secondary/90 hover:to-brand-secondary text-white py-6 text-lg font-semibold font-plus-jakarta-sans transition-all duration-300 hover:scale-[1.02] disabled:hover:scale-100 group shadow-xl rounded-xl border-2 border-brand-secondary/20"
             >
               {loading ? (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Menganalisis...
                 </div>
               ) : (
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center justify-center gap-3">
                   <Send className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                   Analisis Stunting
                 </div>

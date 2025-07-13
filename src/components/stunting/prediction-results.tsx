@@ -29,14 +29,14 @@ export const PredictionResults = forwardRef<
     ref
   ) => {
     return (
-      <div ref={ref} className="space-y-6">
+      <div ref={ref} className="space-y-8">
         {/* Reset Button */}
         {prediction && (
           <div className="flex justify-end">
             <Button
               variant="outline"
               onClick={onReset}
-              className="flex items-center gap-2 border-slate-200 hover:border-slate-300"
+              className="flex items-center gap-2 border-2 border-brand-accent/30 hover:border-brand-accent hover:bg-brand-accent/10 text-brand-secondary font-plus-jakarta-sans font-medium rounded-xl px-6 py-3 transition-all duration-300"
             >
               <RotateCcw className="h-4 w-4" />
               Evaluasi Baru
@@ -46,10 +46,15 @@ export const PredictionResults = forwardRef<
 
         {/* Error Alert */}
         {error && (
-          <Alert variant="destructive" className="border-red-200 bg-red-50">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle className="text-red-900">Terjadi Kesalahan</AlertTitle>
-            <AlertDescription className="text-red-700">
+          <Alert
+            variant="destructive"
+            className="border-2 border-red-200 bg-red-50/80 backdrop-blur-sm rounded-xl"
+          >
+            <AlertTriangle className="h-5 w-5" />
+            <AlertTitle className="text-red-900 font-sentient font-bold">
+              Terjadi Kesalahan
+            </AlertTitle>
+            <AlertDescription className="text-red-700 font-plus-jakarta-sans">
               {error}
             </AlertDescription>
           </Alert>
@@ -59,10 +64,12 @@ export const PredictionResults = forwardRef<
         {prediction && (
           <>
             {/* Important Notice */}
-            <Alert className="border-blue-200 bg-blue-50">
-              <Info className="h-4 w-4 text-blue-600" />
-              <AlertTitle className="text-blue-900">Catatan Penting</AlertTitle>
-              <AlertDescription className="text-blue-700 text-sm leading-relaxed">
+            <Alert className="border-2 border-brand-primary/30 bg-brand-primary/10 backdrop-blur-sm rounded-xl">
+              <Info className="h-5 w-5 text-brand-primary" />
+              <AlertTitle className="text-brand-secondary font-sentient font-bold">
+                Catatan Penting
+              </AlertTitle>
+              <AlertDescription className="text-brand-secondary/80 text-sm leading-relaxed font-plus-jakarta-sans">
                 {prediction.disclaimer}
               </AlertDescription>
             </Alert>

@@ -174,7 +174,7 @@ export default function StuntingPredictionPage() {
   }, [showForm, prediction, error, loading]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 py-4 sm:py-8">
+    <div className="min-h-screen bg-white py-4 sm:py-8">
       <div className="container mx-auto px-4 max-w-4xl">
         <StuntingHeader />
 

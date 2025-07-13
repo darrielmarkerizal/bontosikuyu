@@ -32,9 +32,9 @@ const formatAIResponse = (text: string) => {
       formattedContent.push(
         <h3
           key={i}
-          className="font-bold text-slate-900 text-base mt-6 mb-3 first:mt-0 flex items-center gap-2"
+          className="font-sentient font-bold text-brand-secondary text-base mt-6 mb-3 first:mt-0 flex items-center gap-2"
         >
-          <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+          <div className="w-2 h-2 bg-brand-accent rounded-full"></div>
           {section}
         </h3>
       );
@@ -49,7 +49,7 @@ const formatAIResponse = (text: string) => {
           formattedContent.push(
             <div key={i} className="space-y-2">
               {subItems[0].trim() && (
-                <p className="text-slate-700 text-sm leading-relaxed mb-3">
+                <p className="text-gray-700 text-sm leading-relaxed mb-3 font-plus-jakarta-sans">
                   {subItems[0].trim()}
                 </p>
               )}
@@ -62,14 +62,14 @@ const formatAIResponse = (text: string) => {
 
                   return (
                     <li key={idx} className="flex items-start gap-3 text-sm">
-                      <div className="w-1.5 h-1.5 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="text-slate-700 leading-relaxed">
+                      <div className="w-1.5 h-1.5 bg-brand-primary rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="text-gray-700 leading-relaxed font-plus-jakarta-sans">
                         {parts.map((part, partIdx) => {
                           if (partIdx % 2 === 1) {
                             return (
                               <strong
                                 key={partIdx}
-                                className="font-semibold text-slate-900"
+                                className="font-semibold text-brand-secondary"
                               >
                                 {part}
                               </strong>
@@ -92,7 +92,7 @@ const formatAIResponse = (text: string) => {
               formattedContent.push(
                 <p
                   key={`${i}-${idx}`}
-                  className="text-slate-700 text-sm leading-relaxed mb-3"
+                  className="text-gray-700 text-sm leading-relaxed mb-3 font-plus-jakarta-sans"
                 >
                   {paragraph.trim()}
                 </p>
@@ -136,64 +136,66 @@ export function AISuggestions({ prediction, childData }: AISuggestionsProps) {
   };
 
   return (
-    <Card className="shadow-sm border-slate-200 bg-white/95 backdrop-blur-sm">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-slate-900">
-          <div className="p-1 bg-gradient-to-r from-purple-100 to-blue-100 rounded-lg">
-            <Sparkles className="h-4 w-4 text-purple-600" />
+    <Card className="shadow-2xl border-2 border-brand-accent/20 bg-white/95 backdrop-blur-sm hover:shadow-xl transition-all duration-300">
+      <CardHeader className="bg-gradient-to-r from-brand-primary/5 to-brand-accent/5 border-b border-brand-accent/20">
+        <CardTitle className="flex items-center gap-3 text-brand-secondary font-sentient font-bold text-xl">
+          <div className="p-2 bg-gradient-to-r from-brand-primary/20 to-brand-accent/20 rounded-xl">
+            <Sparkles className="h-6 w-6 text-brand-accent" />
           </div>
           Saran Personal dari AI
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-8">
         {!aiSuggestion && !isGenerating && (
-          <div className="text-center py-6">
-            <div className="mb-4">
-              <div className="p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-full w-16 h-16 mx-auto flex items-center justify-center">
-                <Brain className="h-8 w-8 text-purple-600" />
+          <div className="text-center py-8">
+            <div className="mb-6">
+              <div className="p-4 bg-gradient-to-r from-brand-primary/10 to-brand-accent/10 rounded-full w-20 h-20 mx-auto flex items-center justify-center border-2 border-brand-accent/20">
+                <Brain className="h-10 w-10 text-brand-accent" />
               </div>
             </div>
-            <p className="text-slate-600 mb-4 text-sm">
+            <p className="text-gray-600 mb-6 text-sm font-plus-jakarta-sans leading-relaxed max-w-md mx-auto">
               Dapatkan saran nutrisi dan tumbuh kembang yang dipersonalisasi
               berdasarkan kondisi anak Anda menggunakan AI Gemini.
             </p>
             <Button
               onClick={generateSuggestion}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+              className="bg-gradient-to-r from-brand-secondary to-brand-secondary/90 hover:from-brand-secondary/90 hover:to-brand-secondary text-white font-plus-jakarta-sans font-semibold px-8 py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
               disabled={isGenerating}
             >
-              <Sparkles className="h-4 w-4 mr-2" />
+              <Sparkles className="h-5 w-5 mr-2" />
               Buat Saran Personal
             </Button>
           </div>
         )}
 
         {isGenerating && (
-          <div className="text-center py-8">
-            <div className="flex items-center justify-center mb-4">
+          <div className="text-center py-10">
+            <div className="flex items-center justify-center mb-6">
               <div className="relative">
-                <Brain className="h-8 w-8 text-purple-600 animate-pulse" />
+                <Brain className="h-10 w-10 text-brand-accent animate-pulse" />
                 <div className="absolute -top-1 -right-1">
-                  <RefreshCw className="h-4 w-4 text-blue-500 animate-spin" />
+                  <RefreshCw className="h-5 w-5 text-brand-primary animate-spin" />
                 </div>
               </div>
             </div>
-            <p className="text-slate-600 text-sm">
+            <p className="text-gray-600 text-sm font-plus-jakarta-sans mb-6">
               AI sedang menganalisis dan membuat saran khusus untuk anak Anda...
             </p>
-            <div className="mt-4 bg-slate-100 rounded-full h-2 overflow-hidden">
-              <div className="bg-gradient-to-r from-purple-500 to-blue-500 h-full rounded-full animate-pulse w-3/4"></div>
+            <div className="mt-4 bg-gray-200 rounded-full h-3 overflow-hidden max-w-xs mx-auto">
+              <div className="bg-gradient-to-r from-brand-secondary to-brand-accent h-full rounded-full animate-pulse w-3/4 transition-all duration-300"></div>
             </div>
           </div>
         )}
 
         {error && (
-          <div className="text-center py-6">
-            <p className="text-red-600 text-sm mb-4">{error}</p>
+          <div className="text-center py-8">
+            <p className="text-red-600 text-sm mb-6 font-plus-jakarta-sans">
+              {error}
+            </p>
             <Button
               onClick={generateSuggestion}
               variant="outline"
-              className="border-red-200 text-red-600 hover:bg-red-50"
+              className="border-2 border-red-200 text-red-600 hover:bg-red-50 font-plus-jakarta-sans rounded-xl"
             >
               <RefreshCw className="h-4 w-4 mr-2" />
               Coba Lagi
@@ -202,9 +204,9 @@ export function AISuggestions({ prediction, childData }: AISuggestionsProps) {
         )}
 
         {aiSuggestion && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-purple-600 font-medium">
+              <div className="flex items-center gap-2 text-sm text-brand-accent font-medium font-plus-jakarta-sans">
                 <Sparkles className="h-4 w-4" />
                 Saran dari Gemini AI
               </div>
@@ -212,7 +214,7 @@ export function AISuggestions({ prediction, childData }: AISuggestionsProps) {
                 onClick={generateSuggestion}
                 variant="ghost"
                 size="sm"
-                className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                className="text-brand-accent hover:text-brand-accent/80 hover:bg-brand-accent/10 font-plus-jakarta-sans rounded-xl"
                 disabled={isGenerating}
               >
                 <RefreshCw className="h-3 w-3 mr-1" />
@@ -221,19 +223,19 @@ export function AISuggestions({ prediction, childData }: AISuggestionsProps) {
             </div>
 
             {/* Formatted AI Response */}
-            <div className="bg-gradient-to-br from-purple-50/50 to-blue-50/50 border border-purple-200/50 rounded-xl p-6">
+            <div className="bg-gradient-to-br from-brand-primary/5 to-brand-accent/5 border-2 border-brand-accent/20 rounded-2xl p-8">
               <div className="prose prose-sm max-w-none">
                 {formatAIResponse(aiSuggestion)}
               </div>
             </div>
 
             {/* Disclaimer */}
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4">
-              <div className="flex items-start gap-3">
-                <div className="w-5 h-5 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+            <div className="bg-gradient-to-r from-brand-primary/10 to-brand-primary/5 border-2 border-brand-primary/30 rounded-xl p-6">
+              <div className="flex items-start gap-4">
+                <div className="w-6 h-6 bg-brand-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div className="w-2 h-2 bg-brand-primary rounded-full"></div>
                 </div>
-                <div className="text-xs text-amber-800">
+                <div className="text-xs text-brand-secondary font-plus-jakarta-sans">
                   <strong className="font-semibold">Catatan Penting:</strong>{" "}
                   Saran ini dihasilkan oleh AI dan bersifat informatif. Selalu
                   konsultasikan dengan dokter anak atau ahli gizi untuk
