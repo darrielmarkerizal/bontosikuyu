@@ -122,7 +122,53 @@ body {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Enhanced bounce animation */
+/* Advanced floating animation */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+  }
+  33% {
+    transform: translateY(-10px) rotate(120deg) scale(1.05);
+  }
+  66% {
+    transform: translateY(5px) rotate(240deg) scale(0.95);
+  }
+}
+
+/* Morphing pulse effect */
+@keyframes pulse {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.05) rotate(180deg);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    opacity: 0.3;
+  }
+}
+
+/* Particle glow effect */
+.particle {
+  animation: particleGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes particleGlow {
+  0% {
+    box-shadow: 0 0 10px rgba(248, 183, 44, 0.5);
+    transform: scale(1);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(248, 183, 44, 0.8);
+    transform: scale(1.2);
+  }
+}
+
+/* Advanced bounce animation */
 @keyframes bounce {
   0%,
   20%,
@@ -143,25 +189,39 @@ body {
   }
 }
 
-/* Custom pulse with scale */
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.3;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.6;
-    transform: scale(1.05);
-  }
-}
-
 .animate-bounce {
   animation: bounce 1s infinite;
 }
 
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* 3D perspective effects */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+/* Glitch effect for text */
+@keyframes glitch {
+  0% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-2px, 2px);
+  }
+  40% {
+    transform: translate(-2px, -2px);
+  }
+  60% {
+    transform: translate(2px, 2px);
+  }
+  80% {
+    transform: translate(2px, -2px);
+  }
+  100% {
+    transform: translate(0);
+  }
 }
 
 /* Ensure BoxReveal works properly */
