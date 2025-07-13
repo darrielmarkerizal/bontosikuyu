@@ -5,6 +5,7 @@ import "./globals.css";
 import Navbar from "@/components/navbar";
 import { LenisProvider } from "@/components/lenis-provider";
 import Footer from "@/components/footer";
+import ClientLayout from "@/components/client-layout";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -95,12 +96,15 @@ export default function RootLayout({
     <html lang="id">
       <body
         className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${sentient.variable} antialiased bg-slate-50 font-plus-jakarta-sans`}
+        style={{ backgroundColor: "#0f172a" }} // Set initial background to match hero
       >
-        <LenisProvider>
-          <Navbar />
-          {children}
-          <Footer />
-        </LenisProvider>
+        <ClientLayout>
+          <LenisProvider>
+            <Navbar />
+            {children}
+            <Footer />
+          </LenisProvider>
+        </ClientLayout>
       </body>
     </html>
   );

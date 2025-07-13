@@ -1,7 +1,8 @@
 "use client";
 
 import { motion, useAnimation, useInView } from "motion/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useLoadingContext } from "@/components/client-layout";
 
 interface BoxRevealProps {
   children: JSX.Element;
@@ -20,19 +21,36 @@ export const BoxReveal = ({
 }: BoxRevealProps) => {
   const mainControls = useAnimation();
   const slideControls = useAnimation();
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const { isLoadingComplete } = useLoadingContext();
 
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: false });
+  const isInView = useInView(ref, {
+    once: true,
+    margin: "0px 0px -50px 0px",
+  });
 
+  // Main animation trigger
   useEffect(() => {
-    if (isInView) {
-      slideControls.start("visible");
-      mainControls.start("visible");
-    } else {
-      slideControls.start("hidden");
-      mainControls.start("hidden");
+    if (isLoadingComplete && isInView && !hasAnimated) {
+      const timer = setTimeout(() => {
+        slideControls.start("visible");
+        mainControls.start("visible");
+        setHasAnimated(true);
+      }, 200); // Slightly longer delay
+
+      return () => clearTimeout(timer);
     }
-  }, [isInView, mainControls, slideControls]);
+  }, [isLoadingComplete, isInView, mainControls, slideControls, hasAnimated]);
+
+  // Reset on loading state change
+  useEffect(() => {
+    if (!isLoadingComplete) {
+      setHasAnimated(false);
+      mainControls.set("hidden");
+      slideControls.set("hidden");
+    }
+  }, [isLoadingComplete, mainControls, slideControls]);
 
   const containerStyles = {
     position: "relative" as const,
@@ -55,7 +73,7 @@ export const BoxReveal = ({
         }}
         initial="hidden"
         animate={mainControls}
-        transition={{ duration: duration ? duration : 0.5, delay: 0.25 }}
+        transition={{ duration: duration ? duration : 0.6, delay: 0.25 }}
       >
         {children}
       </motion.div>
@@ -67,7 +85,7 @@ export const BoxReveal = ({
         }}
         initial="hidden"
         animate={slideControls}
-        transition={{ duration: duration ? duration : 0.5, ease: "easeIn" }}
+        transition={{ duration: duration ? duration : 0.6, ease: "easeIn" }}
         style={{
           position: "absolute",
           top: 4,
