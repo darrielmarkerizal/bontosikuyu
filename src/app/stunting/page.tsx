@@ -53,16 +53,32 @@ export default function StuntingPredictionPage() {
     try {
       const apiUrl =
         process.env.NEXT_PUBLIC_STUNTING_API_URL ||
-        "http://127.0.0.1:8080/predict";
+        "https://stunting-prediction-api-e7b75f979c9b.herokuapp.com/predict";
 
-      console.log("Submitting form data:", formData); // Debug log
+      // Transform data to match API expectations
+      const transformedData = {
+        sex: formData.sex === "male" ? "M" : "F", // Transform male/female to M/F
+        age: formData.age,
+        birth_weight: formData.birth_weight,
+        birth_length: formData.birth_length,
+        body_weight: formData.body_weight,
+        body_length: formData.body_length,
+        asi_ekslusif: formData.asi_ekslusif === "yes" ? "Yes" : "No", // Transform yes/no to Yes/No
+      };
 
-      const response = await axios.post<PredictionResponse>(apiUrl, formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        timeout: 30000,
-      });
+      console.log("Original form data:", formData); // Debug log
+      console.log("Transformed data for API:", transformedData); // Debug log
+
+      const response = await axios.post<PredictionResponse>(
+        apiUrl,
+        transformedData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          timeout: 30000,
+        }
+      );
 
       console.log("API Response:", response.data); // Debug log
       setPrediction(response.data);
