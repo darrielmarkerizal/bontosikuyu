@@ -18,8 +18,8 @@ const navItems = [
     path: "/artikel",
   },
   {
-    label: "Infografis",
-    path: "/infografis",
+    label: "Monografis",
+    path: "/monografis",
   },
   {
     label: "Wisata",
