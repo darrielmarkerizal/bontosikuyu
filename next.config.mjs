@@ -10,6 +10,14 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals.push({
+        mysql2: "commonjs mysql2",
+      });
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
