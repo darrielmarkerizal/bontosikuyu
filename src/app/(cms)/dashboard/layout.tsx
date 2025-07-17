@@ -102,7 +102,7 @@ export default function DashboardLayout({
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
-                  Kecamatan Bontosikuyu
+                  Desa Laiyolo Baru
                 </span>
                 <span className="truncate text-xs text-muted-foreground">
                   CMS Admin
@@ -160,7 +160,7 @@ export default function DashboardLayout({
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>CMS Kecamatan Bontosikuyu</BreadcrumbPage>
+                <BreadcrumbPage>CMS Desa Laiyol Baru</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>

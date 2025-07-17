@@ -26,7 +26,7 @@ export function LoginForm({
                   Salama&apos;ki! Selamat Datang
                 </h1>
                 <p className="text-balance text-muted-foreground">
-                  Masuk ke akun CMS Kecamatan Bontosikuyu
+                  Masuk ke akun CMS Desa Laiyolo Baru
                 </p>
               </div>
               <div className="grid gap-2">
@@ -34,7 +34,7 @@ export function LoginForm({
                 <Input
                   id="email"
                   type="email"
-                  placeholder="contoh@bontosikuyu.go.id"
+                  placeholder="contoh@laiyolobaru.go.id"
                   required
                 />
               </div>

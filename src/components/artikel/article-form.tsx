@@ -121,7 +121,7 @@ export function ArticleForm({
             <p className="text-muted-foreground">
               {isEditing
                 ? "Perbarui artikel yang sudah ada"
-                : "Buat artikel baru untuk website Kecamatan Bontosikuyu"}
+                : "Buat artikel baru untuk website Desa Laiyolo Baru"}
             </p>
           </div>
         </div>

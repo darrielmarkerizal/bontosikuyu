@@ -22,7 +22,7 @@ export function ArticleHeader({ onAddClick }: ArticleHeaderProps) {
       <div>
         <h1 className="text-3xl font-bold">Kelola Artikel</h1>
         <p className="text-muted-foreground">
-          Buat, edit, dan kelola artikel untuk website Kecamatan Bontosikuyu
+          Buat, edit, dan kelola artikel untuk website Desa Laiyolo Baru
         </p>
       </div>
       <Button className="w-fit" onClick={handleAddClick}>
