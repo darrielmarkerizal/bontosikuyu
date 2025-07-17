@@ -1,7 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { BoxReveal } from "@/components/magicui/box-reveal";
+
+import { BoxReveal } from "./magicui/box-reveal";
 import { ArticleCard } from "@/components/artikel/public/article-card";
 import { Article } from "@/components/artikel/public/types";
 import { ArrowRight } from "lucide-react";
