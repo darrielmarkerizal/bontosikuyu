@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/navbar";
-import { LenisProvider } from "@/components/lenis-provider";
-import Footer from "@/components/footer";
-import ClientLayout from "@/components/client-layout";
+import ConditionalLayout from "@/components/conditional-layout";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -102,13 +99,7 @@ export default function RootLayout({
           padding: 0,
         }}
       >
-        <ClientLayout>
-          <LenisProvider>
-            <Navbar />
-            {children}
-            <Footer />
-          </LenisProvider>
-        </ClientLayout>
+        <ConditionalLayout>{children}</ConditionalLayout>
       </body>
     </html>
   );
