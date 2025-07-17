@@ -86,13 +86,9 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`sticky top-0 z-50 w-full font-plus-jakarta-sans transition-all duration-500 ${
-        isMenuOpen ? "bg-white shadow-lg border-brand-primary border-2" : ""
-      } ${
-        isScrolled
-          ? "bg-white/95 backdrop-blur-md shadow-lg border-b-2 border-brand-primary/20"
-          : "bg-white/80 backdrop-blur-md border-b-2 border-brand-primary/20"
-      } ${isVisible ? "translate-y-0" : "-translate-y-full"}`}
+      className={`sticky top-0 z-50 w-full font-plus-jakarta-sans transition-all duration-500 bg-white shadow-lg border-b-2 border-brand-primary/20 ${
+        isVisible ? "translate-y-0" : "-translate-y-full"
+      }`}
     >
       <div
         className={`transition-all duration-300 ${
