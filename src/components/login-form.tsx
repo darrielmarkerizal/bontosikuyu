@@ -55,10 +55,26 @@ export function LoginForm({
     e.preventDefault();
     setIsLoading(true);
 
+    console.log("🔐 Login attempt started:", {
+      identifier: formData.identifier,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+    });
+
     try {
+      console.log("📡 Sending login request to /api/login");
+
       const response = await axios.post<LoginResponse>("/api/login", {
         identifier: formData.identifier,
         password: formData.password,
+      });
+
+      console.log("✅ Login API response received:", {
+        status: response.status,
+        success: response.data.success,
+        message: response.data.message,
+        hasToken: !!response.data.data?.token,
+        timestamp: response.data.timestamp,
       });
 
       if (response.data.success) {
@@ -69,41 +85,65 @@ export function LoginForm({
 
         // Store token in cookies for 24 hours
         if (response.data.data?.token) {
+          console.log("🍪 Storing token in cookies");
           Cookies.set("token", response.data.data.token, {
             expires: 1, // 1 day
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
           });
+          console.log("✅ Token stored successfully");
+        } else {
+          console.warn("⚠️ No token received in response");
         }
 
+        console.log("🔄 Redirecting to dashboard");
         // Redirect to dashboard
         router.push("/dashboard");
       } else {
+        console.error(
+          "❌ Login unsuccessful despite 200 response:",
+          response.data
+        );
         // Handle unsuccessful response (shouldn't happen but good practice)
         toast.error("Login gagal", {
           description: response.data.message || "Terjadi kesalahan saat login",
         });
       }
     } catch (error: unknown) {
-      console.error("Login error:", error);
+      console.error("💥 Login error occurred:", error);
 
       if (axios.isAxiosError<ApiErrorResponse>(error)) {
         const errorData = error.response?.data;
+        const errorStatus = error.response?.status;
 
-        if (error.response?.status === 400) {
+        console.error("🔍 Axios error details:", {
+          status: errorStatus,
+          statusText: error.response?.statusText,
+          data: errorData,
+          headers: error.response?.headers,
+          config: {
+            url: error.config?.url,
+            method: error.config?.method,
+          },
+        });
+
+        if (errorStatus === 400) {
+          console.error("🚫 400 - Validation Error:", errorData);
           // Validation errors (missing fields)
           toast.error("Data tidak lengkap", {
             description:
               errorData?.message ||
               "Mohon lengkapi semua field yang diperlukan",
           });
-        } else if (error.response?.status === 401) {
+        } else if (errorStatus === 401) {
+          console.error("🔒 401 - Authentication Error:", errorData);
           // Authentication errors (wrong credentials)
           toast.error("Login gagal", {
             description:
               errorData?.message || "Email/username atau password tidak valid",
           });
-        } else if (error.response?.status === 500) {
+        } else if (errorStatus === 500) {
+          console.error("⚡ 500 - Server Error:", errorData);
           // Server errors
           toast.error("Kesalahan server", {
             description:
@@ -111,6 +151,10 @@ export function LoginForm({
               "Terjadi kesalahan pada server. Silakan coba lagi.",
           });
         } else {
+          console.error("❓ Other HTTP Error:", {
+            status: errorStatus,
+            data: errorData,
+          });
           // Other HTTP errors
           toast.error("Login gagal", {
             description:
@@ -118,25 +162,40 @@ export function LoginForm({
           });
         }
       } else if (error instanceof Error) {
+        console.error("⚠️ Non-Axios Error:", {
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+        });
+
         // Network or other errors
         if (error.message.includes("Network Error")) {
+          console.error("🌐 Network Error detected");
           toast.error("Kesalahan jaringan", {
             description:
               "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.",
           });
         } else {
+          console.error("🚨 Generic Error:", error.message);
           toast.error("Login gagal", {
             description:
               error.message || "Terjadi kesalahan yang tidak terduga",
           });
         }
       } else {
+        console.error("❌ Unknown Error Type:", {
+          error,
+          type: typeof error,
+          constructor: error?.constructor?.name,
+        });
+
         // Unknown errors
         toast.error("Login gagal", {
           description: "Terjadi kesalahan yang tidak terduga",
         });
       }
     } finally {
+      console.log("🏁 Login attempt completed");
       setIsLoading(false);
     }
   };
