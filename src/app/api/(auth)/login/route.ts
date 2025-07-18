@@ -3,9 +3,10 @@ import { getModels } from "@/lib/models";
 import CryptoJS from "crypto-js";
 import jwt from "jsonwebtoken";
 import { Op } from "sequelize";
+import { createLog } from "@/lib/logger-auth";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-this";
-const JWT_EXPIRES_IN = "1d"; // Changed to 1 day
+const JWT_EXPIRES_IN = "1d";
 
 export async function POST(request: NextRequest) {
   try {
@@ -73,6 +74,16 @@ export async function POST(request: NextRequest) {
       audience: "laiyolobaru-users",
     } as jwt.SignOptions);
 
+    // Log successful login
+    await createLog(
+      {
+        action: "LOGIN",
+        userId: user.id,
+        description: `User ${user.username} berhasil login`,
+      },
+      request
+    );
+
     // Set HTTP-only cookie for security
     const response = NextResponse.json({
       success: true,
@@ -84,7 +95,7 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
 
-    // Set secure cookie - also 1 day
+    // Set secure cookie
     response.cookies.set({
       name: "auth-token",
       value: token,

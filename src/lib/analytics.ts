@@ -1,4 +1,4 @@
-import { getDatabase } from "./database";
+import { Request } from "express";
 
 interface SessionData {
   sessionId: string;
@@ -24,9 +24,61 @@ interface PageViewData {
   exitPage?: boolean;
 }
 
+interface DashboardOverview {
+  totalSessions: number;
+  uniqueVisitors: number;
+  loggedInUsers: number;
+  avgSessionDuration: number;
+}
+
+interface DeviceStats {
+  deviceType: string;
+  count: number;
+}
+
+interface TopPages {
+  page: string;
+  views: number;
+  uniqueViews: number;
+}
+
+interface DailyTrend {
+  date: string;
+  sessions: number;
+  uniqueVisitors: number;
+}
+
+interface BrowserStats {
+  browser: string;
+  count: number;
+}
+
+interface TrafficSources {
+  source: string;
+  count: number;
+}
+
+interface LogsOptions {
+  page?: number;
+  limit?: number;
+  action?: string;
+  tableName?: string;
+  userId?: number;
+  startDate?: string;
+  endDate?: string;
+}
+
+interface LogsWhere {
+  action?: string;
+  tableName?: string;
+  userId?: number;
+  viewedAt?: Record<string, string>;
+}
+
 export class Analytics {
   // Get models instance
   private static async getModels() {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const db = require("../../models");
     return db;
   }
@@ -94,11 +146,10 @@ export class Analytics {
   }
 
   // Get client IP
-  static getClientIP(req: any): string {
+  static getClientIP(req: Request): string {
     return (
-      req.headers["x-forwarded-for"]?.split(",")[0] ||
-      req.headers["x-real-ip"] ||
-      req.connection?.remoteAddress ||
+      (req.headers["x-forwarded-for"] as string)?.split(",")[0] ||
+      (req.headers["x-real-ip"] as string) ||
       req.socket?.remoteAddress ||
       req.ip ||
       "127.0.0.1"
@@ -184,6 +235,7 @@ export class Analytics {
   static async generateDailyStats(date: string) {
     try {
       const models = await this.getModels();
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { Op, fn, col, literal } = require("sequelize");
 
       // Get stats for the date
@@ -258,8 +310,15 @@ export class Analytics {
         raw: true,
       });
 
-      const stats = sessionStats[0] as any;
-      const pageStats = pageViewStats[0] as any;
+      const stats = sessionStats[0] as DashboardOverview & {
+        totalVisitors: number;
+        uniqueVisitors: number;
+        mobileUsers: number;
+        desktopUsers: number;
+        tabletUsers: number;
+        avgSessionDuration: number;
+      };
+      const pageStats = pageViewStats[0] as { totalPageViews: number };
       const bounceCount = bounceRateData.length;
       const bounceRate =
         stats.totalVisitors > 0
@@ -289,6 +348,7 @@ export class Analytics {
   static async getDashboardStats(days: number = 30) {
     try {
       const models = await this.getModels();
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { Op, fn, col, literal } = require("sequelize");
 
       const startDate = new Date();
@@ -425,12 +485,12 @@ export class Analytics {
       });
 
       return {
-        overview: overview[0],
-        deviceStats,
-        topPages,
-        dailyTrend,
-        browserStats,
-        trafficSources,
+        overview: overview[0] as DashboardOverview,
+        deviceStats: deviceStats as DeviceStats[],
+        topPages: topPages as TopPages[],
+        dailyTrend: dailyTrend as DailyTrend[],
+        browserStats: browserStats as BrowserStats[],
+        trafficSources: trafficSources as TrafficSources[],
       };
     } catch (error) {
       console.error("Failed to get dashboard stats:", error);
@@ -439,19 +499,10 @@ export class Analytics {
   }
 
   // Get logs with pagination and filters
-  static async getLogs(
-    options: {
-      page?: number;
-      limit?: number;
-      action?: string;
-      tableName?: string;
-      userId?: number;
-      startDate?: string;
-      endDate?: string;
-    } = {}
-  ) {
+  static async getLogs(options: LogsOptions = {}) {
     try {
       const models = await this.getModels();
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { Op } = require("sequelize");
 
       const {
@@ -465,7 +516,7 @@ export class Analytics {
       } = options;
 
       const offset = (page - 1) * limit;
-      const where: any = {};
+      const where: LogsWhere = {};
 
       if (action) where.action = action;
       if (tableName) where.tableName = tableName;

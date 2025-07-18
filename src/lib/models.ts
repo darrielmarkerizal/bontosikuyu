@@ -1,5 +1,5 @@
 import { getDatabase } from "./database";
-import { DataTypes, Model, Sequelize } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 
 // Define User model interface for TypeScript
 export interface UserAttributes {
@@ -30,6 +30,53 @@ export interface ArticleInstance
   extends Model<ArticleAttributes>,
     ArticleAttributes {}
 
+// Add Log model interface
+export interface LogAttributes {
+  id?: number;
+  action:
+    | "CREATE"
+    | "UPDATE"
+    | "DELETE"
+    | "LOGIN"
+    | "LOGOUT"
+    | "VIEW"
+    | "DOWNLOAD"
+    | "UPLOAD";
+  tableName?: string;
+  recordId?: number;
+  userId?: number;
+  oldValues?: string;
+  newValues?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  description?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export class Log extends Model<LogAttributes> implements LogAttributes {
+  public id!: number;
+  public action!:
+    | "CREATE"
+    | "UPDATE"
+    | "DELETE"
+    | "LOGIN"
+    | "LOGOUT"
+    | "VIEW"
+    | "DOWNLOAD"
+    | "UPLOAD";
+  public tableName?: string;
+  public recordId?: number;
+  public userId?: number;
+  public oldValues?: string;
+  public newValues?: string;
+  public ipAddress?: string;
+  public userAgent?: string;
+  public description?: string;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
 // Model definitions
 export class User extends Model<UserAttributes> implements UserAttributes {
   public id!: number;
@@ -59,7 +106,7 @@ export class Article
 let modelsInitialized = false;
 
 export async function initializeModels() {
-  if (modelsInitialized) return { User, Article };
+  if (modelsInitialized) return { User, Article, Log };
 
   const sequelize = await getDatabase();
 
@@ -128,7 +175,7 @@ export async function initializeModels() {
         allowNull: false,
         validate: {
           notEmpty: true,
-          len: [10], // Minimum 10 characters
+          len: [10, 50000], // Minimum 10, maximum 50000 characters
         },
       },
       imageUrl: {
@@ -147,8 +194,65 @@ export async function initializeModels() {
     }
   );
 
+  // Initialize Log model
+  Log.init(
+    {
+      action: {
+        type: DataTypes.ENUM(
+          "CREATE",
+          "UPDATE",
+          "DELETE",
+          "LOGIN",
+          "LOGOUT",
+          "VIEW",
+          "DOWNLOAD",
+          "UPLOAD"
+        ),
+        allowNull: false,
+      },
+      tableName: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+      },
+      recordId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      userId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      oldValues: {
+        type: DataTypes.TEXT("long"),
+        allowNull: true,
+      },
+      newValues: {
+        type: DataTypes.TEXT("long"),
+        allowNull: true,
+      },
+      ipAddress: {
+        type: DataTypes.STRING(45),
+        allowNull: true,
+      },
+      userAgent: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      description: {
+        type: DataTypes.STRING(500),
+        allowNull: true,
+      },
+    },
+    {
+      sequelize,
+      modelName: "Log",
+      tableName: "Logs",
+      timestamps: true,
+    }
+  );
+
   modelsInitialized = true;
-  return { User, Article };
+  return { User, Article, Log };
 }
 
 // Helper function to get models

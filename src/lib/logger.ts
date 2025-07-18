@@ -1,4 +1,4 @@
-import { getDatabase } from "./database";
+import { Request } from "express";
 
 interface LogData {
   action:
@@ -13,16 +13,56 @@ interface LogData {
   tableName?: string;
   recordId?: number;
   userId?: number;
-  oldValues?: object;
-  newValues?: object;
+  oldValues?: Record<string, unknown>;
+  newValues?: Record<string, unknown>;
   ipAddress?: string;
   userAgent?: string;
   description?: string;
 }
 
+interface LogsOptions {
+  page?: number;
+  limit?: number;
+  action?: string;
+  tableName?: string;
+  userId?: number;
+  startDate?: string;
+  endDate?: string;
+}
+
+interface LogsWhere {
+  action?: string;
+  tableName?: string;
+  userId?: number;
+  createdAt?: Record<string, string>;
+}
+
+interface ActionStats {
+  action: string;
+  count: number;
+}
+
+interface TableStats {
+  tableName: string;
+  count: number;
+}
+
+interface DailyStats {
+  date: string;
+  count: number;
+}
+
+interface UserStats {
+  userId: number;
+  activityCount: number;
+  "user.fullName": string;
+  "user.email": string;
+}
+
 export class Logger {
   // Get models instance
   private static async getModels() {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const db = require("../../models");
     return db;
   }
@@ -56,9 +96,9 @@ export class Logger {
   static async logCreate(
     tableName: string,
     recordId: number,
-    newValues: object,
+    newValues: Record<string, unknown>,
     userId?: number,
-    req?: any
+    req?: Request
   ) {
     await this.log({
       action: "CREATE",
@@ -75,10 +115,10 @@ export class Logger {
   static async logUpdate(
     tableName: string,
     recordId: number,
-    oldValues: object,
-    newValues: object,
+    oldValues: Record<string, unknown>,
+    newValues: Record<string, unknown>,
     userId?: number,
-    req?: any
+    req?: Request
   ) {
     await this.log({
       action: "UPDATE",
@@ -96,9 +136,9 @@ export class Logger {
   static async logDelete(
     tableName: string,
     recordId: number,
-    oldValues: object,
+    oldValues: Record<string, unknown>,
     userId?: number,
-    req?: any
+    req?: Request
   ) {
     await this.log({
       action: "DELETE",
@@ -112,7 +152,7 @@ export class Logger {
     });
   }
 
-  static async logLogin(userId: number, req?: any) {
+  static async logLogin(userId: number, req?: Request) {
     await this.log({
       action: "LOGIN",
       userId,
@@ -122,7 +162,7 @@ export class Logger {
     });
   }
 
-  static async logLogout(userId: number, req?: any) {
+  static async logLogout(userId: number, req?: Request) {
     await this.log({
       action: "LOGOUT",
       userId,
@@ -133,19 +173,10 @@ export class Logger {
   }
 
   // Get logs with filters and pagination
-  static async getLogs(
-    options: {
-      page?: number;
-      limit?: number;
-      action?: string;
-      tableName?: string;
-      userId?: number;
-      startDate?: string;
-      endDate?: string;
-    } = {}
-  ) {
+  static async getLogs(options: LogsOptions = {}) {
     try {
       const models = await this.getModels();
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { Op } = require("sequelize");
 
       const {
@@ -159,7 +190,7 @@ export class Logger {
       } = options;
 
       const offset = (page - 1) * limit;
-      const where: any = {};
+      const where: LogsWhere = {};
 
       if (action) where.action = action;
       if (tableName) where.tableName = tableName;
@@ -213,6 +244,7 @@ export class Logger {
   static async getLogStats(days: number = 30) {
     try {
       const models = await this.getModels();
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { Op, fn, col, literal } = require("sequelize");
 
       const startDate = new Date();
@@ -289,10 +321,10 @@ export class Logger {
       });
 
       return {
-        actionStats,
-        tableStats,
-        dailyStats,
-        userStats,
+        actionStats: actionStats as ActionStats[],
+        tableStats: tableStats as TableStats[],
+        dailyStats: dailyStats as DailyStats[],
+        userStats: userStats as UserStats[],
       };
     } catch (error) {
       console.error("Failed to get log statistics:", error);
@@ -360,13 +392,12 @@ export class Logger {
   }
 
   // Helper untuk mendapatkan IP client
-  private static getClientIP(req: any): string | undefined {
+  private static getClientIP(req?: Request): string | undefined {
     if (!req) return undefined;
 
     return (
-      req.headers["x-forwarded-for"]?.split(",")[0] ||
-      req.headers["x-real-ip"] ||
-      req.connection?.remoteAddress ||
+      (req.headers["x-forwarded-for"] as string)?.split(",")[0] ||
+      (req.headers["x-real-ip"] as string) ||
       req.socket?.remoteAddress ||
       req.ip
     );
