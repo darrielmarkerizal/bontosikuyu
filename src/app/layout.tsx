@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import ConditionalLayout from "@/components/conditional-layout";
+import { Toaster, toast } from "sonner";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -94,12 +95,13 @@ export default function RootLayout({
       <body
         className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${sentient.variable} antialiased font-plus-jakarta-sans`}
         style={{
-          backgroundColor: "#173A57", // Brand secondary color
+          backgroundColor: "#173A57",
           margin: 0,
           padding: 0,
         }}
       >
         <ConditionalLayout>{children}</ConditionalLayout>
+        <Toaster position="bottom-right" richColors closeButton expand={true} />
       </body>
     </html>
   );
