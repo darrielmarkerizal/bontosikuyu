@@ -11,7 +11,6 @@ import { Eye, EyeOff } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { AxiosError } from "axios";
 import Cookies from "js-cookie";
 
 // Add type definitions
