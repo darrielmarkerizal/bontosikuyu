@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class PageView extends Model {
     /**
@@ -13,16 +11,19 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  PageView.init({
-    sessionId: DataTypes.STRING,
-    userId: DataTypes.INTEGER,
-    page: DataTypes.STRING,
-    title: DataTypes.STRING,
-    timeOnPage: DataTypes.INTEGER,
-    exitPage: DataTypes.BOOLEAN
-  }, {
-    sequelize,
-    modelName: 'PageView',
-  });
+  PageView.init(
+    {
+      sessionId: DataTypes.STRING,
+      userId: DataTypes.INTEGER,
+      page: DataTypes.STRING,
+      title: DataTypes.STRING,
+      timeOnPage: DataTypes.INTEGER,
+      exitPage: DataTypes.BOOLEAN,
+    },
+    {
+      sequelize,
+      modelName: "PageView",
+    }
+  );
   return PageView;
 };
