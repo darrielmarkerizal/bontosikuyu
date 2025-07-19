@@ -1,4 +1,5 @@
 "use strict";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Umkm extends Model {
