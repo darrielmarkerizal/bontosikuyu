@@ -1,7 +1,10 @@
 const { Sequelize } = require("sequelize");
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const mysql2 = require("mysql2");
 
 const sequelize = new Sequelize({
   dialect: "mysql",
+  dialectModule: mysql2,
   host: process.env.DB_HOST || "localhost",
   port: process.env.DB_PORT || 3306,
   username: process.env.DB_USERNAME || "root",
