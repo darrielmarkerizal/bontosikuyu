@@ -80,12 +80,11 @@ const upcomingEvents = [
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Welcome Section */}
       <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <h1 className="text-3xl font-bold">Selamat Datang</h1>
         <p className="text-muted-foreground">
-          Selamat datang di CMS Kecamatan Bontosikuyu. Mari kelola konten untuk
-          kemajuan daerah kita.
+          Mari kelola konten untuk kemajuan Desa Laiyolo Baru.
         </p>
       </div>
 
