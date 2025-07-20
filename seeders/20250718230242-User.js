@@ -7,6 +7,7 @@ module.exports = {
       "Users",
       [
         {
+          id: 1,
           fullName: "Alice Johnson",
           email: "alice.johnson@example.com",
           username: "alicej",
@@ -15,6 +16,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 2,
           fullName: "Bob Carter",
           email: "bob.carter@example.com",
           username: "bobc",
@@ -23,6 +25,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 3,
           fullName: "Clara Evans",
           email: "clara.evans@example.com",
           username: "clarae",
@@ -31,6 +34,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 4,
           fullName: "David Lee",
           email: "david.lee@example.com",
           username: "davidl",
@@ -39,6 +43,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 5,
           fullName: "Emma Brown",
           email: "emma.brown@example.com",
           username: "emmab",
@@ -47,6 +52,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 6,
           fullName: "Frank Wilson",
           email: "frank.wilson@example.com",
           username: "frankw",
@@ -55,6 +61,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 7,
           fullName: "Grace Kim",
           email: "grace.kim@example.com",
           username: "gracek",
@@ -63,6 +70,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 8,
           fullName: "Henry Adams",
           email: "henry.adams@example.com",
           username: "henrya",
@@ -71,6 +79,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 9,
           fullName: "Isabella Chen",
           email: "isabella.chen@example.com",
           username: "isabellac",
@@ -79,6 +88,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 10,
           fullName: "James Patel",
           email: "james.patel@example.com",
           username: "jamesp",
@@ -87,6 +97,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 11,
           fullName: "Kelly Nguyen",
           email: "kelly.nguyen@example.com",
           username: "kellyn",
@@ -95,6 +106,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 12,
           fullName: "Liam Garcia",
           email: "liam.garcia@example.com",
           username: "liamg",
@@ -103,6 +115,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 13,
           fullName: "Mia Thompson",
           email: "mia.thompson@example.com",
           username: "miat",
@@ -111,6 +124,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 14,
           fullName: "Noah Martinez",
           email: "noah.martinez@example.com",
           username: "noahm",
@@ -119,6 +133,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 15,
           fullName: "Olivia Davis",
           email: "olivia.davis@example.com",
           username: "oliviad",
@@ -127,6 +142,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 16,
           fullName: "Peter Clark",
           email: "peter.clark@example.com",
           username: "peterc",
@@ -135,6 +151,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 17,
           fullName: "Quinn Harris",
           email: "quinn.harris@example.com",
           username: "quinnh",
@@ -143,6 +160,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 18,
           fullName: "Rachel Lewis",
           email: "rachel.lewis@example.com",
           username: "rachell",
@@ -151,6 +169,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 19,
           fullName: "Samuel Walker",
           email: "samuel.walker@example.com",
           username: "samuelw",
@@ -159,6 +178,7 @@ module.exports = {
           updatedAt: new Date(),
         },
         {
+          id: 20,
           fullName: "Tara Young",
           email: "tara.young@example.com",
           username: "taray",
@@ -171,7 +191,7 @@ module.exports = {
     );
   },
 
-  down: async (queryInterface, Sequelize) => {
+  down: async (queryInterface) => {
     await queryInterface.bulkDelete("Users", null, {});
   },
 };

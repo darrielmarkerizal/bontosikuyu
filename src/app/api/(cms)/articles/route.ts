@@ -4,6 +4,7 @@ import { Op } from "sequelize";
 // Define proper interfaces for Sequelize models
 interface ArticleModel {
   id: number;
+  title: string;
   content: string;
   status: "draft" | "publish";
   imageUrl?: string;
@@ -108,9 +109,10 @@ export async function GET(request: NextRequest) {
     const whereClause: Record<string, unknown> = {};
 
     if (search) {
-      whereClause.content = {
-        [Op.like]: `%${search}%`,
-      };
+      whereClause[Op.or] = [
+        { title: { [Op.like]: `%${search}%` } },
+        { content: { [Op.like]: `%${search}%` } },
+      ];
     }
 
     if (status) {
@@ -183,9 +185,7 @@ export async function GET(request: NextRequest) {
       data: {
         articles: articles.map((article: ArticleModel) => ({
           id: article.id,
-          title:
-            article.content.substring(0, 100) +
-            (article.content.length > 100 ? "..." : ""),
+          title: article.title,
           content: article.content,
           status: article.status,
           imageUrl: article.imageUrl,

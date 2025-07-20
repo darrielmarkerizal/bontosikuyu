@@ -83,8 +83,8 @@ module.exports = {
     };
 
     const articles = Array.from({ length: 50 }, (_, index) => {
-      const categoryId = Math.floor(Math.random() * 20) + 1; // 1-20
-      const writerId = Math.floor(Math.random() * 100) + 1; // 1-100
+      const categoryId = Math.floor(Math.random() * 20) + 1; // 1-20 (matches CategoryArticle IDs)
+      const writerId = Math.floor(Math.random() * 100) + 1; // 1-100 (matches Writer IDs)
       const status = Math.random() > 0.3 ? "publish" : "draft";
       const title = titles[index % titles.length];
       const timestamp = new Date(
@@ -135,6 +135,8 @@ module.exports = {
         .replace("{step2}", data.step2);
 
       return {
+        id: index + 1, // Static ID from 1 to 50
+        title,
         articleCategoryId: categoryId,
         writerId,
         status,

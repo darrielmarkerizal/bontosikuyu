@@ -1,10 +1,10 @@
 "use strict";
 
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
+  up: async (queryInterface) => {
     const logs = Array.from({ length: 1000 }, (_, index) => {
       const userId =
-        index % 3 === 0 ? null : Math.floor(Math.random() * 21) + 47; // Random userId from 47 to 67 or null
+        index % 3 === 0 ? null : Math.floor(Math.random() * 20) + 1; // Random userId from 1 to 20 or null
       const action = [
         "CREATE",
         "UPDATE",

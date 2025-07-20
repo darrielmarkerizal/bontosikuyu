@@ -2,10 +2,10 @@
 const { v4: uuidv4 } = require("uuid");
 
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
+  up: async (queryInterface) => {
     const sessions = Array.from({ length: 1000 }, (_, index) => {
       const userId =
-        index % 3 === 0 ? null : Math.floor(Math.random() * 21) + 47; // Random userId from 47 to 67 or null
+        index % 3 === 0 ? null : Math.floor(Math.random() * 20) + 1; // Random userId from 1 to 20 or null
       const startTime = new Date(
         Date.now() - Math.floor(Math.random() * 150 * 24 * 60 * 60 * 1000)
       ); // Random time in last 5 months
@@ -85,7 +85,7 @@ module.exports = {
     await queryInterface.bulkInsert("AnalyticsSessions", sessions, {});
   },
 
-  down: async (queryInterface, Sequelize) => {
+  down: async (queryInterface) => {
     await queryInterface.bulkDelete("AnalyticsSessions", null, {});
   },
 };

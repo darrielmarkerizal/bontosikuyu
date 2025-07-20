@@ -90,6 +90,7 @@ module.exports = {
       ); // Last 5 months
 
       writers.push({
+        id: i + 1, // Static ID from 1 to 100
         fullName,
         phoneNumber,
         dusun: dusuns[Math.floor(Math.random() * dusuns.length)],

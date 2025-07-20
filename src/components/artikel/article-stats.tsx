@@ -1,28 +1,32 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Eye } from "lucide-react";
-import { Article } from "./article-types";
+import { FileText, Eye, Clock, TrendingUp } from "lucide-react";
 
 interface ArticleStatsProps {
-  articles: Article[];
+  totalArticles: number;
+  statusCounts: Record<string, number>;
 }
 
-export function ArticleStats({ articles }: ArticleStatsProps) {
-  const publishedCount = articles.filter(
-    (a) => a.status === "published"
-  ).length;
-  const draftCount = articles.filter((a) => a.status === "draft").length;
-  const totalViews = articles.reduce((sum, article) => sum + article.views, 0);
+export function ArticleStats({
+  totalArticles,
+  statusCounts,
+}: ArticleStatsProps) {
+  const publishedCount = statusCounts.publish || 0;
+  const draftCount = statusCounts.draft || 0;
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Artikel</CardTitle>
           <FileText className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{articles.length}</div>
-          <p className="text-xs text-muted-foreground">+3 artikel bulan ini</p>
+          <div className="text-2xl font-bold">{totalArticles}</div>
+          <p className="text-xs text-muted-foreground">
+            Semua artikel dalam sistem
+          </p>
         </CardContent>
       </Card>
 
@@ -32,23 +36,43 @@ export function ArticleStats({ articles }: ArticleStatsProps) {
           <Eye className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{publishedCount}</div>
+          <div className="text-2xl font-bold text-green-600">
+            {publishedCount}
+          </div>
           <p className="text-xs text-muted-foreground">
-            {draftCount} draft menunggu
+            Artikel yang sudah dipublikasi
           </p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Views</CardTitle>
-          <Eye className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-sm font-medium">Draft</CardTitle>
+          <Clock className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
-            {totalViews.toLocaleString()}
+          <div className="text-2xl font-bold text-yellow-600">{draftCount}</div>
+          <p className="text-xs text-muted-foreground">
+            Artikel dalam status draft
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Rasio Publikasi</CardTitle>
+          <TrendingUp className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-blue-600">
+            {totalArticles > 0
+              ? Math.round((publishedCount / totalArticles) * 100)
+              : 0}
+            %
           </div>
-          <p className="text-xs text-muted-foreground">+12% dari bulan lalu</p>
+          <p className="text-xs text-muted-foreground">
+            Persentase artikel yang dipublikasi
+          </p>
         </CardContent>
       </Card>
     </div>

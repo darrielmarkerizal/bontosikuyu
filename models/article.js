@@ -16,6 +16,14 @@ module.exports = (sequelize, DataTypes) => {
   }
   Article.init(
     {
+      title: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+        validate: {
+          notEmpty: true,
+          len: [3, 255], // Minimum 3 characters, maximum 255
+        },
+      },
       articleCategoryId: {
         type: DataTypes.INTEGER,
         allowNull: false,
