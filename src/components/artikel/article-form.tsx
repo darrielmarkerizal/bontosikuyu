@@ -6,10 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Editor } from "../blocks/editor-00/editor";
 import { ImageUpload } from "./image-upload";
 import { WriterCombobox } from "@/components/ui/writer-combobox";
-import { ArrowLeft, Save, Eye, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import { Article } from "./article-types";
 import axios from "axios";
 import { toast } from "sonner";
@@ -55,27 +62,22 @@ interface ArticleFormProps {
   isEditing?: boolean;
   onSave?: (article: Partial<Article>) => void;
   onCancel?: () => void;
-  onPreview?: (article: Partial<Article>) => void;
 }
 
 export function ArticleForm({
   article,
   isEditing = false,
   onCancel,
-  onPreview,
 }: ArticleFormProps) {
   const router = useRouter();
   const [formData, setFormData] = useState({
     title: article?.title || "",
-    excerpt: article?.excerpt || "",
     author: article?.author || "",
     category: article?.category || "",
-    status: article?.status || ("draft" as const),
   });
 
   const [editorState, setEditorState] =
     useState<SerializedEditorState>(initialEditorValue);
-  const [featuredImage, setFeaturedImage] = useState<File | null>(null);
   const [featuredImageUrl, setFeaturedImageUrl] = useState<string | null>(null);
   const [masterData, setMasterData] = useState<MasterData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -110,7 +112,6 @@ export function ArticleForm({
   };
 
   const handleImageChange = (file: File | null, url?: string) => {
-    setFeaturedImage(file);
     setFeaturedImageUrl(url || null);
   };
 
@@ -202,16 +203,6 @@ export function ArticleForm({
     }
   };
 
-  const handlePreview = () => {
-    const articleData = {
-      ...formData,
-      content: editorState,
-      featuredImage,
-      featuredImageUrl,
-    };
-    onPreview?.(articleData);
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -250,17 +241,6 @@ export function ArticleForm({
 
         {/* Action Buttons - Responsive */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2">
-          <Button
-            variant="outline"
-            onClick={handlePreview}
-            className="order-3 sm:order-1"
-            size="sm"
-            disabled={saving}
-          >
-            <Eye className="mr-2 h-4 w-4" />
-            <span className="hidden xs:inline">Preview</span>
-            <span className="xs:hidden">Preview</span>
-          </Button>
           <Button
             variant="outline"
             onClick={() => handleSave("draft")}
@@ -317,24 +297,6 @@ export function ArticleForm({
                 />
               </div>
 
-              {/* Excerpt */}
-              <div className="space-y-2">
-                <Label htmlFor="excerpt-desktop">Ringkasan Artikel *</Label>
-                <textarea
-                  id="excerpt-desktop"
-                  value={formData.excerpt}
-                  onChange={(e) => handleInputChange("excerpt", e.target.value)}
-                  placeholder="Tulis ringkasan singkat artikel (max 200 karakter)..."
-                  rows={4}
-                  maxLength={200}
-                  className="w-full px-3 py-2 border border-input rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent text-sm"
-                  disabled={saving}
-                />
-                <p className="text-xs text-muted-foreground text-right">
-                  {formData.excerpt.length}/200 karakter
-                </p>
-              </div>
-
               {/* Content Editor */}
               <div className="space-y-2">
                 <Label>Konten Artikel *</Label>
@@ -368,42 +330,28 @@ export function ArticleForm({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="category-desktop">Kategori *</Label>
-                <select
-                  id="category-desktop"
+                <Label>Kategori *</Label>
+                <Select
                   value={formData.category}
-                  onChange={(e) =>
-                    handleInputChange("category", e.target.value)
+                  onValueChange={(value) =>
+                    handleInputChange("category", value)
                   }
-                  className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                   disabled={saving}
                 >
-                  <option value="">Pilih kategori...</option>
-                  {masterData?.categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="status-desktop">Status</Label>
-                <select
-                  id="status-desktop"
-                  value={formData.status}
-                  onChange={(e) =>
-                    handleInputChange(
-                      "status",
-                      e.target.value as "draft" | "published"
-                    )
-                  }
-                  className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                  disabled={saving}
-                >
-                  <option value="draft">Draft</option>
-                  <option value="published">Dipublikasi</option>
-                </select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih kategori..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {masterData?.categories.map((category) => (
+                      <SelectItem
+                        key={category.id}
+                        value={category.id.toString()}
+                      >
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </CardContent>
           </Card>
@@ -443,26 +391,8 @@ export function ArticleForm({
               />
             </div>
 
-            {/* Excerpt */}
-            <div className="space-y-2">
-              <Label htmlFor="excerpt-mobile">Ringkasan Artikel *</Label>
-              <textarea
-                id="excerpt-mobile"
-                value={formData.excerpt}
-                onChange={(e) => handleInputChange("excerpt", e.target.value)}
-                placeholder="Tulis ringkasan singkat artikel (max 200 karakter)..."
-                rows={3}
-                maxLength={200}
-                className="w-full px-3 py-2 border border-input rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent text-sm"
-                disabled={saving}
-              />
-              <p className="text-xs text-muted-foreground text-right">
-                {formData.excerpt.length}/200 karakter
-              </p>
-            </div>
-
             {/* Publication Settings - Responsive Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Penulis *</Label>
                 <WriterCombobox
@@ -474,42 +404,28 @@ export function ArticleForm({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="category-mobile">Kategori *</Label>
-                <select
-                  id="category-mobile"
+                <Label>Kategori *</Label>
+                <Select
                   value={formData.category}
-                  onChange={(e) =>
-                    handleInputChange("category", e.target.value)
+                  onValueChange={(value) =>
+                    handleInputChange("category", value)
                   }
-                  className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                   disabled={saving}
                 >
-                  <option value="">Pilih kategori...</option>
-                  {masterData?.categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-2 sm:col-span-2 lg:col-span-1">
-                <Label htmlFor="status-mobile">Status</Label>
-                <select
-                  id="status-mobile"
-                  value={formData.status}
-                  onChange={(e) =>
-                    handleInputChange(
-                      "status",
-                      e.target.value as "draft" | "published"
-                    )
-                  }
-                  className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                  disabled={saving}
-                >
-                  <option value="draft">Draft</option>
-                  <option value="published">Dipublikasi</option>
-                </select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih kategori..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {masterData?.categories.map((category) => (
+                      <SelectItem
+                        key={category.id}
+                        value={category.id.toString()}
+                      >
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

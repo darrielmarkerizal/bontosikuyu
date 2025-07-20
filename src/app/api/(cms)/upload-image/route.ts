@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from("laiyolobaru-bucket")
       .upload(filePath, buffer, {
         contentType: file.type,

@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Edit, Eye, Trash2, MoreHorizontal, ExternalLink } from "lucide-react";
+import { Edit, Eye, Trash2, MoreHorizontal } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,6 +47,12 @@ interface Article {
   updatedAt: string;
 }
 
+interface LexicalNode {
+  type: string;
+  text?: string;
+  children?: LexicalNode[];
+}
+
 interface ArticleTableProps {
   articles: Article[];
   loading?: boolean;
@@ -65,42 +71,37 @@ const statusConfig = {
 
 export function ArticleTable({ articles }: ArticleTableProps) {
   const router = useRouter();
-  const removeMarkdown = (text: string): string => {
-    return (
-      text
-        // Remove headers (# ## ### etc.)
-        .replace(/^#{1,6}\s+/gm, "")
-        // Remove bold (**text** or __text__)
-        .replace(/\*\*(.*?)\*\*/g, "$1")
-        .replace(/__(.*?)__/g, "$1")
-        // Remove italic (*text* or _text_)
-        .replace(/\*(.*?)\*/g, "$1")
-        .replace(/_(.*?)_/g, "$1")
-        // Remove links [text](url)
-        .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-        // Remove inline code `code`
-        .replace(/`([^`]+)`/g, "$1")
-        // Remove code blocks ```code```
-        .replace(/```[\s\S]*?```/g, "")
-        // Remove numbered lists (1. 2. etc.)
-        .replace(/^\d+\.\s+/gm, "")
-        // Remove bullet lists (- * +)
-        .replace(/^[-*+]\s+/gm, "")
-        // Remove blockquotes (> text)
-        .replace(/^>\s+/gm, "")
-        // Remove horizontal rules (---, ___, ***)
-        .replace(/^[-*_]{3,}$/gm, "")
-        // Remove HTML tags
-        .replace(/<[^>]*>/g, "")
-        // Remove extra whitespace and newlines
-        .replace(/\n+/g, " ")
-        .replace(/\s+/g, " ")
-        .trim()
-    );
+
+  const parseLexicalContent = (content: string): string => {
+    try {
+      const parsed = JSON.parse(content);
+
+      if (!parsed.root || !parsed.root.children) {
+        return content;
+      }
+
+      const extractText = (node: LexicalNode): string => {
+        if (node.type === "text") {
+          return node.text || "";
+        }
+
+        if (node.children) {
+          return node.children.map(extractText).join(" ");
+        }
+
+        return "";
+      };
+
+      const textContent = parsed.root.children.map(extractText).join(" ");
+      return textContent.trim();
+    } catch {
+      // If parsing fails, return original content
+      return content;
+    }
   };
 
   const truncateText = (text: string, maxLength: number): string => {
-    const cleanText = removeMarkdown(text);
+    const cleanText = parseLexicalContent(text);
     if (cleanText.length <= maxLength) return cleanText;
     return cleanText.substring(0, maxLength) + "...";
   };
@@ -162,7 +163,7 @@ export function ArticleTable({ articles }: ArticleTableProps) {
                           </Tooltip>
                           <p
                             className="text-xs text-gray-500 xl:truncate"
-                            title={removeMarkdown(article.content)}
+                            title={parseLexicalContent(article.content)}
                           >
                             {truncateText(article.content, 150)}
                           </p>

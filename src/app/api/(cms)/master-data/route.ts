@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Import sequelize and models directly
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -51,15 +51,19 @@ export async function GET(request: NextRequest) {
       success: true,
       message: "Master data berhasil diambil",
       data: {
-        categories: categories.map((category: any) => ({
-          id: category.id,
-          name: category.name,
-        })),
-        writers: writers.map((writer: any) => ({
-          id: writer.id,
-          fullName: writer.fullName,
-          dusun: writer.dusun,
-        })),
+        categories: categories.map(
+          (category: { id: number; name: string }) => ({
+            id: category.id,
+            name: category.name,
+          })
+        ),
+        writers: writers.map(
+          (writer: { id: number; fullName: string; dusun: string }) => ({
+            id: writer.id,
+            fullName: writer.fullName,
+            dusun: writer.dusun,
+          })
+        ),
       },
       timestamp: new Date().toISOString(),
     });

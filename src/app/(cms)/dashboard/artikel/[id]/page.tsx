@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +37,14 @@ interface ArticleDetail {
     fullName: string;
     dusun: string;
   };
+}
+
+interface LexicalNode {
+  type: string;
+  text?: string;
+  format?: number;
+  children?: LexicalNode[];
+  tag?: string;
 }
 
 export default function ArticleDetailPage() {
@@ -97,14 +106,14 @@ export default function ArticleDetailPage() {
         return content;
       }
 
-      const renderNode = (node: any): string => {
+      const renderNode = (node: LexicalNode): string => {
         if (node.type === "text") {
           let text = node.text || "";
 
           // Apply formatting based on node.format
-          if (node.format & 1) text = `<strong>${text}</strong>`; // Bold
-          if (node.format & 2) text = `<em>${text}</em>`; // Italic
-          if (node.format & 4) text = `<u>${text}</u>`; // Underline
+          if (node.format && node.format & 1) text = `<strong>${text}</strong>`; // Bold
+          if (node.format && node.format & 2) text = `<em>${text}</em>`; // Italic
+          if (node.format && node.format & 4) text = `<u>${text}</u>`; // Underline
 
           return text;
         }
@@ -294,10 +303,12 @@ export default function ArticleDetailPage() {
               <div className="space-y-2">
                 <h3 className="font-semibold">Gambar Unggulan</h3>
                 <div className="relative aspect-video w-full max-w-md">
-                  <img
+                  <Image
                     src={article.imageUrl}
                     alt={article.title}
-                    className="rounded-lg object-cover w-full h-full"
+                    fill
+                    className="rounded-lg object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 </div>
               </div>
