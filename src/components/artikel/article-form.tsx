@@ -74,6 +74,7 @@ export function ArticleForm({
   const [editorState, setEditorState] =
     useState<SerializedEditorState>(initialEditorValue);
   const [featuredImage, setFeaturedImage] = useState<File | null>(null);
+  const [featuredImageUrl, setFeaturedImageUrl] = useState<string | null>(null);
   const [masterData, setMasterData] = useState<MasterData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -102,8 +103,9 @@ export function ArticleForm({
     }));
   };
 
-  const handleImageChange = (file: File | null) => {
+  const handleImageChange = (file: File | null, url?: string) => {
     setFeaturedImage(file);
+    setFeaturedImageUrl(url || null);
   };
 
   const handleImageError = (message: string) => {
@@ -116,10 +118,11 @@ export function ArticleForm({
       status,
       content: editorState,
       featuredImage,
+      featuredImageUrl, // Add the Supabase URL
       publishDate: new Date().toISOString().split("T")[0],
       views: article?.views || 0,
-      image: article?.image || "/api/placeholder/300/200",
-      id: article?.id || Date.now(), // Generate ID for new articles
+      image: featuredImageUrl || article?.image || "/api/placeholder/300/200",
+      id: article?.id || Date.now(),
     };
 
     onSave?.(articleData);
