@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Edit, Eye, Trash2, MoreHorizontal } from "lucide-react";
+import { Edit, Eye, Trash2, MoreHorizontal, ExternalLink } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/tooltip";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
+import { useRouter } from "next/navigation";
 
 interface Article {
   id: number;
@@ -63,6 +64,7 @@ const statusConfig = {
 };
 
 export function ArticleTable({ articles }: ArticleTableProps) {
+  const router = useRouter();
   const removeMarkdown = (text: string): string => {
     return (
       text
@@ -205,16 +207,27 @@ export function ArticleTable({ articles }: ArticleTableProps) {
                       <TableCell className="text-right align-middle">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <span className="sr-only">Buka menu</span>
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                router.push(`/dashboard/artikel/${article.id}`)
+                              }
+                            >
                               <Eye className="mr-2 h-4 w-4" />
-                              Lihat
+                              Lihat Detail
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                router.push(
+                                  `/dashboard/artikel/edit/${article.id}`
+                                )
+                              }
+                            >
                               <Edit className="mr-2 h-4 w-4" />
                               Edit
                             </DropdownMenuItem>
