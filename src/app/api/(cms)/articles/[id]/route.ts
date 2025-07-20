@@ -1,15 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
+import sequelize from "../../../../../../config/database";
+import defineArticle from "../../../../../../models/article.js";
+import defineCategoryArticle from "../../../../../../models/categoryarticle.js";
+import defineWriter from "../../../../../../models/writer.js";
+import { DataTypes, Model } from "sequelize";
+
+// Define interfaces for the models
+interface ArticleModel extends Model {
+  id: number;
+  title: string;
+  content: string;
+  status: "draft" | "publish";
+  imageUrl?: string;
+  articleCategoryId: number;
+  writerId: number;
+  createdAt: Date;
+  updatedAt: Date;
+  category?: CategoryModel;
+  writer?: WriterModel;
+}
+
+interface CategoryModel extends Model {
+  id: number;
+  name: string;
+}
+
+interface WriterModel extends Model {
+  id: number;
+  fullName: string;
+  dusun: string;
+}
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    // Import sequelize and models directly
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const sequelize = require("../../../../../../config/database");
-
-    // Test database connection
     try {
       await sequelize.authenticate();
       console.log("Database connection has been established successfully.");
@@ -24,28 +50,10 @@ export async function GET(
       );
     }
 
-    // Import models directly
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const Article = require("../../../../../../models/article.js")(
-      sequelize,
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require("sequelize").DataTypes
-    );
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const CategoryArticle =
-      require("../../../../../../models/categoryarticle.js")(
-        sequelize,
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        require("sequelize").DataTypes
-      );
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const Writer = require("../../../../../../models/writer.js")(
-      sequelize,
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require("sequelize").DataTypes
-    );
+    const Article = defineArticle(sequelize, DataTypes);
+    const CategoryArticle = defineCategoryArticle(sequelize, DataTypes);
+    const Writer = defineWriter(sequelize, DataTypes);
 
-    // Set up associations
     Article.belongsTo(CategoryArticle, {
       foreignKey: "articleCategoryId",
       as: "category",
@@ -67,8 +75,7 @@ export async function GET(
       );
     }
 
-    // Fetch article with associations
-    const article = await Article.findByPk(articleId, {
+    const article = (await Article.findByPk(articleId, {
       include: [
         {
           model: CategoryArticle,
@@ -81,7 +88,7 @@ export async function GET(
           attributes: ["id", "fullName", "dusun"],
         },
       ],
-    });
+    })) as unknown as ArticleModel | null;
 
     if (!article) {
       return NextResponse.json(

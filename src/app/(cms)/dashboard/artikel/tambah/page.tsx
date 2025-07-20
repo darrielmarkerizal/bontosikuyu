@@ -34,17 +34,5 @@ export default function TambahArtikelPage() {
     }
   };
 
-  const handlePreview = (articleData: Partial<Article>) => {
-    // TODO: Implement preview functionality
-    console.log("Preview article:", articleData);
-    alert("Fitur preview akan segera tersedia!");
-  };
-
-  return (
-    <ArticleForm
-      onSave={handleSave}
-      onCancel={handleCancel}
-      onPreview={handlePreview}
-    />
-  );
+  return <ArticleForm onSave={handleSave} onCancel={handleCancel} />;
 }
