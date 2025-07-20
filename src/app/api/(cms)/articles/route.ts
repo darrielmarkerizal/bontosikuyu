@@ -105,7 +105,17 @@ export async function GET(request: NextRequest) {
     const sortOrder =
       (searchParams.get("sortOrder") as "ASC" | "DESC") || "DESC";
 
-    // Build where clause
+    // Get overall stats FIRST (always the same, regardless of filters)
+    const overallTotalCount = await Article.count();
+    const overallStatusCounts = await Article.findAll({
+      attributes: [
+        "status",
+        [sequelize.fn("COUNT", sequelize.col("id")), "count"],
+      ],
+      group: ["status"],
+    });
+
+    // Build where clause for filtered data
     const whereClause: Record<string, unknown> = {};
 
     if (search) {
@@ -124,7 +134,7 @@ export async function GET(request: NextRequest) {
       whereClause.articleCategoryId = categoryId;
     }
 
-    // Get total count
+    // Get total count for filtered data
     const totalCount = await Article.count({
       where: whereClause,
     });
@@ -140,7 +150,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get articles with associations
+    // Get articles with associations (filtered)
     const articles = await Article.findAll({
       where: whereClause,
       include: [
@@ -165,19 +175,10 @@ export async function GET(request: NextRequest) {
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
 
-    // Get filter options
+    // Get filter options (always all categories)
     const categories = await CategoryArticle.findAll({
       attributes: ["id", "name"],
       order: [["name", "ASC"]],
-    });
-
-    // Status counts
-    const statusCounts = await Article.findAll({
-      attributes: [
-        "status",
-        [sequelize.fn("COUNT", sequelize.col("id")), "count"],
-      ],
-      group: ["status"],
     });
 
     return NextResponse.json({
@@ -207,7 +208,7 @@ export async function GET(request: NextRequest) {
         },
         filters: {
           categories,
-          statusCounts: statusCounts.reduce(
+          statusCounts: overallStatusCounts.reduce(
             (acc: Record<string, number>, item: StatusCountModel) => {
               acc[item.status] = parseInt(item.getDataValue("count") as string);
               return acc;
@@ -223,6 +224,17 @@ export async function GET(request: NextRequest) {
         appliedSort: {
           field: sortBy,
           order: sortOrder,
+        },
+        // Always include overall stats (never changes)
+        overallStats: {
+          totalArticles: overallTotalCount,
+          statusCounts: overallStatusCounts.reduce(
+            (acc: Record<string, number>, item: StatusCountModel) => {
+              acc[item.status] = parseInt(item.getDataValue("count") as string);
+              return acc;
+            },
+            {}
+          ),
         },
       },
       timestamp: new Date().toISOString(),
