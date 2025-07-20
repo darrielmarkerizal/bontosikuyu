@@ -12,6 +12,8 @@ import { WriterCombobox } from "@/components/ui/writer-combobox";
 import { ArrowLeft, Save, Eye, Loader2 } from "lucide-react";
 import { Article } from "./article-types";
 import axios from "axios";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const initialEditorValue = {
   root: {
@@ -59,10 +61,10 @@ interface ArticleFormProps {
 export function ArticleForm({
   article,
   isEditing = false,
-  onSave,
   onCancel,
   onPreview,
 }: ArticleFormProps) {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     title: article?.title || "",
     excerpt: article?.excerpt || "",
@@ -77,6 +79,7 @@ export function ArticleForm({
   const [featuredImageUrl, setFeaturedImageUrl] = useState<string | null>(null);
   const [masterData, setMasterData] = useState<MasterData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   // Fetch master data on component mount
   useEffect(() => {
@@ -88,6 +91,9 @@ export function ArticleForm({
         }
       } catch (error) {
         console.error("Error fetching master data:", error);
+        toast.error("Gagal memuat data master", {
+          description: "Tidak dapat memuat data kategori dan penulis",
+        });
       } finally {
         setLoading(false);
       }
@@ -112,20 +118,88 @@ export function ArticleForm({
     console.error(message);
   };
 
-  const handleSave = (status: "draft" | "published" = "draft") => {
-    const articleData = {
-      ...formData,
-      status,
-      content: editorState,
-      featuredImage,
-      featuredImageUrl, // Add the Supabase URL
-      publishDate: new Date().toISOString().split("T")[0],
-      views: article?.views || 0,
-      image: featuredImageUrl || article?.image || "/api/placeholder/300/200",
-      id: article?.id || Date.now(),
-    };
+  const handleSave = async (status: "draft" | "published" = "draft") => {
+    // Validate required fields
+    if (!formData.title.trim()) {
+      toast.error("Judul artikel wajib diisi");
+      return;
+    }
 
-    onSave?.(articleData);
+    if (!formData.author) {
+      toast.error("Penulis wajib dipilih");
+      return;
+    }
+
+    if (!formData.category) {
+      toast.error("Kategori wajib dipilih");
+      return;
+    }
+
+    // Convert editor state to string content
+    const contentString = JSON.stringify(editorState);
+
+    setSaving(true);
+    try {
+      const articleData = {
+        title: formData.title.trim(),
+        content: contentString,
+        status: status === "published" ? "publish" : "draft",
+        imageUrl: featuredImageUrl,
+        articleCategoryId: parseInt(formData.category),
+        writerId: parseInt(formData.author),
+      };
+
+      const response = await axios.post("/api/articles", articleData);
+
+      if (response.data.success) {
+        toast.success("Artikel berhasil disimpan!", {
+          description: response.data.message,
+        });
+
+        // Redirect to articles list
+        router.push("/dashboard/artikel");
+      } else {
+        throw new Error(response.data.message || "Gagal menyimpan artikel");
+      }
+    } catch (error) {
+      console.error("Save error:", error);
+
+      if (axios.isAxiosError(error)) {
+        const errorData = error.response?.data;
+
+        if (error.response?.status === 400) {
+          // Validation errors
+          if (errorData?.errors) {
+            const errorMessages = Object.values(errorData.errors)
+              .filter(Boolean)
+              .join(", ");
+            toast.error("Validasi gagal", {
+              description: errorMessages,
+            });
+          } else {
+            toast.error("Data tidak lengkap", {
+              description:
+                errorData?.message ||
+                "Mohon lengkapi semua field yang diperlukan",
+            });
+          }
+        } else {
+          toast.error("Gagal menyimpan artikel", {
+            description:
+              errorData?.message || "Terjadi kesalahan saat menyimpan",
+          });
+        }
+      } else {
+        toast.error("Gagal menyimpan artikel", {
+          description:
+            error instanceof Error
+              ? error.message
+              : "Terjadi kesalahan yang tidak terduga",
+        });
+      }
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handlePreview = () => {
@@ -133,6 +207,7 @@ export function ArticleForm({
       ...formData,
       content: editorState,
       featuredImage,
+      featuredImageUrl,
     };
     onPreview?.(articleData);
   };
@@ -180,6 +255,7 @@ export function ArticleForm({
             onClick={handlePreview}
             className="order-3 sm:order-1"
             size="sm"
+            disabled={saving}
           >
             <Eye className="mr-2 h-4 w-4" />
             <span className="hidden xs:inline">Preview</span>
@@ -190,17 +266,30 @@ export function ArticleForm({
             onClick={() => handleSave("draft")}
             className="order-2 sm:order-2"
             size="sm"
+            disabled={saving}
           >
-            <Save className="mr-2 h-4 w-4" />
-            <span className="hidden xs:inline">Simpan Draft</span>
-            <span className="xs:hidden">Draft</span>
+            {saving ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="mr-2 h-4 w-4" />
+            )}
+            <span className="hidden xs:inline">
+              {saving ? "Menyimpan..." : "Simpan Draft"}
+            </span>
+            <span className="xs:hidden">{saving ? "Saving..." : "Draft"}</span>
           </Button>
           <Button
             onClick={() => handleSave("published")}
             className="order-1 sm:order-3"
+            disabled={saving}
           >
-            <span className="hidden xs:inline">Publikasikan</span>
-            <span className="xs:hidden">Publish</span>
+            {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            <span className="hidden xs:inline">
+              {saving ? "Mempublikasikan..." : "Publikasikan"}
+            </span>
+            <span className="xs:hidden">
+              {saving ? "Publishing..." : "Publish"}
+            </span>
           </Button>
         </div>
       </div>
@@ -224,6 +313,7 @@ export function ArticleForm({
                   onChange={(e) => handleInputChange("title", e.target.value)}
                   placeholder="Masukkan judul artikel..."
                   className="text-lg font-medium"
+                  disabled={saving}
                 />
               </div>
 
@@ -238,6 +328,7 @@ export function ArticleForm({
                   rows={4}
                   maxLength={200}
                   className="w-full px-3 py-2 border border-input rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent text-sm"
+                  disabled={saving}
                 />
                 <p className="text-xs text-muted-foreground text-right">
                   {formData.excerpt.length}/200 karakter
@@ -272,7 +363,7 @@ export function ArticleForm({
                   writers={masterData?.writers || []}
                   value={formData.author}
                   onValueChange={(value) => handleInputChange("author", value)}
-                  disabled={loading}
+                  disabled={saving}
                 />
               </div>
 
@@ -285,7 +376,7 @@ export function ArticleForm({
                     handleInputChange("category", e.target.value)
                   }
                   className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                  disabled={loading}
+                  disabled={saving}
                 >
                   <option value="">Pilih kategori...</option>
                   {masterData?.categories.map((category) => (
@@ -308,6 +399,7 @@ export function ArticleForm({
                     )
                   }
                   className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                  disabled={saving}
                 >
                   <option value="draft">Draft</option>
                   <option value="published">Dipublikasi</option>
@@ -347,6 +439,7 @@ export function ArticleForm({
                 onChange={(e) => handleInputChange("title", e.target.value)}
                 placeholder="Masukkan judul artikel..."
                 className="text-base sm:text-lg"
+                disabled={saving}
               />
             </div>
 
@@ -361,6 +454,7 @@ export function ArticleForm({
                 rows={3}
                 maxLength={200}
                 className="w-full px-3 py-2 border border-input rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent text-sm"
+                disabled={saving}
               />
               <p className="text-xs text-muted-foreground text-right">
                 {formData.excerpt.length}/200 karakter
@@ -375,7 +469,7 @@ export function ArticleForm({
                   writers={masterData?.writers || []}
                   value={formData.author}
                   onValueChange={(value) => handleInputChange("author", value)}
-                  disabled={loading}
+                  disabled={saving}
                 />
               </div>
 
@@ -388,7 +482,7 @@ export function ArticleForm({
                     handleInputChange("category", e.target.value)
                   }
                   className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                  disabled={loading}
+                  disabled={saving}
                 >
                   <option value="">Pilih kategori...</option>
                   {masterData?.categories.map((category) => (
@@ -411,6 +505,7 @@ export function ArticleForm({
                     )
                   }
                   className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                  disabled={saving}
                 >
                   <option value="draft">Draft</option>
                   <option value="published">Dipublikasi</option>
