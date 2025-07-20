@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SerializedEditorState } from "lexical";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Editor } from "../blocks/editor-00/editor";
 import { ImageUpload } from "./image-upload";
-import { ArrowLeft, Save, Eye } from "lucide-react";
+import { WriterCombobox } from "@/components/ui/writer-combobox";
+import { ArrowLeft, Save, Eye, Loader2 } from "lucide-react";
 import { Article } from "./article-types";
+import axios from "axios";
 
 const initialEditorValue = {
   root: {
@@ -41,6 +43,11 @@ const initialEditorValue = {
   },
 } as unknown as SerializedEditorState;
 
+interface MasterData {
+  categories: Array<{ id: number; name: string }>;
+  writers: Array<{ id: number; fullName: string; dusun: string }>;
+}
+
 interface ArticleFormProps {
   article?: Partial<Article>;
   isEditing?: boolean;
@@ -67,6 +74,26 @@ export function ArticleForm({
   const [editorState, setEditorState] =
     useState<SerializedEditorState>(initialEditorValue);
   const [featuredImage, setFeaturedImage] = useState<File | null>(null);
+  const [masterData, setMasterData] = useState<MasterData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch master data on component mount
+  useEffect(() => {
+    const fetchMasterData = async () => {
+      try {
+        const response = await axios.get("/api/master-data");
+        if (response.data.success) {
+          setMasterData(response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching master data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMasterData();
+  }, []);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -107,16 +134,16 @@ export function ArticleForm({
     onPreview?.(articleData);
   };
 
-  const categories = [
-    "Infrastruktur",
-    "Budaya",
-    "Ekonomi",
-    "Kesehatan",
-    "Lingkungan",
-    "Pendidikan",
-    "Sosial",
-    "Teknologi",
-  ];
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span>Memuat data...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
@@ -237,12 +264,12 @@ export function ArticleForm({
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="author-desktop">Penulis *</Label>
-                <Input
-                  id="author-desktop"
+                <Label>Penulis *</Label>
+                <WriterCombobox
+                  writers={masterData?.writers || []}
                   value={formData.author}
-                  onChange={(e) => handleInputChange("author", e.target.value)}
-                  placeholder="Nama penulis..."
+                  onValueChange={(value) => handleInputChange("author", value)}
+                  disabled={loading}
                 />
               </div>
 
@@ -255,11 +282,12 @@ export function ArticleForm({
                     handleInputChange("category", e.target.value)
                   }
                   className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                  disabled={loading}
                 >
                   <option value="">Pilih kategori...</option>
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
+                  {masterData?.categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
                     </option>
                   ))}
                 </select>
@@ -339,12 +367,12 @@ export function ArticleForm({
             {/* Publication Settings - Responsive Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="author-mobile">Penulis *</Label>
-                <Input
-                  id="author-mobile"
+                <Label>Penulis *</Label>
+                <WriterCombobox
+                  writers={masterData?.writers || []}
                   value={formData.author}
-                  onChange={(e) => handleInputChange("author", e.target.value)}
-                  placeholder="Nama penulis..."
+                  onValueChange={(value) => handleInputChange("author", value)}
+                  disabled={loading}
                 />
               </div>
 
@@ -357,11 +385,12 @@ export function ArticleForm({
                     handleInputChange("category", e.target.value)
                   }
                   className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                  disabled={loading}
                 >
                   <option value="">Pilih kategori...</option>
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
+                  {masterData?.categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
                     </option>
                   ))}
                 </select>
