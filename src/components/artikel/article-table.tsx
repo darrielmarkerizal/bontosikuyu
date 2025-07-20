@@ -56,7 +56,7 @@ const statusConfig = {
   },
 };
 
-export function ArticleTable({ articles }: ArticleTableProps) {
+export function ArticleTable({ articles, loading }: ArticleTableProps) {
   const removeMarkdown = (text: string): string => {
     return (
       text
@@ -112,18 +112,18 @@ export function ArticleTable({ articles }: ArticleTableProps) {
           <Table className="w-full table-fixed">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[35%]">Judul</TableHead>
+                <TableHead className="w-[45%]">Judul</TableHead>
                 <TableHead className="w-[12%]">Kategori</TableHead>
                 <TableHead className="w-[15%]">Penulis</TableHead>
                 <TableHead className="w-[10%]">Status</TableHead>
-                <TableHead className="w-[13%]">Tanggal Dibuat</TableHead>
+                <TableHead className="w-[10%]">Tanggal Dibuat</TableHead>
                 <TableHead className="w-[8%] text-right">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {articles.map((article) => (
                 <TableRow key={article.id}>
-                  <TableCell className="align-top">
+                  <TableCell className="align-middle">
                     <div className="space-y-1">
                       <p
                         className="font-medium text-sm truncate"
@@ -135,16 +135,16 @@ export function ArticleTable({ articles }: ArticleTableProps) {
                         className="text-xs text-gray-500 truncate"
                         title={removeMarkdown(article.content)}
                       >
-                        {truncateText(article.content, 120)}
+                        {truncateText(article.content, 150)}
                       </p>
                     </div>
                   </TableCell>
-                  <TableCell className="align-top">
+                  <TableCell className="align-middle">
                     <Badge variant="outline" className="text-xs">
                       {article.category.name}
                     </Badge>
                   </TableCell>
-                  <TableCell className="align-top">
+                  <TableCell className="align-middle">
                     <div className="space-y-1">
                       <p
                         className="text-sm font-medium truncate"
@@ -160,17 +160,17 @@ export function ArticleTable({ articles }: ArticleTableProps) {
                       </p>
                     </div>
                   </TableCell>
-                  <TableCell className="align-top">
+                  <TableCell className="align-middle">
                     <Badge className={statusConfig[article.status].className}>
                       {statusConfig[article.status].label}
                     </Badge>
                   </TableCell>
-                  <TableCell className="align-top">
+                  <TableCell className="align-middle">
                     <span className="text-sm text-gray-600">
                       {formatDate(article.createdAt)}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right align-top">
+                  <TableCell className="text-right align-middle">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm">
