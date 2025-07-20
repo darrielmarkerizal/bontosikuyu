@@ -218,11 +218,14 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
                       {item.title}
                     </BreadcrumbLink>
                   )}
-                  {index < breadcrumbItems.length - 1 && (
-                    <BreadcrumbSeparator />
-                  )}
                 </BreadcrumbItem>
               ))}
+              {/* Render separators outside of BreadcrumbItem to avoid nested li */}
+              {breadcrumbItems.map((item, index) =>
+                index < breadcrumbItems.length - 1 ? (
+                  <BreadcrumbSeparator key={`separator-${index}`} />
+                ) : null
+              )}
             </BreadcrumbList>
           </Breadcrumb>
         </header>

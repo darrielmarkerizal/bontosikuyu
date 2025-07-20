@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Editor } from "../blocks/editor-00/editor";
+import { ImageUpload } from "./image-upload";
 import { ArrowLeft, Save, Eye } from "lucide-react";
 import { Article } from "./article-types";
 
@@ -65,6 +66,7 @@ export function ArticleForm({
 
   const [editorState, setEditorState] =
     useState<SerializedEditorState>(initialEditorValue);
+  const [featuredImage, setFeaturedImage] = useState<File | null>(null);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -73,11 +75,20 @@ export function ArticleForm({
     }));
   };
 
+  const handleImageChange = (file: File | null) => {
+    setFeaturedImage(file);
+  };
+
+  const handleImageError = (message: string) => {
+    console.error(message);
+  };
+
   const handleSave = (status: "draft" | "published" = "draft") => {
     const articleData = {
       ...formData,
       status,
       content: editorState,
+      featuredImage,
       publishDate: new Date().toISOString().split("T")[0],
       views: article?.views || 0,
       image: article?.image || "/api/placeholder/300/200",
@@ -91,6 +102,7 @@ export function ArticleForm({
     const articleData = {
       ...formData,
       content: editorState,
+      featuredImage,
     };
     onPreview?.(articleData);
   };
@@ -139,172 +151,107 @@ export function ArticleForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Basic Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Informasi Artikel</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Judul Artikel *</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => handleInputChange("title", e.target.value)}
-                  placeholder="Masukkan judul artikel..."
-                  className="text-lg"
-                />
-              </div>
+      {/* Single Card Layout - Single Column */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Form Artikel</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Title */}
+          <div className="space-y-2">
+            <Label htmlFor="title">Judul Artikel *</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => handleInputChange("title", e.target.value)}
+              placeholder="Masukkan judul artikel..."
+              className="text-lg"
+            />
+          </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="excerpt">Ringkasan Artikel *</Label>
-                <textarea
-                  id="excerpt"
-                  value={formData.excerpt}
-                  onChange={(e) => handleInputChange("excerpt", e.target.value)}
-                  placeholder="Tulis ringkasan singkat artikel (max 200 karakter)..."
-                  rows={3}
-                  maxLength={200}
-                  className="w-full px-3 py-2 border border-input rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                />
-                <p className="text-xs text-muted-foreground">
-                  {formData.excerpt.length}/200 karakter
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Excerpt */}
+          <div className="space-y-2">
+            <Label htmlFor="excerpt">Ringkasan Artikel *</Label>
+            <textarea
+              id="excerpt"
+              value={formData.excerpt}
+              onChange={(e) => handleInputChange("excerpt", e.target.value)}
+              placeholder="Tulis ringkasan singkat artikel (max 200 karakter)..."
+              rows={3}
+              maxLength={200}
+              className="w-full px-3 py-2 border border-input rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+            />
+            <p className="text-xs text-muted-foreground">
+              {formData.excerpt.length}/200 karakter
+            </p>
+          </div>
 
-          {/* Content Editor */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Konten Artikel</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="min-h-[400px]">
-                <Editor
-                  editorSerializedState={editorState}
-                  onSerializedChange={(value) => setEditorState(value)}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+          {/* Publication Settings */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="author">Penulis *</Label>
+              <Input
+                id="author"
+                value={formData.author}
+                onChange={(e) => handleInputChange("author", e.target.value)}
+                placeholder="Nama penulis..."
+              />
+            </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Article Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Pengaturan Publikasi</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="author">Penulis *</Label>
-                <Input
-                  id="author"
-                  value={formData.author}
-                  onChange={(e) => handleInputChange("author", e.target.value)}
-                  placeholder="Nama penulis..."
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="category">Kategori *</Label>
+              <select
+                id="category"
+                value={formData.category}
+                onChange={(e) => handleInputChange("category", e.target.value)}
+                className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+              >
+                <option value="">Pilih kategori...</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="category">Kategori *</Label>
-                <select
-                  id="category"
-                  value={formData.category}
-                  onChange={(e) =>
-                    handleInputChange("category", e.target.value)
-                  }
-                  className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                >
-                  <option value="">Pilih kategori...</option>
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="status">Status</Label>
-                <select
-                  id="status"
-                  value={formData.status}
-                  onChange={(e) =>
-                    handleInputChange(
-                      "status",
-                      e.target.value as "draft" | "published"
-                    )
-                  }
-                  className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                >
-                  <option value="draft">Draft</option>
-                  <option value="published">Dipublikasi</option>
-                </select>
-              </div>
-            </CardContent>
-          </Card>
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <select
+                id="status"
+                value={formData.status}
+                onChange={(e) =>
+                  handleInputChange(
+                    "status",
+                    e.target.value as "draft" | "published"
+                  )
+                }
+                className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+              >
+                <option value="draft">Draft</option>
+                <option value="published">Dipublikasi</option>
+              </select>
+            </div>
+          </div>
 
           {/* Featured Image */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Gambar Unggulan</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="aspect-video bg-muted rounded-lg border-2 border-dashed border-muted-foreground/25 flex items-center justify-center">
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">
-                      Belum ada gambar dipilih
-                    </p>
-                    <Button variant="outline" size="sm" className="mt-2">
-                      Pilih Gambar
-                    </Button>
-                  </div>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Ukuran yang disarankan: 1200x630px (JPG, PNG)
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <ImageUpload
+            onChange={handleImageChange}
+            onError={handleImageError}
+          />
 
-          {/* SEO Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle>SEO</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="seo-title">SEO Title</Label>
-                <Input
-                  id="seo-title"
-                  placeholder="Judul untuk SEO..."
-                  maxLength={60}
-                />
-                <p className="text-xs text-muted-foreground">0/60 karakter</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="seo-description">Meta Description</Label>
-                <textarea
-                  id="seo-description"
-                  placeholder="Deskripsi untuk mesin pencari..."
-                  rows={3}
-                  maxLength={160}
-                  className="w-full px-3 py-2 border border-input rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                />
-                <p className="text-xs text-muted-foreground">0/160 karakter</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+          {/* Content Editor */}
+          <div className="space-y-2">
+            <Label>Konten Artikel</Label>
+            <div className="min-h-[400px] border border-input rounded-md [&_.EditorTheme__paragraph]:my-1 [&_.EditorTheme__heading]:my-2 [&_.EditorTheme__list]:my-1 [&_.EditorTheme__quote]:my-1">
+              <Editor
+                editorSerializedState={editorState}
+                onSerializedChange={(value) => setEditorState(value)}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

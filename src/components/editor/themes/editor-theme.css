@@ -69,7 +69,7 @@
   margin-bottom: 0.5rem;
 }
 
-.Collapsible__title{
+.Collapsible__title {
   padding: 0.25rem;
   padding-left: 1rem;
   position: relative;
@@ -80,12 +80,94 @@
   list-style-position: inside;
 }
 
-.Collapsible__title p{
+.Collapsible__title p {
   display: inline-flex;
 }
-.Collapsible__title::marker{
+.Collapsible__title::marker {
   color: lightgray;
 }
-.Collapsible__container[open] >.Collapsible__title {
+.Collapsible__container[open] > .Collapsible__title {
   list-style-type: disclosure-open;
+}
+
+/* Custom styles for better line spacing and font size */
+.EditorTheme__paragraph {
+  margin: 0.5rem 0;
+  line-height: 1.4;
+  font-size: 14px;
+}
+
+.EditorTheme__heading {
+  margin: 0.75rem 0 0.5rem 0;
+  line-height: 1.3;
+}
+
+.EditorTheme__heading h1 {
+  font-size: 1.5rem;
+  line-height: 1.3;
+}
+
+.EditorTheme__heading h2 {
+  font-size: 1.25rem;
+  line-height: 1.3;
+}
+
+.EditorTheme__heading h3 {
+  font-size: 1.125rem;
+  line-height: 1.3;
+}
+
+.EditorTheme__heading h4 {
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.EditorTheme__heading h5 {
+  font-size: 0.875rem;
+  line-height: 1.3;
+}
+
+.EditorTheme__heading h6 {
+  font-size: 0.75rem;
+  line-height: 1.3;
+}
+
+.EditorTheme__list {
+  margin: 0.5rem 0;
+  line-height: 1.4;
+  font-size: 14px;
+}
+
+.EditorTheme__listItem {
+  margin: 0.25rem 0;
+  line-height: 1.4;
+}
+
+.EditorTheme__quote {
+  margin: 0.5rem 0;
+  line-height: 1.4;
+  font-size: 14px;
+  padding: 0.5rem 1rem;
+  border-left: 4px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+/* Reduce overall spacing in the editor */
+.EditorTheme__root {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Adjust toolbar spacing */
+.EditorTheme__toolbar {
+  padding: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Content area adjustments */
+.EditorTheme__content {
+  padding: 1rem;
+  min-height: 300px;
+  font-size: 14px;
+  line-height: 1.4;
 }
