@@ -18,6 +18,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 
@@ -106,121 +112,127 @@ export function ArticleTable({ articles }: ArticleTableProps) {
   };
 
   return (
-    <Card>
-      <CardContent className="p-0">
-        {/* Container with responsive horizontal scroll */}
-        <div className="w-full overflow-x-auto">
-          {/* Wrapper untuk mengatur min-width tabel */}
-          <div className="min-w-full xl:min-w-0">
-            <Table className="w-full xl:table-fixed">
-              <TableHeader>
-                <TableRow>
-                  {/* Desktop: fixed width, Mobile/Tablet: flexible width dengan min-width */}
-                  <TableHead className="xl:w-[45%] min-w-[280px] sm:min-w-[320px] lg:min-w-[350px]">
-                    Judul
-                  </TableHead>
-                  <TableHead className="xl:w-[12%] min-w-[100px] sm:min-w-[120px]">
-                    Kategori
-                  </TableHead>
-                  <TableHead className="xl:w-[15%] min-w-[140px] sm:min-w-[160px]">
-                    Penulis
-                  </TableHead>
-                  <TableHead className="xl:w-[10%] min-w-[100px] sm:min-w-[110px]">
-                    Status
-                  </TableHead>
-                  <TableHead className="xl:w-[10%] min-w-[120px] sm:min-w-[130px]">
-                    Tanggal Dibuat
-                  </TableHead>
-                  <TableHead className="xl:w-[8%] min-w-[80px] text-right">
-                    Aksi
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {articles.map((article) => (
-                  <TableRow key={article.id}>
-                    <TableCell className="align-middle xl:max-w-0">
-                      <div className="space-y-1">
-                        <p
-                          className="font-medium text-sm xl:truncate"
-                          title={article.title}
-                        >
-                          {article.title}
-                        </p>
-                        <p
-                          className="text-xs text-gray-500 xl:truncate"
-                          title={removeMarkdown(article.content)}
-                        >
-                          {truncateText(article.content, 150)}
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="align-middle">
-                      <Badge
-                        variant="outline"
-                        className="text-xs whitespace-nowrap"
-                      >
-                        {article.category.name}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="align-middle xl:max-w-0">
-                      <div className="space-y-1">
-                        <p
-                          className="text-sm font-medium xl:truncate"
-                          title={article.writer.fullName}
-                        >
-                          {article.writer.fullName}
-                        </p>
-                        <p
-                          className="text-xs text-gray-500 xl:truncate"
-                          title={article.writer.dusun}
-                        >
-                          {article.writer.dusun}
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="align-middle">
-                      <Badge
-                        className={`${statusConfig[article.status].className} whitespace-nowrap`}
-                      >
-                        {statusConfig[article.status].label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="align-middle">
-                      <span className="text-sm text-gray-600 whitespace-nowrap">
-                        {formatDate(article.createdAt)}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right align-middle">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <Eye className="mr-2 h-4 w-4" />
-                            Lihat
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Hapus
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+    <TooltipProvider>
+      <Card>
+        <CardContent className="p-0">
+          {/* Container with responsive horizontal scroll */}
+          <div className="w-full overflow-x-auto">
+            {/* Wrapper untuk mengatur min-width tabel */}
+            <div className="min-w-full xl:min-w-0">
+              <Table className="w-full xl:table-fixed">
+                <TableHeader>
+                  <TableRow>
+                    {/* Desktop: fixed width, Mobile/Tablet: flexible width dengan min-width */}
+                    <TableHead className="xl:w-[45%] min-w-[280px] sm:min-w-[320px] lg:min-w-[350px]">
+                      Judul
+                    </TableHead>
+                    <TableHead className="xl:w-[12%] min-w-[100px] sm:min-w-[120px]">
+                      Kategori
+                    </TableHead>
+                    <TableHead className="xl:w-[15%] min-w-[140px] sm:min-w-[160px]">
+                      Penulis
+                    </TableHead>
+                    <TableHead className="xl:w-[10%] min-w-[100px] sm:min-w-[110px]">
+                      Status
+                    </TableHead>
+                    <TableHead className="xl:w-[10%] min-w-[120px] sm:min-w-[130px]">
+                      Tanggal Dibuat
+                    </TableHead>
+                    <TableHead className="xl:w-[8%] min-w-[80px] text-right">
+                      Aksi
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {articles.map((article) => (
+                    <TableRow key={article.id}>
+                      <TableCell className="align-middle xl:max-w-0">
+                        <div className="space-y-1">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <p className="font-medium text-sm xl:truncate cursor-help">
+                                {article.title}
+                              </p>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="max-w-xs">{article.title}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                          <p
+                            className="text-xs text-gray-500 xl:truncate"
+                            title={removeMarkdown(article.content)}
+                          >
+                            {truncateText(article.content, 150)}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="align-middle">
+                        <Badge
+                          variant="outline"
+                          className="text-xs whitespace-nowrap"
+                        >
+                          {article.category.name}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="align-middle xl:max-w-0">
+                        <div className="space-y-1">
+                          <p
+                            className="text-sm font-medium xl:truncate"
+                            title={article.writer.fullName}
+                          >
+                            {article.writer.fullName}
+                          </p>
+                          <p
+                            className="text-xs text-gray-500 xl:truncate"
+                            title={article.writer.dusun}
+                          >
+                            {article.writer.dusun}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="align-middle">
+                        <Badge
+                          className={`${statusConfig[article.status].className} whitespace-nowrap`}
+                        >
+                          {statusConfig[article.status].label}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="align-middle">
+                        <span className="text-sm text-gray-600 whitespace-nowrap">
+                          {formatDate(article.createdAt)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right align-middle">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>
+                              <Eye className="mr-2 h-4 w-4" />
+                              Lihat
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-red-600">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Hapus
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </TooltipProvider>
   );
 }
