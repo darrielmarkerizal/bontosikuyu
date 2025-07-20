@@ -1,13 +1,15 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-} from "lucide-react";
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface ArticlePaginationProps {
   currentPage: number;
@@ -31,9 +33,8 @@ export function ArticlePagination({
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
-  const getPageNumbers = () => {
+  const getPageNumbers = (maxVisible: number = 5) => {
     const pages = [];
-    const maxVisible = 5;
 
     if (totalPages <= maxVisible) {
       for (let i = 1; i <= totalPages; i++) {
@@ -41,15 +42,21 @@ export function ArticlePagination({
       }
     } else {
       if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) {
+        for (let i = 1; i <= Math.min(maxVisible - 1, totalPages); i++) {
           pages.push(i);
         }
-        pages.push("...");
-        pages.push(totalPages);
+        if (totalPages > maxVisible - 1) {
+          pages.push("...");
+          pages.push(totalPages);
+        }
       } else if (currentPage >= totalPages - 2) {
         pages.push(1);
         pages.push("...");
-        for (let i = totalPages - 3; i <= totalPages; i++) {
+        for (
+          let i = Math.max(totalPages - maxVisible + 2, 1);
+          i <= totalPages;
+          i++
+        ) {
           pages.push(i);
         }
       } else {
@@ -66,72 +73,94 @@ export function ArticlePagination({
     return pages;
   };
 
+  // Responsive page numbers based on screen size
+  const renderPaginationItems = () => {
+    // Mobile: Show fewer pages
+    const isMobile = window.innerWidth < 640;
+    const isTablet = window.innerWidth >= 640 && window.innerWidth < 1024;
+
+    let maxVisible = 5; // Desktop default
+    if (isMobile) maxVisible = 3;
+    else if (isTablet) maxVisible = 4;
+
+    const pages = getPageNumbers(maxVisible);
+
+    return pages.map((page, index) => (
+      <PaginationItem key={index}>
+        {page === "..." ? (
+          <PaginationEllipsis />
+        ) : (
+          <PaginationLink
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              onPageChange(page as number);
+            }}
+            isActive={page === currentPage}
+            className="min-w-[36px] sm:min-w-[40px]"
+          >
+            {page}
+          </PaginationLink>
+        )}
+      </PaginationItem>
+    ));
+  };
+
   return (
     <Card>
-      <CardContent className="p-4">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Info */}
-          <div className="text-sm text-gray-600">
-            Menampilkan {startItem}-{endItem} dari {totalItems} artikel
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex flex-col space-y-3 sm:space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
+          {/* Info - Responsive text */}
+          <div className="text-xs sm:text-sm text-muted-foreground text-center lg:text-left order-2 lg:order-1">
+            <span className="hidden xs:inline">Menampilkan </span>
+            <span className="font-medium">
+              {startItem}-{endItem}
+            </span>
+            <span className="hidden xs:inline"> dari </span>
+            <span className="xs:hidden"> / </span>
+            <span className="font-medium">{totalItems}</span>
+            <span className="hidden xs:inline"> artikel</span>
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPageChange(1)}
-              disabled={!hasPrevPage}
-            >
-              <ChevronsLeft className="h-4 w-4" />
-            </Button>
+          <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
+            <Pagination>
+              <PaginationContent className="gap-0 sm:gap-1">
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (hasPrevPage) onPageChange(currentPage - 1);
+                    }}
+                    className={`${!hasPrevPage ? "pointer-events-none opacity-50" : ""} px-2 sm:px-3`}
+                  />
+                </PaginationItem>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPageChange(currentPage - 1)}
-              disabled={!hasPrevPage}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-
-            {/* Page Numbers */}
-            <div className="flex items-center gap-1">
-              {getPageNumbers().map((page, index) => (
-                <div key={index}>
-                  {page === "..." ? (
-                    <span className="px-2 py-1 text-sm text-gray-500">...</span>
-                  ) : (
-                    <Button
-                      variant={page === currentPage ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => onPageChange(page as number)}
-                      className="w-8 h-8 p-0"
-                    >
-                      {page}
-                    </Button>
-                  )}
+                {/* Desktop and Tablet: Show page numbers */}
+                <div className="hidden sm:contents">
+                  {renderPaginationItems()}
                 </div>
-              ))}
-            </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPageChange(currentPage + 1)}
-              disabled={!hasNextPage}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+                {/* Mobile: Show only current page info */}
+                <div className="sm:hidden flex items-center px-3 py-2 text-sm">
+                  <span className="text-muted-foreground">
+                    {currentPage} / {totalPages}
+                  </span>
+                </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPageChange(totalPages)}
-              disabled={!hasNextPage}
-            >
-              <ChevronsRight className="h-4 w-4" />
-            </Button>
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (hasNextPage) onPageChange(currentPage + 1);
+                    }}
+                    className={`${!hasNextPage ? "pointer-events-none opacity-50" : ""} px-2 sm:px-3`}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
         </div>
       </CardContent>
