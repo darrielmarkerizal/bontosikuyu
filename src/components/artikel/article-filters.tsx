@@ -136,8 +136,8 @@ export function ArticleFilters({
                 onClick={() => handleSort("createdAt")}
                 className={`${
                   currentSort.field === "createdAt"
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                    : ""
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                    : "hover:bg-gray-100 hover:text-gray-900"
                 }`}
               >
                 <ArrowUpDown className="mr-2 h-4 w-4" />

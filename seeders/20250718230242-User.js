@@ -1,8 +1,9 @@
 "use strict";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const CryptoJS = require("crypto-js");
 
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
+  up: async (queryInterface) => {
     await queryInterface.bulkInsert(
       "Users",
       [

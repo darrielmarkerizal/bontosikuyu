@@ -109,7 +109,8 @@ export async function GET(request: NextRequest) {
     const whereClause: Record<string, unknown> = {};
 
     if (search) {
-      whereClause[Op.or] = [
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (whereClause as any)[Op.or] = [
         { title: { [Op.like]: `%${search}%` } },
         { content: { [Op.like]: `%${search}%` } },
       ];
