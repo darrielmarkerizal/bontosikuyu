@@ -56,7 +56,7 @@ const statusConfig = {
   },
 };
 
-export function ArticleTable({ articles, loading }: ArticleTableProps) {
+export function ArticleTable({ articles }: ArticleTableProps) {
   const removeMarkdown = (text: string): string => {
     return (
       text
