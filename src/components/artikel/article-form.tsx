@@ -119,18 +119,23 @@ export function ArticleForm({
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={onCancel}>
+    <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+      {/* Header - Responsive */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={onCancel}
+            className="shrink-0"
+          >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl sm:text-2xl xl:text-3xl font-bold leading-tight">
               {isEditing ? "Edit Artikel" : "Tambah Artikel Baru"}
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground mt-1">
               {isEditing
                 ? "Perbarui artikel yang sudah ada"
                 : "Buat artikel baru untuk website Desa Laiyolo Baru"}
@@ -138,120 +143,271 @@ export function ArticleForm({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handlePreview}>
+        {/* Action Buttons - Responsive */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2">
+          <Button
+            variant="outline"
+            onClick={handlePreview}
+            className="order-3 sm:order-1"
+            size="sm"
+          >
             <Eye className="mr-2 h-4 w-4" />
-            Preview
+            <span className="hidden xs:inline">Preview</span>
+            <span className="xs:hidden">Preview</span>
           </Button>
-          <Button variant="outline" onClick={() => handleSave("draft")}>
+          <Button
+            variant="outline"
+            onClick={() => handleSave("draft")}
+            className="order-2 sm:order-2"
+            size="sm"
+          >
             <Save className="mr-2 h-4 w-4" />
-            Simpan Draft
+            <span className="hidden xs:inline">Simpan Draft</span>
+            <span className="xs:hidden">Draft</span>
           </Button>
-          <Button onClick={() => handleSave("published")}>Publikasikan</Button>
+          <Button
+            onClick={() => handleSave("published")}
+            className="order-1 sm:order-3"
+          >
+            <span className="hidden xs:inline">Publikasikan</span>
+            <span className="xs:hidden">Publish</span>
+          </Button>
         </div>
       </div>
 
-      {/* Single Card Layout - Single Column */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Form Artikel</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Title */}
-          <div className="space-y-2">
-            <Label htmlFor="title">Judul Artikel *</Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => handleInputChange("title", e.target.value)}
-              placeholder="Masukkan judul artikel..."
-              className="text-lg"
-            />
-          </div>
+      {/* Desktop Layout - Two Columns */}
+      <div className="hidden xl:grid xl:grid-cols-3 xl:gap-6">
+        {/* Main Content - 2/3 width */}
+        <div className="xl:col-span-2 space-y-6">
+          {/* Title & Content Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Konten Utama</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Title */}
+              <div className="space-y-2">
+                <Label htmlFor="title-desktop">Judul Artikel *</Label>
+                <Input
+                  id="title-desktop"
+                  value={formData.title}
+                  onChange={(e) => handleInputChange("title", e.target.value)}
+                  placeholder="Masukkan judul artikel..."
+                  className="text-lg font-medium"
+                />
+              </div>
 
-          {/* Excerpt */}
-          <div className="space-y-2">
-            <Label htmlFor="excerpt">Ringkasan Artikel *</Label>
-            <textarea
-              id="excerpt"
-              value={formData.excerpt}
-              onChange={(e) => handleInputChange("excerpt", e.target.value)}
-              placeholder="Tulis ringkasan singkat artikel (max 200 karakter)..."
-              rows={3}
-              maxLength={200}
-              className="w-full px-3 py-2 border border-input rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-            />
-            <p className="text-xs text-muted-foreground">
-              {formData.excerpt.length}/200 karakter
-            </p>
-          </div>
+              {/* Excerpt */}
+              <div className="space-y-2">
+                <Label htmlFor="excerpt-desktop">Ringkasan Artikel *</Label>
+                <textarea
+                  id="excerpt-desktop"
+                  value={formData.excerpt}
+                  onChange={(e) => handleInputChange("excerpt", e.target.value)}
+                  placeholder="Tulis ringkasan singkat artikel (max 200 karakter)..."
+                  rows={4}
+                  maxLength={200}
+                  className="w-full px-3 py-2 border border-input rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent text-sm"
+                />
+                <p className="text-xs text-muted-foreground text-right">
+                  {formData.excerpt.length}/200 karakter
+                </p>
+              </div>
 
+              {/* Content Editor */}
+              <div className="space-y-2">
+                <Label>Konten Artikel *</Label>
+                <div className="min-h-[500px] border border-input rounded-md [&_.EditorTheme__paragraph]:my-1 [&_.EditorTheme__heading]:my-2 [&_.EditorTheme__list]:my-1 [&_.EditorTheme__quote]:my-1">
+                  <Editor
+                    editorSerializedState={editorState}
+                    onSerializedChange={(value) => setEditorState(value)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Sidebar - 1/3 width */}
+        <div className="xl:col-span-1 space-y-6">
           {/* Publication Settings */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="author">Penulis *</Label>
-              <Input
-                id="author"
-                value={formData.author}
-                onChange={(e) => handleInputChange("author", e.target.value)}
-                placeholder="Nama penulis..."
-              />
-            </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Pengaturan Publikasi</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="author-desktop">Penulis *</Label>
+                <Input
+                  id="author-desktop"
+                  value={formData.author}
+                  onChange={(e) => handleInputChange("author", e.target.value)}
+                  placeholder="Nama penulis..."
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="category">Kategori *</Label>
-              <select
-                id="category"
-                value={formData.category}
-                onChange={(e) => handleInputChange("category", e.target.value)}
-                className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-              >
-                <option value="">Pilih kategori...</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="category-desktop">Kategori *</Label>
+                <select
+                  id="category-desktop"
+                  value={formData.category}
+                  onChange={(e) =>
+                    handleInputChange("category", e.target.value)
+                  }
+                  className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                >
+                  <option value="">Pilih kategori...</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <select
-                id="status"
-                value={formData.status}
-                onChange={(e) =>
-                  handleInputChange(
-                    "status",
-                    e.target.value as "draft" | "published"
-                  )
-                }
-                className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-              >
-                <option value="draft">Draft</option>
-                <option value="published">Dipublikasi</option>
-              </select>
-            </div>
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="status-desktop">Status</Label>
+                <select
+                  id="status-desktop"
+                  value={formData.status}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "status",
+                      e.target.value as "draft" | "published"
+                    )
+                  }
+                  className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                >
+                  <option value="draft">Draft</option>
+                  <option value="published">Dipublikasi</option>
+                </select>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Featured Image */}
-          <ImageUpload
-            onChange={handleImageChange}
-            onError={handleImageError}
-          />
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Gambar Unggulan</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ImageUpload
+                onChange={handleImageChange}
+                onError={handleImageError}
+              />
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
-          {/* Content Editor */}
-          <div className="space-y-2">
-            <Label>Konten Artikel</Label>
-            <div className="min-h-[400px] border border-input rounded-md [&_.EditorTheme__paragraph]:my-1 [&_.EditorTheme__heading]:my-2 [&_.EditorTheme__list]:my-1 [&_.EditorTheme__quote]:my-1">
-              <Editor
-                editorSerializedState={editorState}
-                onSerializedChange={(value) => setEditorState(value)}
+      {/* Mobile & Tablet Layout - Single Column */}
+      <div className="xl:hidden">
+        <Card>
+          <CardHeader>
+            <CardTitle>Form Artikel</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 sm:space-y-6">
+            {/* Title */}
+            <div className="space-y-2">
+              <Label htmlFor="title-mobile">Judul Artikel *</Label>
+              <Input
+                id="title-mobile"
+                value={formData.title}
+                onChange={(e) => handleInputChange("title", e.target.value)}
+                placeholder="Masukkan judul artikel..."
+                className="text-base sm:text-lg"
               />
             </div>
-          </div>
-        </CardContent>
-      </Card>
+
+            {/* Excerpt */}
+            <div className="space-y-2">
+              <Label htmlFor="excerpt-mobile">Ringkasan Artikel *</Label>
+              <textarea
+                id="excerpt-mobile"
+                value={formData.excerpt}
+                onChange={(e) => handleInputChange("excerpt", e.target.value)}
+                placeholder="Tulis ringkasan singkat artikel (max 200 karakter)..."
+                rows={3}
+                maxLength={200}
+                className="w-full px-3 py-2 border border-input rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent text-sm"
+              />
+              <p className="text-xs text-muted-foreground text-right">
+                {formData.excerpt.length}/200 karakter
+              </p>
+            </div>
+
+            {/* Publication Settings - Responsive Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="author-mobile">Penulis *</Label>
+                <Input
+                  id="author-mobile"
+                  value={formData.author}
+                  onChange={(e) => handleInputChange("author", e.target.value)}
+                  placeholder="Nama penulis..."
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="category-mobile">Kategori *</Label>
+                <select
+                  id="category-mobile"
+                  value={formData.category}
+                  onChange={(e) =>
+                    handleInputChange("category", e.target.value)
+                  }
+                  className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                >
+                  <option value="">Pilih kategori...</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2 sm:col-span-2 lg:col-span-1">
+                <Label htmlFor="status-mobile">Status</Label>
+                <select
+                  id="status-mobile"
+                  value={formData.status}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "status",
+                      e.target.value as "draft" | "published"
+                    )
+                  }
+                  className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                >
+                  <option value="draft">Draft</option>
+                  <option value="published">Dipublikasi</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Featured Image */}
+            <div className="space-y-2">
+              <Label>Gambar Unggulan</Label>
+              <ImageUpload
+                onChange={handleImageChange}
+                onError={handleImageError}
+              />
+            </div>
+
+            {/* Content Editor */}
+            <div className="space-y-2">
+              <Label>Konten Artikel *</Label>
+              <div className="min-h-[350px] sm:min-h-[400px] border border-input rounded-md [&_.EditorTheme__paragraph]:my-1 [&_.EditorTheme__heading]:my-2 [&_.EditorTheme__list]:my-1 [&_.EditorTheme__quote]:my-1">
+                <Editor
+                  editorSerializedState={editorState}
+                  onSerializedChange={(value) => setEditorState(value)}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
