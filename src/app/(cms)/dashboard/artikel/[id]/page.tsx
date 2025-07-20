@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
   ArrowLeft,
   Edit,
@@ -14,11 +13,11 @@ import {
   User,
   Tag,
   Loader2,
+  FileText,
 } from "lucide-react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import axios from "axios";
-import { toast } from "sonner";
 
 interface ArticleDetail {
   id: number;
@@ -89,6 +88,81 @@ export default function ArticleDetailPage() {
     router.push("/dashboard/artikel");
   };
 
+  // Function to parse and render content
+  const renderLexicalContent = (content: string) => {
+    try {
+      const parsed = JSON.parse(content);
+
+      if (!parsed.root || !parsed.root.children) {
+        return content;
+      }
+
+      const renderNode = (node: any): string => {
+        if (node.type === "text") {
+          let text = node.text || "";
+
+          // Apply formatting based on node.format
+          if (node.format & 1) text = `<strong>${text}</strong>`; // Bold
+          if (node.format & 2) text = `<em>${text}</em>`; // Italic
+          if (node.format & 4) text = `<u>${text}</u>`; // Underline
+
+          return text;
+        }
+
+        if (node.type === "paragraph") {
+          const children = node.children?.map(renderNode).join("") || "";
+          return `<p>${children}</p>`;
+        }
+
+        if (node.type === "heading") {
+          const level = node.tag || "h1";
+          const children = node.children?.map(renderNode).join("") || "";
+          return `<${level}>${children}</${level}>`;
+        }
+
+        if (node.type === "list") {
+          const tag = node.tag === "ol" ? "ol" : "ul";
+          const children = node.children?.map(renderNode).join("") || "";
+          return `<${tag}>${children}</${tag}>`;
+        }
+
+        if (node.type === "listitem") {
+          const children = node.children?.map(renderNode).join("") || "";
+          return `<li>${children}</li>`;
+        }
+
+        if (node.type === "quote") {
+          const children = node.children?.map(renderNode).join("") || "";
+          return `<blockquote>${children}</blockquote>`;
+        }
+
+        if (node.children) {
+          return node.children.map(renderNode).join("");
+        }
+
+        return "";
+      };
+
+      const htmlContent = parsed.root.children.map(renderNode).join("");
+      return htmlContent;
+    } catch (error) {
+      console.error("Error parsing content:", error);
+      return content;
+    }
+  };
+
+  // Update the renderContent function in the component
+  const renderContent = (content: string) => {
+    const htmlContent = renderLexicalContent(content);
+
+    return (
+      <div
+        className="prose prose-sm max-w-none"
+        dangerouslySetInnerHTML={{ __html: htmlContent }}
+      />
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -102,7 +176,7 @@ export default function ArticleDetailPage() {
 
   if (error) {
     return (
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="space-y-6">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" onClick={handleBack}>
             <ArrowLeft className="h-4 w-4" />
@@ -132,7 +206,7 @@ export default function ArticleDetailPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -234,13 +308,14 @@ export default function ArticleDetailPage() {
         {/* Article Content */}
         <Card>
           <CardHeader>
-            <CardTitle>Konten Artikel</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Konten Artikel
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="prose prose-sm max-w-none">
-              <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                {article.content}
-              </div>
+            <div className="bg-muted/30 p-4 rounded-lg">
+              {renderContent(article.content)}
             </div>
           </CardContent>
         </Card>
@@ -248,19 +323,22 @@ export default function ArticleDetailPage() {
         {/* Article Stats */}
         <Card>
           <CardHeader>
-            <CardTitle>Statistik Artikel</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Eye className="h-5 w-5" />
+              Statistik Artikel
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center">
+              <div className="text-center p-4 bg-muted/30 rounded-lg">
                 <div className="text-2xl font-bold text-primary">0</div>
                 <div className="text-sm text-muted-foreground">Total Views</div>
               </div>
-              <div className="text-center">
+              <div className="text-center p-4 bg-muted/30 rounded-lg">
                 <div className="text-2xl font-bold text-green-600">0</div>
                 <div className="text-sm text-muted-foreground">Likes</div>
               </div>
-              <div className="text-center">
+              <div className="text-center p-4 bg-muted/30 rounded-lg">
                 <div className="text-2xl font-bold text-blue-600">0</div>
                 <div className="text-sm text-muted-foreground">Comments</div>
               </div>
