@@ -29,11 +29,14 @@ import {
 import {
   Home,
   FileText,
-  Calendar,
   Users,
+  BarChart3,
+  Store,
+  MapPin,
+  FileText as LogIcon,
+  BookOpen,
   LogOut,
   Settings,
-  BarChart3,
 } from "lucide-react";
 
 const menuItems = [
@@ -48,14 +51,29 @@ const menuItems = [
     icon: FileText,
   },
   {
-    title: "Event",
-    url: "/dashboard/event",
-    icon: Calendar,
+    title: "UMKM",
+    url: "/dashboard/umkm",
+    icon: Store,
+  },
+  {
+    title: "Pariwisata",
+    url: "/dashboard/pariwisata",
+    icon: MapPin,
   },
   {
     title: "Penulis",
     url: "/dashboard/penulis",
     icon: Users,
+  },
+  {
+    title: "Log",
+    url: "/dashboard/log",
+    icon: LogIcon,
+  },
+  {
+    title: "Monografis",
+    url: "/dashboard/monografis",
+    icon: BookOpen,
   },
   {
     title: "Statistik",
@@ -112,10 +130,17 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
       ];
     }
 
-    if (pathname.startsWith("/dashboard/event")) {
+    if (pathname.startsWith("/dashboard/umkm")) {
       return [
         { title: "Dashboard", href: "/dashboard" },
-        { title: "Event", href: "/dashboard/event", current: true },
+        { title: "UMKM", href: "/dashboard/umkm", current: true },
+      ];
+    }
+
+    if (pathname.startsWith("/dashboard/pariwisata")) {
+      return [
+        { title: "Dashboard", href: "/dashboard" },
+        { title: "Pariwisata", href: "/dashboard/pariwisata", current: true },
       ];
     }
 
@@ -123,6 +148,20 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
       return [
         { title: "Dashboard", href: "/dashboard" },
         { title: "Penulis", href: "/dashboard/penulis", current: true },
+      ];
+    }
+
+    if (pathname.startsWith("/dashboard/log")) {
+      return [
+        { title: "Dashboard", href: "/dashboard" },
+        { title: "Log", href: "/dashboard/log", current: true },
+      ];
+    }
+
+    if (pathname.startsWith("/dashboard/monografis")) {
+      return [
+        { title: "Dashboard", href: "/dashboard" },
+        { title: "Monografis", href: "/dashboard/monografis", current: true },
       ];
     }
 
@@ -146,94 +185,96 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
   const breadcrumbItems = getBreadcrumbItems();
 
   return (
-    <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader className="border-b border-sidebar-border">
-          <div className="flex flex-col gap-2 py-2 px-3">
-            <div className="flex items-center gap-2">
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Home className="size-4" />
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">
-                  Desa Laiyolo Baru
-                </span>
-                <span className="truncate text-xs text-muted-foreground">
-                  CMS Admin
-                </span>
+    <div className="h-[100dvh] flex">
+      <SidebarProvider>
+        <Sidebar>
+          <SidebarHeader className="border-b border-sidebar-border">
+            <div className="flex flex-col gap-2 py-2 px-3">
+              <div className="flex items-center gap-2">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                  <Home className="size-4" />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">
+                    Desa Laiyolo Baru
+                  </span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    CMS Admin
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        </SidebarHeader>
+          </SidebarHeader>
 
-        <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupLabel>Menu Utama</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {menuItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                      <a href={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Menu Utama</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {menuItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                        <a href={item.url}>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </a>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
 
-        <SidebarFooter className="border-t border-sidebar-border">
-          <SidebarMenu>
-            {settingsItems.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                  <a href={item.url}>
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </a>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarFooter>
-        <SidebarRail />
-      </Sidebar>
-
-      <SidebarInset className="flex flex-col h-screen">
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 sticky top-0 bg-background z-10">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              {breadcrumbItems.map((item, index) => (
-                <BreadcrumbItem key={index}>
-                  {item.current ? (
-                    <BreadcrumbPage>{item.title}</BreadcrumbPage>
-                  ) : (
-                    <BreadcrumbLink href={item.href}>
-                      {item.title}
-                    </BreadcrumbLink>
-                  )}
-                </BreadcrumbItem>
+          <SidebarFooter className="border-t border-sidebar-border">
+            <SidebarMenu>
+              {settingsItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                    <a href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               ))}
-              {/* Render separators outside of BreadcrumbItem to avoid nested li */}
-              {breadcrumbItems.map((item, index) =>
-                index < breadcrumbItems.length - 1 ? (
-                  <BreadcrumbSeparator key={`separator-${index}`} />
-                ) : null
-              )}
-            </BreadcrumbList>
-          </Breadcrumb>
-        </header>
+            </SidebarMenu>
+          </SidebarFooter>
+          <SidebarRail />
+        </Sidebar>
 
-        <main className="flex-1 overflow-hidden">
-          <div className="h-full overflow-y-auto p-4">{children}</div>
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+        <SidebarInset className="flex flex-col h-full">
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 bg-background">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                {breadcrumbItems.map((item, index) => (
+                  <BreadcrumbItem key={index}>
+                    {item.current ? (
+                      <BreadcrumbPage>{item.title}</BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink href={item.href}>
+                        {item.title}
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                ))}
+                {/* Render separators outside of BreadcrumbItem to avoid nested li */}
+                {breadcrumbItems.map((item, index) =>
+                  index < breadcrumbItems.length - 1 ? (
+                    <BreadcrumbSeparator key={`separator-${index}`} />
+                  ) : null
+                )}
+              </BreadcrumbList>
+            </Breadcrumb>
+          </header>
+
+          <main className="flex-1 overflow-y-auto">
+            <div className="p-4">{children}</div>
+          </main>
+        </SidebarInset>
+      </SidebarProvider>
+    </div>
   );
 }
