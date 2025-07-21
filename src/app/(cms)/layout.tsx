@@ -84,7 +84,7 @@ const menuItems = [
   {
     title: "Admin",
     url: "/dashboard/admin",
-    icon: Shield, // atau ganti dengan ikon lain sesuai kebutuhan
+    icon: Shield,
   },
 ];
 
@@ -191,7 +191,7 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
   const breadcrumbItems = getBreadcrumbItems();
 
   return (
-    <div className="h-[100dvh] flex">
+    <div className="h-screen overflow-hidden flex">
       <SidebarProvider>
         <Sidebar>
           <SidebarHeader className="border-b border-sidebar-border">
@@ -249,7 +249,7 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
           <SidebarRail />
         </Sidebar>
 
-        <SidebarInset className="flex flex-col h-full">
+        <SidebarInset className="flex flex-col min-h-0 flex-1">
           <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 bg-background">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
@@ -276,7 +276,7 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
             </Breadcrumb>
           </header>
 
-          <main className="flex-1 overflow-y-auto">
+          <main className="flex-1 min-h-0 overflow-y-auto">
             <div className="p-4">{children}</div>
           </main>
         </SidebarInset>
