@@ -62,6 +62,7 @@ interface ArticleFormProps {
   isEditing?: boolean;
   onSave?: (article: Partial<Article>) => void;
   onCancel?: () => void;
+  onPreview?: (article: Partial<Article>) => void;
 }
 
 export function ArticleForm({
