@@ -230,9 +230,9 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
           </Breadcrumb>
         </header>
 
-        <div className="flex flex-1 flex-col gap-4 p-4 overflow-y-auto">
-          {children}
-        </div>
+        <main className="flex-1 overflow-hidden">
+          <div className="h-full overflow-y-auto p-4">{children}</div>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

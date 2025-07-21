@@ -118,132 +118,123 @@ export function ArticleTable({ articles }: ArticleTableProps) {
     <TooltipProvider>
       <Card>
         <CardContent className="p-0">
-          {/* Container with responsive horizontal scroll */}
-          <div className="w-full overflow-x-auto">
-            {/* Wrapper untuk mengatur min-width tabel */}
-            <div className="min-w-full xl:min-w-0">
-              <Table className="w-full xl:table-fixed">
-                <TableHeader>
-                  <TableRow>
-                    {/* Desktop: fixed width, Mobile/Tablet: flexible width dengan min-width */}
-                    <TableHead className="xl:w-[45%] min-w-[280px] sm:min-w-[320px] lg:min-w-[350px]">
-                      Judul
-                    </TableHead>
-                    <TableHead className="xl:w-[12%] min-w-[100px] sm:min-w-[120px]">
-                      Kategori
-                    </TableHead>
-                    <TableHead className="xl:w-[15%] min-w-[140px] sm:min-w-[160px]">
-                      Penulis
-                    </TableHead>
-                    <TableHead className="xl:w-[10%] min-w-[100px] sm:min-w-[110px]">
-                      Status
-                    </TableHead>
-                    <TableHead className="xl:w-[10%] min-w-[120px] sm:min-w-[130px]">
-                      Tanggal Dibuat
-                    </TableHead>
-                    <TableHead className="xl:w-[8%] min-w-[80px] text-right">
-                      Aksi
-                    </TableHead>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[35%] min-w-[200px]">Judul</TableHead>
+                  <TableHead className="w-[12%] min-w-[100px]">
+                    Kategori
+                  </TableHead>
+                  <TableHead className="w-[18%] min-w-[140px]">
+                    Penulis
+                  </TableHead>
+                  <TableHead className="w-[10%] min-w-[80px]">Status</TableHead>
+                  <TableHead className="w-[12%] min-w-[100px]">
+                    Tanggal Dibuat
+                  </TableHead>
+                  <TableHead className="w-[13%] min-w-[80px] text-right">
+                    Aksi
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {articles.map((article) => (
+                  <TableRow key={article.id}>
+                    <TableCell className="align-middle">
+                      <div className="space-y-1">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <p className="font-medium text-sm truncate cursor-help">
+                              {article.title}
+                            </p>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="max-w-xs">{article.title}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <p
+                          className="text-xs text-gray-500 truncate"
+                          title={parseLexicalContent(article.content)}
+                        >
+                          {truncateText(article.content, 80)}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="align-middle">
+                      <Badge
+                        variant="outline"
+                        className="text-xs whitespace-nowrap"
+                      >
+                        {article.category.name}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="align-middle">
+                      <div className="space-y-1">
+                        <p
+                          className="text-sm font-medium truncate"
+                          title={article.writer.fullName}
+                        >
+                          {article.writer.fullName}
+                        </p>
+                        <p
+                          className="text-xs text-gray-500 truncate"
+                          title={article.writer.dusun}
+                        >
+                          {article.writer.dusun}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="align-middle">
+                      <Badge
+                        className={`${statusConfig[article.status].className} whitespace-nowrap`}
+                      >
+                        {statusConfig[article.status].label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="align-middle">
+                      <span className="text-sm text-gray-600 whitespace-nowrap">
+                        {formatDate(article.createdAt)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right align-middle">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Buka menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() =>
+                              router.push(`/dashboard/artikel/${article.id}`)
+                            }
+                          >
+                            <Eye className="mr-2 h-4 w-4" />
+                            Lihat Detail
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              router.push(
+                                `/dashboard/artikel/edit/${article.id}`
+                              )
+                            }
+                          >
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="text-red-600">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Hapus
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {articles.map((article) => (
-                    <TableRow key={article.id}>
-                      <TableCell className="align-middle xl:max-w-0">
-                        <div className="space-y-1">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <p className="font-medium text-sm xl:truncate cursor-help">
-                                {article.title}
-                              </p>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className="max-w-xs">{article.title}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                          <p
-                            className="text-xs text-gray-500 xl:truncate"
-                            title={parseLexicalContent(article.content)}
-                          >
-                            {truncateText(article.content, 150)}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="align-middle">
-                        <Badge
-                          variant="outline"
-                          className="text-xs whitespace-nowrap"
-                        >
-                          {article.category.name}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="align-middle xl:max-w-0">
-                        <div className="space-y-1">
-                          <p
-                            className="text-sm font-medium xl:truncate"
-                            title={article.writer.fullName}
-                          >
-                            {article.writer.fullName}
-                          </p>
-                          <p
-                            className="text-xs text-gray-500 xl:truncate"
-                            title={article.writer.dusun}
-                          >
-                            {article.writer.dusun}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="align-middle">
-                        <Badge
-                          className={`${statusConfig[article.status].className} whitespace-nowrap`}
-                        >
-                          {statusConfig[article.status].label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="align-middle">
-                        <span className="text-sm text-gray-600 whitespace-nowrap">
-                          {formatDate(article.createdAt)}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right align-middle">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Buka menu</span>
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() =>
-                                router.push(`/dashboard/artikel/${article.id}`)
-                              }
-                            >
-                              <Eye className="mr-2 h-4 w-4" />
-                              Lihat Detail
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                router.push(
-                                  `/dashboard/artikel/edit/${article.id}`
-                                )
-                              }
-                            >
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Hapus
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         </CardContent>
       </Card>
