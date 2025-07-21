@@ -37,6 +37,7 @@ import {
   BookOpen,
   LogOut,
   Settings,
+  Shield,
 } from "lucide-react";
 
 const menuItems = [
@@ -51,6 +52,11 @@ const menuItems = [
     icon: FileText,
   },
   {
+    title: "Penulis",
+    url: "/dashboard/penulis",
+    icon: Users,
+  },
+  {
     title: "UMKM",
     url: "/dashboard/umkm",
     icon: Store,
@@ -59,11 +65,6 @@ const menuItems = [
     title: "Pariwisata",
     url: "/dashboard/pariwisata",
     icon: MapPin,
-  },
-  {
-    title: "Penulis",
-    url: "/dashboard/penulis",
-    icon: Users,
   },
   {
     title: "Log",
@@ -79,6 +80,11 @@ const menuItems = [
     title: "Statistik",
     url: "/dashboard/statistik",
     icon: BarChart3,
+  },
+  {
+    title: "Admin",
+    url: "/dashboard/admin",
+    icon: Shield, // atau ganti dengan ikon lain sesuai kebutuhan
   },
 ];
 
