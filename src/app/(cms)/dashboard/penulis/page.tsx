@@ -8,15 +8,11 @@ import { WriterHeader } from "@/components/penulis/writer-header";
 import { WriterStats } from "@/components/penulis/writer-stats";
 import { WriterFilters } from "@/components/penulis/writer-filters";
 import { WriterTable } from "@/components/penulis/writer-table";
-import { WriterForm } from "@/components/penulis/writer-form";
 import { WriterPagination } from "@/components/penulis/writer-pagination";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
+import { useRouter } from "next/navigation";
 
-import {
-  Writer,
-  WritersResponse,
-  WriterFormData,
-} from "@/components/penulis/writer-types";
+import { Writer, WritersResponse } from "@/components/penulis/writer-types";
 
 export default function PenulisPage() {
   // Data states
@@ -43,14 +39,13 @@ export default function PenulisPage() {
 
   // UI states
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-  const [editingWriter, setEditingWriter] = useState<Writer | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deletingWriter, setDeletingWriter] = useState<Writer | null>(null);
 
   // Debounce search to avoid too many API calls
   const debouncedSearch = useDebounce(search, 500);
+
+  const router = useRouter();
 
   // Fetch writers data
   const fetchWriters = useCallback(async () => {
@@ -179,77 +174,12 @@ export default function PenulisPage() {
   };
 
   const handleAddWriter = () => {
-    setEditingWriter(null);
-    setShowForm(true);
-  };
-
-  const handleEditWriter = (writer: Writer) => {
-    setEditingWriter(writer);
-    setShowForm(true);
+    router.push("/dashboard/penulis/tambah");
   };
 
   const handleDeleteWriter = (writer: Writer) => {
     setDeletingWriter(writer);
     setShowDeleteDialog(true);
-  };
-
-  const handleFormSubmit = async (data: WriterFormData) => {
-    try {
-      setSubmitting(true);
-
-      if (editingWriter) {
-        // Update existing writer
-        console.log("✏️ Updating writer:", editingWriter.id);
-
-        const response = await axios.put(
-          `/api/writers/${editingWriter.id}`,
-          data
-        );
-
-        if (response.data.success) {
-          toast.success("Penulis berhasil diperbarui", {
-            description: `${data.fullName} telah diperbarui`,
-          });
-
-          // Refresh data
-          await fetchWriters();
-        } else {
-          throw new Error(response.data.message);
-        }
-      } else {
-        // Create new writer
-        console.log("➕ Creating new writer");
-
-        const response = await axios.post("/api/writers", data);
-
-        if (response.data.success) {
-          toast.success("Penulis berhasil ditambahkan", {
-            description: `${data.fullName} telah ditambahkan`,
-          });
-
-          // Refresh data
-          await fetchWriters();
-        } else {
-          throw new Error(response.data.message);
-        }
-      }
-    } catch (error) {
-      console.error("💥 Error saving writer:", error);
-
-      if (axios.isAxiosError(error)) {
-        const errorMessage = error.response?.data?.message || error.message;
-        toast.error("Gagal menyimpan penulis", {
-          description: errorMessage,
-        });
-      } else {
-        toast.error("Terjadi kesalahan", {
-          description: "Gagal menyimpan penulis",
-        });
-      }
-      throw error; // Re-throw to prevent form from closing
-    } finally {
-      setSubmitting(false);
-    }
   };
 
   const handleConfirmDelete = async () => {
@@ -315,7 +245,7 @@ export default function PenulisPage() {
       <WriterTable
         writers={writers}
         loading={loading}
-        onEdit={handleEditWriter}
+        onEdit={() => {}}
         onDelete={handleDeleteWriter}
       />
 
@@ -331,15 +261,6 @@ export default function PenulisPage() {
           onPageChange={handlePageChange}
         />
       )}
-
-      {/* Form Dialog */}
-      <WriterForm
-        isOpen={showForm}
-        onClose={() => setShowForm(false)}
-        onSubmit={handleFormSubmit}
-        writer={editingWriter}
-        loading={submitting}
-      />
 
       {/* Delete Confirmation Dialog */}
       <DeleteConfirmDialog

@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, ArrowUpDown, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 interface WriterFiltersProps {
   search: string;
@@ -32,20 +32,28 @@ export function WriterFilters({
   onSort,
   currentSort,
 }: WriterFiltersProps) {
-  const handleSort = (field: string) => {
-    const newOrder =
-      currentSort.field === field && currentSort.order === "ASC"
-        ? "DESC"
-        : "ASC";
-    onSort(field, newOrder);
-  };
-
   const clearFilters = () => {
     onSearch("");
-    onDusunFilter(""); // Perbaikan: ganti dari "all" ke ""
+    onDusunFilter("");
+  };
+
+  const handleSortChange = (value: string) => {
+    const [field, order] = value.split("-");
+    onSort(field, order as "ASC" | "DESC");
+  };
+
+  const getCurrentSortValue = () => {
+    return `${currentSort.field}-${currentSort.order}`;
   };
 
   const hasActiveFilters = search || (dusun && dusun !== "all");
+
+  const sortOptions = [
+    { value: "createdAt-DESC", label: "Terbaru" },
+    { value: "createdAt-ASC", label: "Terlama" },
+    { value: "fullName-ASC", label: "Nama A-Z" },
+    { value: "fullName-DESC", label: "Nama Z-A" },
+  ];
 
   return (
     <Card>
@@ -98,45 +106,23 @@ export function WriterFilters({
               </Select>
             </div>
 
-            {/* Sort Buttons */}
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleSort("fullName")}
-                className={`${
-                  currentSort.field === "fullName"
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                    : "hover:bg-gray-100"
-                }`}
+            {/* Sort Select */}
+            <div className="w-full lg:w-48">
+              <Select
+                value={getCurrentSortValue()}
+                onValueChange={handleSortChange}
               >
-                <ArrowUpDown className="mr-2 h-4 w-4" />
-                Nama
-                {currentSort.field === "fullName" && (
-                  <span className="ml-1 text-xs">
-                    {currentSort.order === "ASC" ? "↑" : "↓"}
-                  </span>
-                )}
-              </Button>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleSort("createdAt")}
-                className={`${
-                  currentSort.field === "createdAt"
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                    : "hover:bg-gray-100"
-                }`}
-              >
-                <ArrowUpDown className="mr-2 h-4 w-4" />
-                Tanggal
-                {currentSort.field === "createdAt" && (
-                  <span className="ml-1 text-xs">
-                    {currentSort.order === "ASC" ? "↑" : "↓"}
-                  </span>
-                )}
-              </Button>
+                <SelectTrigger>
+                  <SelectValue placeholder="Urutkan" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sortOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -165,7 +151,7 @@ export function WriterFilters({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => onDusunFilter("")} // Perbaikan: ganti dari "all" ke ""
+                    onClick={() => onDusunFilter("")}
                     className="ml-1 h-4 w-4 p-0 hover:bg-transparent"
                   >
                     <X className="h-3 w-3" />

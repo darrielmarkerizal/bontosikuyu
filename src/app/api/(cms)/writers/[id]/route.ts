@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Op } from "sequelize";
 
 interface WriterModel {
   id: number;
@@ -242,7 +243,7 @@ export async function PUT(
     const existingPhone = await Writer.findOne({
       where: {
         phoneNumber,
-        id: { [require("sequelize").Op.ne]: writerId },
+        id: { [Op.ne]: writerId },
       },
     });
 
