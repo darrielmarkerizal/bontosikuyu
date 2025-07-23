@@ -9,7 +9,6 @@ interface AdminStatsProps {
 
 export function AdminStats({ totalAdmins }: AdminStatsProps) {
   const activeAdmins = totalAdmins; // All admins are considered active
-  const averageAdmins = totalAdmins; // Since we only have one stat
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

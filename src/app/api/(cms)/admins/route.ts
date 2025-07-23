@@ -13,14 +13,6 @@ interface UserModel {
   getDataValue(key: string): unknown;
 }
 
-interface SequelizeValidationError extends Error {
-  name: "SequelizeValidationError";
-  errors: Array<{
-    path: string;
-    message: string;
-  }>;
-}
-
 // GET - Read all users with pagination and filtering
 export async function GET(request: NextRequest) {
   try {
