@@ -35,23 +35,38 @@ export function DatePickerWithRange({
             id="date"
             variant={"outline"}
             className={cn(
-              "w-full justify-start text-left font-normal",
+              "w-full justify-start text-left font-normal truncate",
               !date && "text-muted-foreground"
             )}
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {date?.from ? (
-              date.to ? (
-                <>
-                  {format(date.from, "dd MMM yyyy", { locale: id })} -{" "}
-                  {format(date.to, "dd MMM yyyy", { locale: id })}
-                </>
+            <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+            <span className="truncate text-sm">
+              {date?.from ? (
+                date.to ? (
+                  <>
+                    <span className="hidden sm:inline">
+                      {format(date.from, "dd MMM yyyy", { locale: id })} -{" "}
+                      {format(date.to, "dd MMM yyyy", { locale: id })}
+                    </span>
+                    <span className="sm:hidden">
+                      {format(date.from, "dd/MM", { locale: id })} -{" "}
+                      {format(date.to, "dd/MM", { locale: id })}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="hidden sm:inline">
+                      {format(date.from, "dd MMM yyyy", { locale: id })}
+                    </span>
+                    <span className="sm:hidden">
+                      {format(date.from, "dd/MM/yy", { locale: id })}
+                    </span>
+                  </>
+                )
               ) : (
-                format(date.from, "dd MMM yyyy", { locale: id })
-              )
-            ) : (
-              <span>{placeholder}</span>
-            )}
+                <span className="text-sm">{placeholder}</span>
+              )}
+            </span>
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
@@ -61,7 +76,7 @@ export function DatePickerWithRange({
             defaultMonth={date?.from}
             selected={date}
             onSelect={onDateChange}
-            numberOfMonths={2}
+            numberOfMonths={window.innerWidth < 768 ? 1 : 2}
             locale={id}
           />
         </PopoverContent>

@@ -1,4 +1,3 @@
-// filepath: /Users/darrielmarkerizal/Coding/laiyolobaru/src/components/statistic/statistics-filter.tsx
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -51,111 +50,123 @@ export function StatisticsFilters({
   const hasActiveFilters = timeRange !== "30d" || dateRange;
 
   return (
-    <Card>
-      <CardContent className="p-4">
+    <Card className="w-full">
+      <CardContent className="p-3 sm:p-4 lg:p-6">
         <div className="space-y-4">
           {/* Main Filters Row */}
-          <div className="flex flex-col lg:flex-row gap-4">
-            {/* Time Range Select */}
-            <div className="w-full lg:w-48">
-              <Select value={timeRange} onValueChange={onTimeRangeChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih periode" />
-                </SelectTrigger>
-                <SelectContent>
-                  {timeRangeOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Custom Date Range Picker */}
-            {timeRange === "custom" && (
-              <div className="w-full lg:w-80">
-                <DatePickerWithRange
-                  date={dateRange}
-                  onDateChange={onDateRangeChange}
-                  placeholder="Pilih rentang tanggal..."
-                />
+          <div className="flex flex-col gap-3 sm:gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              {/* Time Range Select */}
+              <div className="w-full sm:w-48 lg:w-52">
+                <Select value={timeRange} onValueChange={onTimeRangeChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Pilih periode" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timeRangeOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            )}
 
-            {/* Action Buttons */}
-            <div className="flex gap-2 ml-auto">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onRefresh}
-                disabled={loading}
-                className="flex items-center gap-2"
-              >
-                <RefreshCw
-                  className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-                />
-                Refresh
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onExport}
-                disabled={loading}
-                className="flex items-center gap-2"
-              >
-                <Download className="h-4 w-4" />
-                Export
-              </Button>
+              {/* Custom Date Range Picker */}
+              {timeRange === "custom" && (
+                <div className="w-full sm:flex-1 lg:w-80">
+                  <DatePickerWithRange
+                    date={dateRange}
+                    onDateChange={onDateRangeChange}
+                    placeholder="Pilih rentang tanggal..."
+                    className="w-full"
+                  />
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-2 sm:ml-auto">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onRefresh}
+                  disabled={loading}
+                  className="flex items-center gap-2 flex-1 sm:flex-none"
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+                  />
+                  <span className="hidden xs:inline">Refresh</span>
+                  <span className="xs:hidden">↻</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onExport}
+                  disabled={loading}
+                  className="flex items-center gap-2 flex-1 sm:flex-none"
+                >
+                  <Download className="h-4 w-4" />
+                  <span className="hidden xs:inline">Export</span>
+                  <span className="xs:hidden">↓</span>
+                </Button>
+              </div>
             </div>
           </div>
 
           {/* Active Filters Display */}
           {hasActiveFilters && (
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm text-gray-600">Filter Aktif:</span>
+            <div className="flex flex-col gap-2">
+              <span className="text-sm text-gray-600 font-medium">
+                Filter Aktif:
+              </span>
+              <div className="flex items-center gap-2 flex-wrap">
+                {timeRange !== "30d" && (
+                  <Badge variant="secondary" className="text-xs">
+                    <Calendar className="h-3 w-3 mr-1" />
+                    <span className="truncate max-w-[120px]">
+                      {
+                        timeRangeOptions.find((opt) => opt.value === timeRange)
+                          ?.label
+                      }
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onTimeRangeChange("30d")}
+                      className="ml-1 h-4 w-4 p-0 hover:bg-transparent"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                )}
 
-              {timeRange !== "30d" && (
-                <Badge variant="secondary" className="text-xs">
-                  <Calendar className="h-3 w-3 mr-1" />
-                  {
-                    timeRangeOptions.find((opt) => opt.value === timeRange)
-                      ?.label
-                  }
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onTimeRangeChange("30d")}
-                    className="ml-1 h-4 w-4 p-0 hover:bg-transparent"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </Badge>
-              )}
+                {dateRange && (
+                  <Badge variant="secondary" className="text-xs">
+                    <Calendar className="h-3 w-3 mr-1" />
+                    <span className="truncate max-w-[100px]">
+                      Periode Kustom
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onDateRangeChange(undefined)}
+                      className="ml-1 h-4 w-4 p-0 hover:bg-transparent"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                )}
 
-              {dateRange && (
-                <Badge variant="secondary" className="text-xs">
-                  <Calendar className="h-3 w-3 mr-1" />
-                  Periode Kustom
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onDateRangeChange(undefined)}
-                    className="ml-1 h-4 w-4 p-0 hover:bg-transparent"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </Badge>
-              )}
-
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearFilters}
-                className="text-xs text-red-600 hover:text-red-700"
-              >
-                Hapus Semua Filter
-              </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="text-xs text-red-600 hover:text-red-700 h-6 px-2"
+                >
+                  Hapus Semua
+                </Button>
+              </div>
             </div>
           )}
         </div>
