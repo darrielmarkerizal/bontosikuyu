@@ -125,7 +125,7 @@ export default function StatisticsPage() {
 
   if (loading && !statistics) {
     return (
-      <div className="space-y-6">
+      <div className="container mx-auto px-4 py-6 space-y-6 max-w-7xl">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/3 mb-2"></div>
           <div className="h-4 bg-gray-200 rounded w-2/3"></div>
@@ -152,7 +152,7 @@ export default function StatisticsPage() {
 
   if (!statistics) {
     return (
-      <div className="space-y-6">
+      <div className="container mx-auto px-4 py-6 space-y-6 max-w-7xl">
         <StatisticsHeader />
         <div className="text-center py-12">
           <p className="text-muted-foreground">Gagal memuat data statistik</p>
@@ -162,7 +162,7 @@ export default function StatisticsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 py-6 space-y-6 max-w-7xl">
       {/* Header */}
       <StatisticsHeader performance={statistics.data.performance} />
 

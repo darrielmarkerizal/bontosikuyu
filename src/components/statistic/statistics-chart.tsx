@@ -91,243 +91,316 @@ export function StatisticsCharts({
 
   // Browser stats data for bar chart
   const browserData = Object.entries(browserStats)
-    .map(([browser, count]) => ({ browser, count }))
+    .map(([browser, count]) => ({
+      browser: browser.length > 12 ? browser.slice(0, 12) + "..." : browser,
+      count,
+    }))
     .sort((a, b) => b.count - a.count)
-    .slice(0, 10);
+    .slice(0, 8);
 
   // Top countries data
   const countryData = Object.entries(trafficStats.topCountries)
-    .map(([country, count]) => ({ country, count }))
+    .map(([country, count]) => ({
+      country: country.length > 10 ? country.slice(0, 10) + "..." : country,
+      count,
+    }))
     .sort((a, b) => b.count - a.count)
-    .slice(0, 10);
+    .slice(0, 8);
 
   // Format daily trends for better display
-  const formattedDailyTrends = activityStats.dailyTrends.map((trend) => ({
-    ...trend,
-    date: new Date(trend.date).toLocaleDateString("id-ID", {
-      month: "short",
-      day: "numeric",
-    }),
-  }));
+  const formattedDailyTrends = activityStats.dailyTrends
+    .slice(-30) // Only show last 30 days
+    .map((trend) => ({
+      ...trend,
+      date: new Date(trend.date).toLocaleDateString("id-ID", {
+        month: "short",
+        day: "numeric",
+      }),
+    }));
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {/* Daily Trends Line Chart */}
-      <Card className="lg:col-span-2">
-        <CardHeader>
-          <CardTitle>Tren Harian - 30 Hari Terakhir</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer config={chartConfig} className="h-[300px]">
-            <LineChart data={formattedDailyTrends}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <ChartLegend content={<ChartLegendContent />} />
-              <Line
-                type="monotone"
-                dataKey="sessions"
-                stroke="var(--color-sessions)"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-              />
-              <Line
-                type="monotone"
-                dataKey="pageViews"
-                stroke="var(--color-pageViews)"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-              />
-            </LineChart>
-          </ChartContainer>
-        </CardContent>
-      </Card>
+    <div className="w-full space-y-6">
+      {/* First Row - Daily Trends and Device Breakdown */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        {/* Daily Trends Line Chart */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-lg">
+              Tren Harian - 30 Hari Terakhir
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full h-[300px]">
+              <ChartContainer config={chartConfig} className="w-full h-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={formattedDailyTrends}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 12 }}
+                      interval="preserveStartEnd"
+                    />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Line
+                      type="monotone"
+                      dataKey="sessions"
+                      stroke="var(--color-sessions)"
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="pageViews"
+                      stroke="var(--color-pageViews)"
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Device Breakdown Pie Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Jenis Perangkat</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer config={{}} className="h-[300px]">
-            <PieChart>
-              <Pie
-                data={deviceData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) =>
-                  `${name} ${(percent * 100).toFixed(0)}%`
-                }
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {deviceData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <ChartTooltip
-                content={({ active, payload }) => {
-                  if (active && payload && payload.length) {
-                    const data = payload[0].payload;
-                    return (
-                      <div className="bg-background border rounded-lg p-2 shadow-lg">
-                        <p className="font-medium">{data.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {data.value.toLocaleString()} pengunjung
-                        </p>
-                      </div>
-                    );
-                  }
-                  return null;
-                }}
-              />
-            </PieChart>
-          </ChartContainer>
-        </CardContent>
-      </Card>
+        {/* Device Breakdown Pie Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Jenis Perangkat</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full h-[300px]">
+              <ChartContainer config={{}} className="w-full h-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={deviceData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) =>
+                        `${name} ${(percent * 100).toFixed(0)}%`
+                      }
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {deviceData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <ChartTooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload;
+                          return (
+                            <div className="bg-background border rounded-lg p-2 shadow-lg">
+                              <p className="font-medium">{data.name}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {data.value.toLocaleString()} pengunjung
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-      {/* Hourly Activity Area Chart */}
-      <Card className="lg:col-span-2">
-        <CardHeader>
-          <CardTitle>Aktivitas Per Jam</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer config={chartConfig} className="h-[300px]">
-            <AreaChart data={activityStats.hourlyActivity}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="hour" tickFormatter={(value) => `${value}:00`} />
-              <YAxis />
-              <ChartTooltip
-                content={<ChartTooltipContent />}
-                labelFormatter={(value) => `Jam ${value}:00`}
-              />
-              <ChartLegend content={<ChartLegendContent />} />
-              <Area
-                type="monotone"
-                dataKey="sessions"
-                stackId="1"
-                stroke="var(--color-sessions)"
-                fill="var(--color-sessions)"
-                fillOpacity={0.6}
-              />
-              <Area
-                type="monotone"
-                dataKey="pageViews"
-                stackId="2"
-                stroke="var(--color-pageViews)"
-                fill="var(--color-pageViews)"
-                fillOpacity={0.6}
-              />
-            </AreaChart>
-          </ChartContainer>
-        </CardContent>
-      </Card>
+      {/* Second Row - Hourly Activity and Weekly Patterns */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        {/* Hourly Activity Area Chart */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-lg">Aktivitas Per Jam</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full h-[300px]">
+              <ChartContainer config={chartConfig} className="w-full h-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart
+                    data={activityStats.hourlyActivity}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="hour"
+                      tickFormatter={(value) => `${value}:00`}
+                      tick={{ fontSize: 12 }}
+                    />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <ChartTooltip
+                      content={<ChartTooltipContent />}
+                      labelFormatter={(value) => `Jam ${value}:00`}
+                    />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Area
+                      type="monotone"
+                      dataKey="sessions"
+                      stackId="1"
+                      stroke="var(--color-sessions)"
+                      fill="var(--color-sessions)"
+                      fillOpacity={0.6}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="pageViews"
+                      stackId="2"
+                      stroke="var(--color-pageViews)"
+                      fill="var(--color-pageViews)"
+                      fillOpacity={0.6}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Weekly Patterns Bar Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Pola Mingguan</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer config={chartConfig} className="h-[300px]">
-            <BarChart data={weeklyPatterns}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="dayName"
-                tickFormatter={(value) => value.slice(0, 3)}
-              />
-              <YAxis />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar
-                dataKey="sessions"
-                fill="var(--color-sessions)"
-                radius={[4, 4, 0, 0]}
-              />
-            </BarChart>
-          </ChartContainer>
-        </CardContent>
-      </Card>
+        {/* Weekly Patterns Bar Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Pola Mingguan</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full h-[300px]">
+              <ChartContainer config={chartConfig} className="w-full h-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={weeklyPatterns}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="dayName"
+                      tickFormatter={(value) => value.slice(0, 3)}
+                      tick={{ fontSize: 12 }}
+                    />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar
+                      dataKey="sessions"
+                      fill="var(--color-sessions)"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-      {/* Top Browsers Bar Chart */}
-      <Card className="lg:col-span-2">
-        <CardHeader>
-          <CardTitle>Browser Teratas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer config={{}} className="h-[300px]">
-            <BarChart data={browserData} layout="horizontal">
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" />
-              <YAxis dataKey="browser" type="category" width={80} />
-              <ChartTooltip
-                content={({ active, payload, label }) => {
-                  if (active && payload && payload.length) {
-                    return (
-                      <div className="bg-background border rounded-lg p-2 shadow-lg">
-                        <p className="font-medium">{label}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {payload[0].value?.toLocaleString()} pengunjung
-                        </p>
-                      </div>
-                    );
-                  }
-                  return null;
-                }}
-              />
-              <Bar
-                dataKey="count"
-                fill="hsl(var(--chart-3))"
-                radius={[0, 4, 4, 0]}
-              />
-            </BarChart>
-          </ChartContainer>
-        </CardContent>
-      </Card>
+      {/* Third Row - Browser and Country Stats */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {/* Top Browsers Horizontal Bar Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Browser Teratas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full h-[300px]">
+              <ChartContainer config={{}} className="w-full h-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={browserData}
+                    layout="horizontal"
+                    margin={{ top: 5, right: 30, left: 60, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" tick={{ fontSize: 12 }} />
+                    <YAxis
+                      dataKey="browser"
+                      type="category"
+                      width={50}
+                      tick={{ fontSize: 10 }}
+                    />
+                    <ChartTooltip
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-background border rounded-lg p-2 shadow-lg">
+                              <p className="font-medium">{label}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {payload[0].value?.toLocaleString()} pengunjung
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Bar
+                      dataKey="count"
+                      fill="hsl(var(--chart-3))"
+                      radius={[0, 4, 4, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Top Countries Bar Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Negara Teratas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer config={{}} className="h-[300px]">
-            <BarChart data={countryData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="country"
-                tickFormatter={(value) => value.slice(0, 8)}
-                angle={-45}
-                textAnchor="end"
-                height={60}
-              />
-              <YAxis />
-              <ChartTooltip
-                content={({ active, payload, label }) => {
-                  if (active && payload && payload.length) {
-                    return (
-                      <div className="bg-background border rounded-lg p-2 shadow-lg">
-                        <p className="font-medium">{label}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {payload[0].value?.toLocaleString()} pengunjung
-                        </p>
-                      </div>
-                    );
-                  }
-                  return null;
-                }}
-              />
-              <Bar
-                dataKey="count"
-                fill="hsl(var(--chart-4))"
-                radius={[4, 4, 0, 0]}
-              />
-            </BarChart>
-          </ChartContainer>
-        </CardContent>
-      </Card>
+        {/* Top Countries Bar Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Negara Teratas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="w-full h-[300px]">
+              <ChartContainer config={{}} className="w-full h-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={countryData}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 40 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="country"
+                      tick={{ fontSize: 10 }}
+                      angle={-45}
+                      textAnchor="end"
+                      height={60}
+                    />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <ChartTooltip
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-background border rounded-lg p-2 shadow-lg">
+                              <p className="font-medium">{label}</p>
+                              <p className="text-sm text-muted-foreground">
+                                {payload[0].value?.toLocaleString()} pengunjung
+                              </p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Bar
+                      dataKey="count"
+                      fill="hsl(var(--chart-4))"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
