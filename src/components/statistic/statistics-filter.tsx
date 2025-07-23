@@ -93,11 +93,11 @@ export function StatisticsFilters({
                   disabled={loading}
                   className="flex items-center gap-2 flex-1 sm:flex-none"
                 >
-                  <RefreshCw
-                    className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-                  />
-                  <span className="hidden xs:inline">Refresh</span>
-                  <span className="xs:hidden">↻</span>
+                  <RefreshCw className="h-4 w-4" />
+                  <span className="hidden xs:inline">
+                    {loading ? "Memuat..." : "Refresh"}
+                  </span>
+                  <span className="xs:hidden">{loading ? "..." : "↻"}</span>
                 </Button>
                 <Button
                   variant="outline"
