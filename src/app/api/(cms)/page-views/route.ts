@@ -23,14 +23,78 @@ interface UserModel {
   username: string;
 }
 
+// Define interfaces for aggregation results
+interface SummaryStatsResult {
+  totalPageViews: string;
+  uniqueSessions: string;
+  uniqueUsers: string;
+  avgTimeOnPage: string;
+  maxTimeOnPage: string;
+  minTimeOnPage: string;
+}
+
+interface TopPageResult {
+  page: string;
+  views: string;
+  avgTime: string;
+  uniqueVisitors: string;
+}
+
+interface ExitPageStatsResult {
+  exitPage: boolean;
+  count: string;
+}
+
+interface UserTypeStatsResult {
+  userType: string;
+  count: string;
+}
+
+interface HourlyActivityResult {
+  hour: string;
+  views: string;
+}
+
+interface DailyActivityResult {
+  date: string;
+  views: string;
+  sessions: string;
+}
+
+// Define interfaces for where clause conditions
+interface DateCondition {
+  [Op.gte]?: Date;
+  [Op.lte]?: Date;
+}
+
+interface NumberCondition {
+  [Op.gte]?: number;
+  [Op.lte]?: number;
+}
+
+// Helper function to load models and database
+async function loadModels() {
+  /* eslint-disable @typescript-eslint/no-require-imports */
+  const sequelize = require("../../../../../config/database");
+  const { DataTypes } = require("sequelize");
+
+  const PageView = require("../../../../../models/pageview.js")(
+    sequelize,
+    DataTypes
+  );
+  const User = require("../../../../../models/user.js")(sequelize, DataTypes);
+  /* eslint-enable @typescript-eslint/no-require-imports */
+
+  return { sequelize, PageView, User };
+}
+
 // GET - Read all page views with pagination and filtering
 export async function GET(request: NextRequest) {
   try {
     console.log("📊 Getting page views data");
 
-    // Import sequelize and models directly
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const sequelize = require("../../../../../config/database");
+    // Load models and database connection
+    const { sequelize, PageView, User } = await loadModels();
 
     // Test database connection
     try {
@@ -47,22 +111,6 @@ export async function GET(request: NextRequest) {
         { status: 500 }
       );
     }
-
-    // Import PageView model
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const PageView = require("../../../../../models/pageview.js")(
-      sequelize,
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require("sequelize").DataTypes
-    );
-
-    // Import User model for associations
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const User = require("../../../../../models/user.js")(
-      sequelize,
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require("sequelize").DataTypes
-    );
 
     // Set up associations
     PageView.belongsTo(User, {
@@ -134,8 +182,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Build where conditions
-    const baseConditions: any[] = [];
+    // Build where conditions with proper typing
+    const baseConditions: Array<Record<string, unknown>> = [];
 
     // Search functionality
     if (search) {
@@ -172,7 +220,7 @@ export async function GET(request: NextRequest) {
 
     // Date range filter
     if (dateFrom || dateTo) {
-      const dateCondition: any = {};
+      const dateCondition: DateCondition = {};
       if (dateFrom) {
         dateCondition[Op.gte] = new Date(dateFrom);
       }
@@ -184,7 +232,7 @@ export async function GET(request: NextRequest) {
 
     // Time on page range filter
     if (minTimeOnPage || maxTimeOnPage) {
-      const timeCondition: any = {};
+      const timeCondition: NumberCondition = {};
       if (minTimeOnPage) {
         timeCondition[Op.gte] = parseInt(minTimeOnPage);
       }
@@ -243,7 +291,7 @@ export async function GET(request: NextRequest) {
     const hasPrevPage = page > 1;
 
     // Get summary statistics
-    const summaryStats = await PageView.findOne({
+    const summaryStats = (await PageView.findOne({
       attributes: [
         [sequelize.fn("COUNT", sequelize.col("id")), "totalPageViews"],
         [
@@ -260,10 +308,10 @@ export async function GET(request: NextRequest) {
       ],
       where: whereClause,
       raw: true,
-    });
+    })) as SummaryStatsResult | null;
 
     // Get top pages statistics
-    const topPages = await PageView.findAll({
+    const topPages = (await PageView.findAll({
       attributes: [
         "page",
         [sequelize.fn("COUNT", sequelize.col("id")), "views"],
@@ -278,10 +326,10 @@ export async function GET(request: NextRequest) {
       order: [[sequelize.fn("COUNT", sequelize.col("id")), "DESC"]],
       limit: 10,
       raw: true,
-    });
+    })) as TopPageResult[];
 
     // Get exit page statistics
-    const exitPageStats = await PageView.findAll({
+    const exitPageStats = (await PageView.findAll({
       attributes: [
         "exitPage",
         [sequelize.fn("COUNT", sequelize.col("id")), "count"],
@@ -289,10 +337,10 @@ export async function GET(request: NextRequest) {
       where: whereClause,
       group: ["exitPage"],
       raw: true,
-    });
+    })) as ExitPageStatsResult[];
 
     // Get user type statistics
-    const userTypeStats = await PageView.findAll({
+    const userTypeStats = (await PageView.findAll({
       attributes: [
         [
           sequelize.literal(`
@@ -315,10 +363,10 @@ export async function GET(request: NextRequest) {
         `),
       ],
       raw: true,
-    });
+    })) as UserTypeStatsResult[];
 
     // Get hourly activity (for today or date range)
-    const hourlyActivity = await PageView.findAll({
+    const hourlyActivity = (await PageView.findAll({
       attributes: [
         [sequelize.fn("HOUR", sequelize.col("createdAt")), "hour"],
         [sequelize.fn("COUNT", sequelize.col("id")), "views"],
@@ -327,12 +375,12 @@ export async function GET(request: NextRequest) {
       group: [sequelize.fn("HOUR", sequelize.col("createdAt"))],
       order: [[sequelize.fn("HOUR", sequelize.col("createdAt")), "ASC"]],
       raw: true,
-    });
+    })) as HourlyActivityResult[];
 
     // Get daily activity for trend analysis
-    let dailyActivity: any[] = [];
+    let dailyActivity: DailyActivityResult[] = [];
     try {
-      dailyActivity = await PageView.findAll({
+      dailyActivity = (await PageView.findAll({
         attributes: [
           [sequelize.fn("DATE", sequelize.col("createdAt")), "date"],
           [sequelize.fn("COUNT", sequelize.col("id")), "views"],
@@ -346,7 +394,7 @@ export async function GET(request: NextRequest) {
         order: [[sequelize.fn("DATE", sequelize.col("createdAt")), "ASC"]],
         limit: 30, // Last 30 days
         raw: true,
-      });
+      })) as DailyActivityResult[];
     } catch (error) {
       console.warn("Daily activity calculation failed:", error);
       dailyActivity = [];
@@ -389,14 +437,14 @@ export async function GET(request: NextRequest) {
           minTimeOnPage: parseInt(summaryStats?.minTimeOnPage || "0"),
         },
         analytics: {
-          topPages: topPages.map((page: any) => ({
+          topPages: topPages.map((page: TopPageResult) => ({
             page: page.page,
             views: parseInt(page.views || "0"),
             avgTime: parseFloat(page.avgTime || "0"),
             uniqueVisitors: parseInt(page.uniqueVisitors || "0"),
           })),
           exitPageStats: exitPageStats.reduce(
-            (acc: Record<string, number>, item: any) => {
+            (acc: Record<string, number>, item: ExitPageStatsResult) => {
               const key = item.exitPage ? "exitPages" : "nonExitPages";
               acc[key] = parseInt(item.count || "0");
               return acc;
@@ -404,18 +452,18 @@ export async function GET(request: NextRequest) {
             { exitPages: 0, nonExitPages: 0 }
           ),
           userTypeStats: userTypeStats.reduce(
-            (acc: Record<string, number>, item: any) => {
+            (acc: Record<string, number>, item: UserTypeStatsResult) => {
               const userType = item.userType || "unknown";
               acc[userType] = parseInt(item.count || "0");
               return acc;
             },
             {}
           ),
-          hourlyActivity: hourlyActivity.map((hour: any) => ({
+          hourlyActivity: hourlyActivity.map((hour: HourlyActivityResult) => ({
             hour: parseInt(hour.hour || "0"),
             views: parseInt(hour.views || "0"),
           })),
-          dailyActivity: dailyActivity.map((day: any) => ({
+          dailyActivity: dailyActivity.map((day: DailyActivityResult) => ({
             date: day.date,
             views: parseInt(day.views || "0"),
             sessions: parseInt(day.sessions || "0"),
@@ -424,7 +472,9 @@ export async function GET(request: NextRequest) {
         filters: {
           userTypeOptions: ["authenticated", "anonymous", "all"],
           exitPageOptions: ["true", "false", "all"],
-          topPagesForFilter: topPages.slice(0, 5).map((page: any) => page.page),
+          topPagesForFilter: topPages
+            .slice(0, 5)
+            .map((page: TopPageResult) => page.page),
         },
         appliedFilters: {
           search,

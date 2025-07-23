@@ -21,6 +21,32 @@ interface UserModel {
   username: string;
 }
 
+// Define interface for update data
+interface PageViewUpdateData {
+  timeOnPage?: number;
+  exitPage?: boolean;
+  title?: string;
+}
+
+// Helper function to load models and database
+async function loadModels() {
+  /* eslint-disable @typescript-eslint/no-require-imports */
+  const sequelize = require("../../../../../../config/database");
+  const { DataTypes } = require("sequelize");
+
+  const PageView = require("../../../../../../models/pageview.js")(
+    sequelize,
+    DataTypes
+  );
+  const User = require("../../../../../../models/user.js")(
+    sequelize,
+    DataTypes
+  );
+  /* eslint-enable @typescript-eslint/no-require-imports */
+
+  return { sequelize, PageView, User };
+}
+
 // GET - Get single page view by ID
 export async function GET(
   request: NextRequest,
@@ -29,9 +55,8 @@ export async function GET(
   try {
     console.log("🔍 Getting single page view data");
 
-    // Import sequelize and models directly
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const sequelize = require("../../../../../../config/database");
+    // Load models and database connection
+    const { sequelize, PageView, User } = await loadModels();
 
     // Test database connection
     try {
@@ -48,22 +73,6 @@ export async function GET(
         { status: 500 }
       );
     }
-
-    // Import PageView model
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const PageView = require("../../../../../../models/pageview.js")(
-      sequelize,
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require("sequelize").DataTypes
-    );
-
-    // Import User model for associations
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const User = require("../../../../../../models/user.js")(
-      sequelize,
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require("sequelize").DataTypes
-    );
 
     // Set up associations
     PageView.belongsTo(User, {
@@ -144,9 +153,8 @@ export async function PUT(
   try {
     console.log("📝 Updating page view data");
 
-    // Import sequelize and models directly
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const sequelize = require("../../../../../../config/database");
+    // Load models and database connection
+    const { sequelize, PageView, User } = await loadModels();
 
     // Test database connection
     try {
@@ -163,22 +171,6 @@ export async function PUT(
         { status: 500 }
       );
     }
-
-    // Import PageView model
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const PageView = require("../../../../../../models/pageview.js")(
-      sequelize,
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require("sequelize").DataTypes
-    );
-
-    // Import User model for associations
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const User = require("../../../../../../models/user.js")(
-      sequelize,
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require("sequelize").DataTypes
-    );
 
     // Set up associations
     PageView.belongsTo(User, {
@@ -219,8 +211,8 @@ export async function PUT(
       );
     }
 
-    // Prepare update data
-    const updateData: any = {};
+    // Prepare update data with proper typing
+    const updateData: PageViewUpdateData = {};
 
     if (timeOnPage !== undefined) {
       if (timeOnPage < 0) {
@@ -300,9 +292,8 @@ export async function DELETE(
   try {
     console.log("🗑️ Deleting page view data");
 
-    // Import sequelize and models directly
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const sequelize = require("../../../../../../config/database");
+    // Load models and database connection
+    const { sequelize, PageView } = await loadModels();
 
     // Test database connection
     try {
@@ -319,14 +310,6 @@ export async function DELETE(
         { status: 500 }
       );
     }
-
-    // Import PageView model
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const PageView = require("../../../../../../models/pageview.js")(
-      sequelize,
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require("sequelize").DataTypes
-    );
 
     const pageViewId = parseInt(params.id);
 

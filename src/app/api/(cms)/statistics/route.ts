@@ -71,14 +71,227 @@ interface OverallStatistics {
   };
 }
 
+// Define interfaces for query results
+interface SessionStatsResult {
+  avgDuration: string;
+  totalSessions: string;
+}
+
+interface PageViewStatsResult {
+  avgTimeOnPage: string;
+  totalViews: string;
+}
+
+interface DailyStatsSummaryResult {
+  totalNewUsers: string;
+  totalReturningUsers: string;
+  totalMobileUsers: string;
+  totalDesktopUsers: string;
+  avgBounceRate: string;
+}
+
+interface DeviceBreakdownResult {
+  deviceType: string;
+  count: string;
+}
+
+interface UserTypeBreakdownResult {
+  userType: string;
+  count: string;
+}
+
+interface BotStatsResult {
+  isBot: boolean;
+  count: string;
+}
+
+interface CountryStatsResult {
+  country: string;
+  count: string;
+}
+
+interface TopPageResult {
+  page: string;
+  views: string;
+  avgTime: string;
+  uniqueVisitors: string;
+}
+
+interface ExitPageStatsResult {
+  exitPage: boolean;
+  count: string;
+}
+
+interface HourlyActivityResult {
+  hour: number;
+  sessions: string;
+  pageViews: string;
+}
+
+interface DailyTrendResult {
+  date: string;
+  totalVisitors: number;
+  totalPageViews: number;
+  uniqueVisitors: number;
+  newUsers: number;
+  bounceRate: number;
+}
+
+interface MonthlyTrendResult {
+  month: string;
+  sessions: string;
+  pageViews: string;
+  newUsers: string;
+  avgBounceRate: string;
+}
+
+interface BrowserStatsResult {
+  browser: string;
+  count: string;
+}
+
+interface OsStatsResult {
+  os: string;
+  count: string;
+}
+
+interface ReferrerStatsResult {
+  referrer: string;
+  count: string;
+}
+
+interface LandingPageStatsResult {
+  landingPage: string;
+  sessions: string;
+  uniqueVisitors: string;
+}
+
+interface SessionDurationStatsResult {
+  minDuration: string;
+  maxDuration: string;
+  avgDuration: string;
+}
+
+interface DurationDistributionResult {
+  range: string;
+  count: string;
+}
+
+interface PageTitleResult {
+  title: string;
+  views: string;
+}
+
+interface CityStatsResult {
+  city: string;
+  count: string;
+}
+
+interface WeeklyPatternResult {
+  dayOfWeek: number;
+  sessions: string;
+  pageViews: string;
+}
+
+// Helper function to safely build device breakdown with proper typing
+function buildDeviceBreakdown(deviceData: DeviceBreakdownResult[]): {
+  mobile: number;
+  desktop: number;
+  tablet: number;
+  unknown: number;
+} {
+  const breakdown = {
+    mobile: 0,
+    desktop: 0,
+    tablet: 0,
+    unknown: 0,
+  };
+
+  deviceData.forEach((item) => {
+    const deviceType = item.deviceType as keyof typeof breakdown;
+    if (deviceType in breakdown) {
+      breakdown[deviceType] = parseInt(item.count || "0");
+    } else {
+      breakdown.unknown += parseInt(item.count || "0");
+    }
+  });
+
+  return breakdown;
+}
+
+// Helper function to safely build user type breakdown with proper typing
+function buildUserTypeBreakdown(userData: UserTypeBreakdownResult[]): {
+  authenticated: number;
+  anonymous: number;
+} {
+  const breakdown = {
+    authenticated: 0,
+    anonymous: 0,
+  };
+
+  userData.forEach((item) => {
+    const userType = item.userType as keyof typeof breakdown;
+    if (userType in breakdown) {
+      breakdown[userType] = parseInt(item.count || "0");
+    }
+  });
+
+  return breakdown;
+}
+
+// Helper function to safely build exit page stats with proper typing
+function buildExitPageStats(exitData: ExitPageStatsResult[]): {
+  exitPages: number;
+  nonExitPages: number;
+} {
+  const stats = {
+    exitPages: 0,
+    nonExitPages: 0,
+  };
+
+  exitData.forEach((item) => {
+    if (item.exitPage) {
+      stats.exitPages = parseInt(item.count || "0");
+    } else {
+      stats.nonExitPages = parseInt(item.count || "0");
+    }
+  });
+
+  return stats;
+}
+
+// Helper function to load models and database
+async function loadModels() {
+  /* eslint-disable @typescript-eslint/no-require-imports */
+  const sequelize = require("../../../../../config/database");
+  const { DataTypes } = require("sequelize");
+
+  const AnalyticsSession = require("../../../../../models/analyticssession.js")(
+    sequelize,
+    DataTypes
+  );
+  const PageView = require("../../../../../models/pageview.js")(
+    sequelize,
+    DataTypes
+  );
+  const DailyStats = require("../../../../../models/dailystats.js")(
+    sequelize,
+    DataTypes
+  );
+  const User = require("../../../../../models/user.js")(sequelize, DataTypes);
+  /* eslint-enable @typescript-eslint/no-require-imports */
+
+  return { sequelize, AnalyticsSession, PageView, DailyStats, User };
+}
+
 // GET - Get comprehensive statistics summary
 export async function GET(request: NextRequest) {
   try {
     console.log("📊 Getting comprehensive statistics data");
 
-    // Import sequelize and models directly
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const sequelize = require("../../../../../config/database");
+    // Load models and database connection
+    const { sequelize, AnalyticsSession, PageView, DailyStats, User } =
+      await loadModels();
 
     // Test database connection
     try {
@@ -95,36 +308,6 @@ export async function GET(request: NextRequest) {
         { status: 500 }
       );
     }
-
-    // Import all required models
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const AnalyticsSession =
-      require("../../../../../models/analyticssession.js")(
-        sequelize,
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        require("sequelize").DataTypes
-      );
-
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const PageView = require("../../../../../models/pageview.js")(
-      sequelize,
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require("sequelize").DataTypes
-    );
-
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const DailyStats = require("../../../../../models/dailystats.js")(
-      sequelize,
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require("sequelize").DataTypes
-    );
-
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const User = require("../../../../../models/user.js")(
-      sequelize,
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require("sequelize").DataTypes
-    );
 
     // Parse query parameters for date filtering
     const { searchParams } = new URL(request.url);
@@ -209,7 +392,7 @@ export async function GET(request: NextRequest) {
     // === SESSION STATISTICS ===
     console.log("📊 Fetching session statistics...");
 
-    const sessionStats = await AnalyticsSession.findOne({
+    const sessionStats = (await AnalyticsSession.findOne({
       attributes: [
         [sequelize.fn("AVG", sequelize.col("duration")), "avgDuration"],
         [sequelize.fn("COUNT", sequelize.col("id")), "totalSessions"],
@@ -219,12 +402,12 @@ export async function GET(request: NextRequest) {
         duration: { [Op.not]: null },
       },
       raw: true,
-    });
+    })) as SessionStatsResult | null;
 
     // === PAGE VIEW STATISTICS ===
     console.log("📊 Fetching page view statistics...");
 
-    const pageViewStats = await PageView.findOne({
+    const pageViewStats = (await PageView.findOne({
       attributes: [
         [sequelize.fn("AVG", sequelize.col("timeOnPage")), "avgTimeOnPage"],
         [sequelize.fn("COUNT", sequelize.col("id")), "totalViews"],
@@ -234,12 +417,12 @@ export async function GET(request: NextRequest) {
         timeOnPage: { [Op.not]: null },
       },
       raw: true,
-    });
+    })) as PageViewStatsResult | null;
 
     // === DAILY STATS SUMMARY ===
     console.log("📊 Fetching daily stats summary...");
 
-    const dailyStatsSummary = await DailyStats.findOne({
+    const dailyStatsSummary = (await DailyStats.findOne({
       attributes: [
         [sequelize.fn("SUM", sequelize.col("newUsers")), "totalNewUsers"],
         [
@@ -255,12 +438,12 @@ export async function GET(request: NextRequest) {
       ],
       where: dailyStatsDateFilter,
       raw: true,
-    });
+    })) as DailyStatsSummaryResult | null;
 
     // === DEVICE BREAKDOWN ===
     console.log("📊 Fetching device breakdown...");
 
-    const deviceBreakdown = await AnalyticsSession.findAll({
+    const deviceBreakdown = (await AnalyticsSession.findAll({
       attributes: [
         "deviceType",
         [sequelize.fn("COUNT", sequelize.col("id")), "count"],
@@ -268,12 +451,12 @@ export async function GET(request: NextRequest) {
       where: dateFilter,
       group: ["deviceType"],
       raw: true,
-    });
+    })) as DeviceBreakdownResult[];
 
     // === USER TYPE BREAKDOWN ===
     console.log("📊 Fetching user type breakdown...");
 
-    const userTypeBreakdown = await AnalyticsSession.findAll({
+    const userTypeBreakdown = (await AnalyticsSession.findAll({
       attributes: [
         [
           sequelize.literal(`
@@ -296,12 +479,12 @@ export async function GET(request: NextRequest) {
         `),
       ],
       raw: true,
-    });
+    })) as UserTypeBreakdownResult[];
 
     // === BOT STATISTICS ===
     console.log("📊 Fetching bot statistics...");
 
-    const botStats = await AnalyticsSession.findAll({
+    const botStats = (await AnalyticsSession.findAll({
       attributes: [
         "isBot",
         [sequelize.fn("COUNT", sequelize.col("id")), "count"],
@@ -309,12 +492,12 @@ export async function GET(request: NextRequest) {
       where: dateFilter,
       group: ["isBot"],
       raw: true,
-    });
+    })) as BotStatsResult[];
 
     // === TOP COUNTRIES ===
     console.log("📊 Fetching top countries...");
 
-    const topCountries = await AnalyticsSession.findAll({
+    const topCountries = (await AnalyticsSession.findAll({
       attributes: [
         "country",
         [sequelize.fn("COUNT", sequelize.col("id")), "count"],
@@ -327,12 +510,12 @@ export async function GET(request: NextRequest) {
       order: [[sequelize.fn("COUNT", sequelize.col("id")), "DESC"]],
       limit: 10,
       raw: true,
-    });
+    })) as CountryStatsResult[];
 
     // === TOP PAGES ===
     console.log("📊 Fetching top pages...");
 
-    const topPages = await PageView.findAll({
+    const topPages = (await PageView.findAll({
       attributes: [
         "page",
         [sequelize.fn("COUNT", sequelize.col("id")), "views"],
@@ -347,12 +530,12 @@ export async function GET(request: NextRequest) {
       order: [[sequelize.fn("COUNT", sequelize.col("id")), "DESC"]],
       limit: 10,
       raw: true,
-    });
+    })) as TopPageResult[];
 
     // === EXIT PAGE STATISTICS ===
     console.log("📊 Fetching exit page statistics...");
 
-    const exitPageStats = await PageView.findAll({
+    const exitPageStats = (await PageView.findAll({
       attributes: [
         "exitPage",
         [sequelize.fn("COUNT", sequelize.col("id")), "count"],
@@ -360,7 +543,7 @@ export async function GET(request: NextRequest) {
       where: dateFilter,
       group: ["exitPage"],
       raw: true,
-    });
+    })) as ExitPageStatsResult[];
 
     // === HOURLY ACTIVITY ===
     console.log("📊 Fetching hourly activity...");
@@ -375,7 +558,7 @@ export async function GET(request: NextRequest) {
         group: [sequelize.fn("HOUR", sequelize.col("startTime"))],
         order: [[sequelize.fn("HOUR", sequelize.col("startTime")), "ASC"]],
         raw: true,
-      }),
+      }) as Promise<HourlyActivityResult[]>,
       PageView.findAll({
         attributes: [
           [sequelize.fn("HOUR", sequelize.col("createdAt")), "hour"],
@@ -385,13 +568,13 @@ export async function GET(request: NextRequest) {
         group: [sequelize.fn("HOUR", sequelize.col("createdAt"))],
         order: [[sequelize.fn("HOUR", sequelize.col("createdAt")), "ASC"]],
         raw: true,
-      }),
+      }) as Promise<HourlyActivityResult[]>,
     ]);
 
     // === DAILY TRENDS ===
     console.log("📊 Fetching daily trends...");
 
-    const dailyTrends = await DailyStats.findAll({
+    const dailyTrends = (await DailyStats.findAll({
       attributes: [
         "date",
         "totalVisitors",
@@ -403,14 +586,14 @@ export async function GET(request: NextRequest) {
       where: dailyStatsDateFilter,
       order: [["date", "ASC"]],
       raw: true,
-    });
+    })) as DailyTrendResult[];
 
     // === MONTHLY TRENDS ===
     console.log("📊 Fetching monthly trends...");
 
-    let monthlyTrends: any[] = [];
+    let monthlyTrends: MonthlyTrendResult[] = [];
     try {
-      monthlyTrends = await DailyStats.findAll({
+      monthlyTrends = (await DailyStats.findAll({
         attributes: [
           [
             sequelize.literal(
@@ -438,7 +621,7 @@ export async function GET(request: NextRequest) {
           ],
         ],
         raw: true,
-      });
+      })) as MonthlyTrendResult[];
     } catch (error) {
       console.warn("Monthly trends calculation failed:", error);
       monthlyTrends = [];
@@ -453,7 +636,6 @@ export async function GET(request: NextRequest) {
       now.getMonth(),
       now.getDate()
     );
-    const yesterdayStart = new Date(todayStart.getTime() - 24 * 60 * 60 * 1000);
     const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     const previous24h = new Date(now.getTime() - 48 * 60 * 60 * 1000);
 
@@ -549,10 +731,10 @@ export async function GET(request: NextRequest) {
     // === MERGE HOURLY ACTIVITY ===
     const mergedHourlyActivity = Array.from({ length: 24 }, (_, hour) => {
       const sessionData = hourlySessionActivity.find(
-        (s: any) => s.hour === hour
+        (s: HourlyActivityResult) => s.hour === hour
       );
       const pageViewData = hourlyPageViewActivity.find(
-        (p: any) => p.hour === hour
+        (p: HourlyActivityResult) => p.hour === hour
       );
 
       return {
@@ -576,64 +758,50 @@ export async function GET(request: NextRequest) {
       returningUsers: parseInt(dailyStatsSummary?.totalReturningUsers || "0"),
       mobileUsers: parseInt(dailyStatsSummary?.totalMobileUsers || "0"),
       desktopUsers: parseInt(dailyStatsSummary?.totalDesktopUsers || "0"),
-      botSessions: botStats.find((b: any) => b.isBot)?.count || 0,
-      humanSessions: botStats.find((b: any) => !b.isBot)?.count || 0,
+      botSessions: parseInt(
+        botStats.find((b: BotStatsResult) => b.isBot)?.count || "0"
+      ),
+      humanSessions: parseInt(
+        botStats.find((b: BotStatsResult) => !b.isBot)?.count || "0"
+      ),
       topCountries: topCountries.reduce(
-        (acc: Record<string, number>, item: any) => {
+        (acc: Record<string, number>, item: CountryStatsResult) => {
           acc[item.country || "Unknown"] = parseInt(item.count || "0");
           return acc;
         },
         {}
       ),
-      topPages: topPages.map((page: any) => ({
+      topPages: topPages.map((page: TopPageResult) => ({
         page: page.page,
         views: parseInt(page.views || "0"),
         avgTime: parseFloat(page.avgTime || "0"),
         uniqueVisitors: parseInt(page.uniqueVisitors || "0"),
       })),
-      deviceBreakdown: deviceBreakdown.reduce(
-        (acc: any, item: any) => {
-          acc[item.deviceType] = parseInt(item.count || "0");
-          return acc;
-        },
-        { mobile: 0, desktop: 0, tablet: 0, unknown: 0 }
-      ),
-      userTypeBreakdown: userTypeBreakdown.reduce(
-        (acc: any, item: any) => {
-          acc[item.userType] = parseInt(item.count || "0");
-          return acc;
-        },
-        { authenticated: 0, anonymous: 0 }
-      ),
-      exitPageStats: exitPageStats.reduce(
-        (acc: any, item: any) => {
-          const key = item.exitPage ? "exitPages" : "nonExitPages";
-          acc[key] = parseInt(item.count || "0");
-          return acc;
-        },
-        { exitPages: 0, nonExitPages: 0 }
-      ),
+      // Use helper functions for proper typing
+      deviceBreakdown: buildDeviceBreakdown(deviceBreakdown),
+      userTypeBreakdown: buildUserTypeBreakdown(userTypeBreakdown),
+      exitPageStats: buildExitPageStats(exitPageStats),
       hourlyActivity: mergedHourlyActivity,
-      dailyTrends: dailyTrends.map((day: any) => ({
+      dailyTrends: dailyTrends.map((day: DailyTrendResult) => ({
         date: day.date,
-        sessions: parseInt(day.totalVisitors || "0"),
-        pageViews: parseInt(day.totalPageViews || "0"),
-        uniqueVisitors: parseInt(day.uniqueVisitors || "0"),
-        newUsers: parseInt(day.newUsers || "0"),
-        bounceRate: parseFloat(day.bounceRate || "0"),
+        sessions: parseInt(day.totalVisitors?.toString() || "0"),
+        pageViews: parseInt(day.totalPageViews?.toString() || "0"),
+        uniqueVisitors: parseInt(day.uniqueVisitors?.toString() || "0"),
+        newUsers: parseInt(day.newUsers?.toString() || "0"),
+        bounceRate: parseFloat(day.bounceRate?.toString() || "0"),
       })),
-      monthlyTrends: monthlyTrends.map((month: any) => ({
+      monthlyTrends: monthlyTrends.map((month: MonthlyTrendResult) => ({
         month: month.month,
         sessions: parseInt(month.sessions || "0"),
         pageViews: parseInt(month.pageViews || "0"),
         newUsers: parseInt(month.newUsers || "0"),
-        avgSessionDuration: parseFloat(month.avgSessionDuration || "0"),
+        avgSessionDuration: parseFloat(month.avgBounceRate || "0"),
       })),
       realtimeStats: {
         activeNow,
         todaySessions,
         todayPageViews,
-        todayNewUsers: parseInt(todayNewUsers || "0"),
+        todayNewUsers: parseInt(todayNewUsers?.toString() || "0"),
         last24hGrowth: {
           sessions: calculateGrowth(last24hSessions, previous24hSessions),
           pageViews: calculateGrowth(last24hPageViews, previous24hPageViews),
@@ -641,6 +809,273 @@ export async function GET(request: NextRequest) {
         },
       },
     };
+
+    // === BROWSER STATISTICS ===
+    console.log("📊 Fetching browser statistics...");
+
+    const browserStats = (await AnalyticsSession.findAll({
+      attributes: [
+        "browser",
+        [sequelize.fn("COUNT", sequelize.col("id")), "count"],
+      ],
+      where: {
+        ...dateFilter,
+        browser: { [Op.not]: null },
+      },
+      group: ["browser"],
+      order: [[sequelize.fn("COUNT", sequelize.col("id")), "DESC"]],
+      limit: 10,
+      raw: true,
+    })) as BrowserStatsResult[];
+
+    // === OS STATISTICS ===
+    console.log("📊 Fetching OS statistics...");
+
+    const osStats = (await AnalyticsSession.findAll({
+      attributes: ["os", [sequelize.fn("COUNT", sequelize.col("id")), "count"]],
+      where: {
+        ...dateFilter,
+        os: { [Op.not]: null },
+      },
+      group: ["os"],
+      order: [[sequelize.fn("COUNT", sequelize.col("id")), "DESC"]],
+      limit: 10,
+      raw: true,
+    })) as OsStatsResult[];
+
+    // === REFERRER STATISTICS ===
+    console.log("📊 Fetching referrer statistics...");
+
+    const referrerStats = (await AnalyticsSession.findAll({
+      attributes: [
+        "referrer",
+        [sequelize.fn("COUNT", sequelize.col("id")), "count"],
+      ],
+      where: {
+        ...dateFilter,
+        referrer: { [Op.not]: null },
+      },
+      group: ["referrer"],
+      order: [[sequelize.fn("COUNT", sequelize.col("id")), "DESC"]],
+      limit: 10,
+      raw: true,
+    })) as ReferrerStatsResult[];
+
+    // === LANDING PAGE STATISTICS ===
+    console.log("📊 Fetching landing page statistics...");
+
+    const landingPageStats = (await AnalyticsSession.findAll({
+      attributes: [
+        "landingPage",
+        [sequelize.fn("COUNT", sequelize.col("id")), "sessions"],
+        [
+          sequelize.fn("COUNT", sequelize.literal("DISTINCT ipAddress")),
+          "uniqueVisitors",
+        ],
+      ],
+      where: dateFilter,
+      group: ["landingPage"],
+      order: [[sequelize.fn("COUNT", sequelize.col("id")), "DESC"]],
+      limit: 10,
+      raw: true,
+    })) as LandingPageStatsResult[];
+
+    // === SESSION DURATION STATISTICS ===
+    console.log("📊 Fetching session duration statistics...");
+
+    const sessionDurationStats = (await AnalyticsSession.findOne({
+      attributes: [
+        [sequelize.fn("MIN", sequelize.col("duration")), "minDuration"],
+        [sequelize.fn("MAX", sequelize.col("duration")), "maxDuration"],
+        [sequelize.fn("AVG", sequelize.col("duration")), "avgDuration"],
+      ],
+      where: {
+        ...dateFilter,
+        duration: { [Op.not]: null },
+      },
+      raw: true,
+    })) as SessionDurationStatsResult | null;
+
+    // Session duration distribution
+    const durationDistribution = (await AnalyticsSession.findAll({
+      attributes: [
+        [
+          sequelize.literal(`
+            CASE 
+              WHEN duration < 30 THEN '0-30s'
+              WHEN duration < 60 THEN '30-60s'
+              WHEN duration < 180 THEN '1-3m'
+              WHEN duration < 600 THEN '3-10m'
+              WHEN duration < 1800 THEN '10-30m'
+              ELSE '30m+'
+            END
+          `),
+          "range",
+        ],
+        [sequelize.fn("COUNT", sequelize.col("id")), "count"],
+      ],
+      where: {
+        ...dateFilter,
+        duration: { [Op.not]: null },
+      },
+      group: [
+        sequelize.literal(`
+          CASE 
+            WHEN duration < 30 THEN '0-30s'
+            WHEN duration < 60 THEN '30-60s'
+            WHEN duration < 180 THEN '1-3m'
+            WHEN duration < 600 THEN '3-10m'
+            WHEN duration < 1800 THEN '10-30m'
+            ELSE '30m+'
+          END
+        `),
+      ],
+      raw: true,
+    })) as DurationDistributionResult[];
+
+    // === PAGE TITLE STATISTICS ===
+    console.log("📊 Fetching page title statistics...");
+
+    const topPageTitles = (await PageView.findAll({
+      attributes: [
+        "title",
+        [sequelize.fn("COUNT", sequelize.col("id")), "views"],
+      ],
+      where: {
+        ...dateFilter,
+        title: { [Op.not]: null },
+      },
+      group: ["title"],
+      order: [[sequelize.fn("COUNT", sequelize.col("id")), "DESC"]],
+      limit: 10,
+      raw: true,
+    })) as PageTitleResult[];
+
+    const totalPageTitles = await PageView.count({
+      distinct: true,
+      col: "title",
+      where: {
+        ...dateFilter,
+        title: { [Op.not]: null },
+      },
+    });
+
+    // === GEOGRAPHIC STATISTICS ===
+    console.log("📊 Fetching geographic statistics...");
+
+    const topCities = (await AnalyticsSession.findAll({
+      attributes: [
+        "city",
+        [sequelize.fn("COUNT", sequelize.col("id")), "count"],
+      ],
+      where: {
+        ...dateFilter,
+        city: { [Op.not]: null },
+      },
+      group: ["city"],
+      order: [[sequelize.fn("COUNT", sequelize.col("id")), "DESC"]],
+      limit: 10,
+      raw: true,
+    })) as CityStatsResult[];
+
+    const [totalCountries, totalCities] = await Promise.all([
+      AnalyticsSession.count({
+        distinct: true,
+        col: "country",
+        where: {
+          ...dateFilter,
+          country: { [Op.not]: null },
+        },
+      }),
+      AnalyticsSession.count({
+        distinct: true,
+        col: "city",
+        where: {
+          ...dateFilter,
+          city: { [Op.not]: null },
+        },
+      }),
+    ]);
+
+    // === WEEKLY PATTERNS ===
+    console.log("📊 Fetching weekly patterns...");
+
+    const weeklyPatterns = (await AnalyticsSession.findAll({
+      attributes: [
+        [sequelize.fn("DAYOFWEEK", sequelize.col("startTime")), "dayOfWeek"],
+        [sequelize.fn("COUNT", sequelize.col("id")), "sessions"],
+      ],
+      where: dateFilter,
+      group: [sequelize.fn("DAYOFWEEK", sequelize.col("startTime"))],
+      order: [[sequelize.fn("DAYOFWEEK", sequelize.col("startTime")), "ASC"]],
+      raw: true,
+    })) as WeeklyPatternResult[];
+
+    const weeklyPageViews = (await PageView.findAll({
+      attributes: [
+        [sequelize.fn("DAYOFWEEK", sequelize.col("createdAt")), "dayOfWeek"],
+        [sequelize.fn("COUNT", sequelize.col("id")), "pageViews"],
+      ],
+      where: dateFilter,
+      group: [sequelize.fn("DAYOFWEEK", sequelize.col("createdAt"))],
+      order: [[sequelize.fn("DAYOFWEEK", sequelize.col("createdAt")), "ASC"]],
+      raw: true,
+    })) as WeeklyPatternResult[];
+
+    // === PERFORMANCE METRICS ===
+    console.log("📊 Calculating performance metrics...");
+
+    const daysDifference = Math.ceil(
+      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    const avgVisitorsPerDay = totalUniqueVisitors / Math.max(daysDifference, 1);
+    const avgPageViewsPerDay = totalPageViews / Math.max(daysDifference, 1);
+    const avgSessionsPerDay = totalSessions / Math.max(daysDifference, 1);
+
+    // Find peak hour
+    const peakHourData = mergedHourlyActivity.reduce((max, current) =>
+      current.sessions > max.sessions ? current : max
+    );
+
+    // Find peak day - Fix: use totalVisitors from DailyTrendResult
+    const peakDayData =
+      dailyTrends.length > 0
+        ? dailyTrends.reduce((max, current) =>
+            current.totalVisitors > max.totalVisitors ? current : max
+          )
+        : null;
+
+    // Calculate average pages per session
+    const avgPagesPerSession = totalPageViews / Math.max(totalSessions, 1);
+
+    // === PREPARE EXTENDED RESPONSE DATA ===
+    const dayNames = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+
+    const mergedWeeklyPatterns = Array.from({ length: 7 }, (_, index) => {
+      const dayOfWeek = index + 1; // MySQL DAYOFWEEK starts from 1 (Sunday)
+      const sessionData = weeklyPatterns.find(
+        (p: WeeklyPatternResult) => p.dayOfWeek === dayOfWeek
+      );
+      const pageViewData = weeklyPageViews.find(
+        (p: WeeklyPatternResult) => p.dayOfWeek === dayOfWeek
+      );
+
+      return {
+        dayOfWeek,
+        dayName: dayNames[index],
+        sessions: parseInt(sessionData?.sessions || "0"),
+        pageViews: parseInt(pageViewData?.pageViews || "0"),
+      };
+    });
 
     console.log("✅ Comprehensive statistics retrieved successfully");
 
@@ -689,6 +1124,83 @@ export async function GET(request: NextRequest) {
           from: startDate.toISOString(),
           to: endDate.toISOString(),
           timeRange,
+        },
+
+        // Extended sections
+        browserStats: browserStats.reduce(
+          (acc: Record<string, number>, item: BrowserStatsResult) => {
+            acc[item.browser || "Unknown"] = parseInt(item.count || "0");
+            return acc;
+          },
+          {}
+        ),
+        osStats: osStats.reduce(
+          (acc: Record<string, number>, item: OsStatsResult) => {
+            acc[item.os || "Unknown"] = parseInt(item.count || "0");
+            return acc;
+          },
+          {}
+        ),
+        referrerStats: referrerStats.reduce(
+          (acc: Record<string, number>, item: ReferrerStatsResult) => {
+            acc[item.referrer || "Direct"] = parseInt(item.count || "0");
+            return acc;
+          },
+          {}
+        ),
+        landingPageStats: landingPageStats.map(
+          (page: LandingPageStatsResult) => ({
+            page: page.landingPage,
+            sessions: parseInt(page.sessions || "0"),
+            uniqueVisitors: parseInt(page.uniqueVisitors || "0"),
+          })
+        ),
+        sessionMetrics: {
+          minDuration: parseInt(sessionDurationStats?.minDuration || "0"),
+          maxDuration: parseInt(sessionDurationStats?.maxDuration || "0"),
+          avgDuration: parseFloat(sessionDurationStats?.avgDuration || "0"),
+          durationDistribution: durationDistribution.map(
+            (dist: DurationDistributionResult) => ({
+              range: dist.range,
+              count: parseInt(dist.count || "0"),
+            })
+          ),
+        },
+        pageMetrics: {
+          totalPageTitles,
+          avgPagesPerSession: parseFloat(avgPagesPerSession.toFixed(2)),
+          topPageTitles: topPageTitles.map((title: PageTitleResult) => ({
+            title: title.title,
+            views: parseInt(title.views || "0"),
+          })),
+        },
+        performanceMetrics: {
+          avgVisitorsPerDay: parseFloat(avgVisitorsPerDay.toFixed(2)),
+          avgPageViewsPerDay: parseFloat(avgPageViewsPerDay.toFixed(2)),
+          avgSessionsPerDay: parseFloat(avgSessionsPerDay.toFixed(2)),
+          peakHour: peakHourData.hour,
+          peakDay: peakDayData?.date || "N/A",
+        },
+        geographicStats: {
+          totalCountries,
+          totalCities,
+          topCities: topCities.reduce(
+            (acc: Record<string, number>, item: CityStatsResult) => {
+              acc[item.city || "Unknown"] = parseInt(item.count || "0");
+              return acc;
+            },
+            {}
+          ),
+        },
+        temporalPatterns: {
+          weeklyPatterns: mergedWeeklyPatterns,
+          seasonalTrends: {
+            currentPeriod: {
+              sessions: totalSessions,
+              pageViews: totalPageViews,
+              uniqueVisitors: totalUniqueVisitors,
+            },
+          },
         },
       },
       timestamp: new Date().toISOString(),

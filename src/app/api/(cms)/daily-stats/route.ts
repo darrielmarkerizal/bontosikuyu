@@ -18,14 +18,84 @@ interface DailyStatsModel {
   getDataValue(key: string): unknown;
 }
 
+// Define interfaces for aggregation results
+interface SummaryStatsResult {
+  totalVisitorsSum: string;
+  uniqueVisitorsSum: string;
+  totalPageViewsSum: string;
+  newUsersSum: string;
+  returningUsersSum: string;
+  mobileUsersSum: string;
+  desktopUsersSum: string;
+  avgBounceRate: string;
+  maxVisitors: string;
+  minVisitors: string;
+  maxPageViews: string;
+  minPageViews: string;
+}
+
+interface DateRangeResult {
+  earliestDate: string;
+  latestDate: string;
+}
+
+interface MonthlyTrendResult {
+  month: string;
+  monthlyVisitors: string;
+  monthlyPageViews: string;
+  monthlyNewUsers: string;
+  monthlyBounceRate: string;
+}
+
+interface DeviceBreakdownResult {
+  totalMobileUsers: string;
+  totalDesktopUsers: string;
+}
+
+interface UserTypeBreakdownResult {
+  totalNewUsers: string;
+  totalReturningUsers: string;
+}
+
+interface PreviousPeriodStatsResult {
+  prevTotalVisitors: string;
+  prevTotalPageViews: string;
+  prevAvgBounceRate: string;
+}
+
+// Define interfaces for where clause conditions
+interface DateCondition {
+  [Op.gte]?: string;
+  [Op.lte]?: string;
+}
+
+interface NumberCondition {
+  [Op.gte]?: number;
+  [Op.lte]?: number;
+}
+
+// Helper function to load models and database
+async function loadModels() {
+  /* eslint-disable @typescript-eslint/no-require-imports */
+  const sequelize = require("../../../../../config/database");
+  const { DataTypes } = require("sequelize");
+
+  const DailyStats = require("../../../../../models/dailystats.js")(
+    sequelize,
+    DataTypes
+  );
+  /* eslint-enable @typescript-eslint/no-require-imports */
+
+  return { sequelize, DailyStats };
+}
+
 // GET - Read all daily stats with pagination and filtering
 export async function GET(request: NextRequest) {
   try {
     console.log("📊 Getting daily stats data");
 
-    // Import sequelize and models directly
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const sequelize = require("../../../../../config/database");
+    // Load models and database connection
+    const { sequelize, DailyStats } = await loadModels();
 
     // Test database connection
     try {
@@ -42,14 +112,6 @@ export async function GET(request: NextRequest) {
         { status: 500 }
       );
     }
-
-    // Import DailyStats model
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const DailyStats = require("../../../../../models/dailystats.js")(
-      sequelize,
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require("sequelize").DataTypes
-    );
 
     // Parse query parameters
     const { searchParams } = new URL(request.url);
@@ -114,8 +176,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Device filter - fix using array approach
-    const baseConditions: any[] = [];
+    // Build where clause conditions with proper typing
+    const baseConditions: Array<Record<string, unknown>> = [];
 
     // Add search condition
     if (search) {
@@ -124,7 +186,7 @@ export async function GET(request: NextRequest) {
 
     // Add date range condition
     if (dateFrom || dateTo) {
-      const dateCondition: any = {};
+      const dateCondition: DateCondition = {};
       if (dateFrom) {
         dateCondition[Op.gte] = dateFrom;
       }
@@ -136,7 +198,7 @@ export async function GET(request: NextRequest) {
 
     // Add visitors range condition
     if (minVisitors || maxVisitors) {
-      const visitorsCondition: any = {};
+      const visitorsCondition: NumberCondition = {};
       if (minVisitors) {
         visitorsCondition[Op.gte] = parseInt(minVisitors);
       }
@@ -148,7 +210,7 @@ export async function GET(request: NextRequest) {
 
     // Add page views range condition
     if (minPageViews || maxPageViews) {
-      const pageViewsCondition: any = {};
+      const pageViewsCondition: NumberCondition = {};
       if (minPageViews) {
         pageViewsCondition[Op.gte] = parseInt(minPageViews);
       }
@@ -201,7 +263,7 @@ export async function GET(request: NextRequest) {
     const hasPrevPage = page > 1;
 
     // Calculate summary statistics
-    const summaryStats = await DailyStats.findOne({
+    const summaryStats = (await DailyStats.findOne({
       attributes: [
         [
           sequelize.fn("SUM", sequelize.col("totalVisitors")),
@@ -230,20 +292,20 @@ export async function GET(request: NextRequest) {
       ],
       where: whereClause,
       raw: true,
-    });
+    })) as SummaryStatsResult | null;
 
     // Get date range for the filtered data
-    const dateRange = await DailyStats.findOne({
+    const dateRange = (await DailyStats.findOne({
       attributes: [
         [sequelize.fn("MIN", sequelize.col("date")), "earliestDate"],
         [sequelize.fn("MAX", sequelize.col("date")), "latestDate"],
       ],
       where: whereClause,
       raw: true,
-    });
+    })) as DateRangeResult | null;
 
     // Get monthly aggregation for trends - Fixed MySQL GROUP BY issue
-    const monthlyTrends = await DailyStats.findAll({
+    const monthlyTrends = (await DailyStats.findAll({
       attributes: [
         // Use proper aggregation for MySQL ONLY_FULL_GROUP_BY mode
         [
@@ -280,10 +342,10 @@ export async function GET(request: NextRequest) {
         ],
       ],
       raw: true,
-    });
+    })) as MonthlyTrendResult[];
 
     // Get device breakdown
-    const deviceBreakdown = await DailyStats.findOne({
+    const deviceBreakdown = (await DailyStats.findOne({
       attributes: [
         [sequelize.fn("SUM", sequelize.col("mobileUsers")), "totalMobileUsers"],
         [
@@ -293,10 +355,10 @@ export async function GET(request: NextRequest) {
       ],
       where: whereClause,
       raw: true,
-    });
+    })) as DeviceBreakdownResult | null;
 
     // Get user type breakdown
-    const userTypeBreakdown = await DailyStats.findOne({
+    const userTypeBreakdown = (await DailyStats.findOne({
       attributes: [
         [sequelize.fn("SUM", sequelize.col("newUsers")), "totalNewUsers"],
         [
@@ -306,7 +368,7 @@ export async function GET(request: NextRequest) {
       ],
       where: whereClause,
       raw: true,
-    });
+    })) as UserTypeBreakdownResult | null;
 
     // Calculate growth trends (compare with previous period)
     const periodDays = Math.max(
@@ -328,7 +390,7 @@ export async function GET(request: NextRequest) {
       previousPeriodEnd.setTime(Date.now() - periodDays * 24 * 60 * 60 * 1000);
     }
 
-    const previousPeriodStats = await DailyStats.findOne({
+    const previousPeriodStats = (await DailyStats.findOne({
       attributes: [
         [
           sequelize.fn("SUM", sequelize.col("totalVisitors")),
@@ -347,7 +409,7 @@ export async function GET(request: NextRequest) {
         },
       },
       raw: true,
-    });
+    })) as PreviousPeriodStatsResult | null;
 
     // Calculate growth rates
     const currentTotalVisitors = parseInt(
@@ -438,7 +500,7 @@ export async function GET(request: NextRequest) {
           totalDays: totalCount,
         },
         trends: {
-          monthlyTrends: monthlyTrends.map((trend: any) => ({
+          monthlyTrends: monthlyTrends.map((trend: MonthlyTrendResult) => ({
             month: trend.month, // Will be in format "2024-01"
             visitors: parseInt(trend.monthlyVisitors || "0"),
             pageViews: parseInt(trend.monthlyPageViews || "0"),

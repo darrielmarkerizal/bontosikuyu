@@ -32,6 +32,34 @@ interface UserModel {
   username: string;
 }
 
+// Define interfaces for aggregation query results
+interface DeviceTypeCount {
+  deviceType: string;
+  count: string;
+}
+
+interface CountryCount {
+  country: string | null;
+  count: string;
+}
+
+interface BotCount {
+  isBot: boolean;
+  count: string;
+}
+
+interface UserTypeCount {
+  userType: string;
+  count: string;
+}
+
+interface AvgDurationResult {
+  avgDuration: string | null;
+}
+
+// Define utility type for count reduction
+type CountRecord = Record<string, number>;
+
 // GET - Read all analytics sessions with pagination and filtering
 export async function GET(request: NextRequest) {
   try {
@@ -74,7 +102,7 @@ export async function GET(request: NextRequest) {
       require("sequelize").DataTypes
     );
 
-    // Import PageView model for counts
+    // Import PageView model for counts - Fixed: Handle error properly
     let PageView;
     try {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -83,9 +111,12 @@ export async function GET(request: NextRequest) {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         require("sequelize").DataTypes
       );
-    } catch (error) {
+    } catch (pageViewError) {
       console.warn(
-        "PageView model not found, continuing without page view counts"
+        "PageView model not found, continuing without page view counts:",
+        pageViewError instanceof Error
+          ? pageViewError.message
+          : String(pageViewError)
       );
     }
 
@@ -257,16 +288,17 @@ export async function GET(request: NextRequest) {
     const deviceTypeOptions = ["desktop", "mobile", "tablet", "unknown"];
 
     // Get device type counts for statistics
-    const deviceTypeCounts = await AnalyticsSession.findAll({
+    const deviceTypeCounts = (await AnalyticsSession.findAll({
       attributes: [
         "deviceType",
         [sequelize.fn("COUNT", sequelize.col("id")), "count"],
       ],
       group: ["deviceType"],
-    });
+      raw: true,
+    })) as DeviceTypeCount[];
 
     // Get country counts for statistics
-    const countryCounts = await AnalyticsSession.findAll({
+    const countryCounts = (await AnalyticsSession.findAll({
       attributes: [
         "country",
         [sequelize.fn("COUNT", sequelize.col("id")), "count"],
@@ -277,19 +309,21 @@ export async function GET(request: NextRequest) {
       group: ["country"],
       order: [[sequelize.fn("COUNT", sequelize.col("id")), "DESC"]],
       limit: 10,
-    });
+      raw: true,
+    })) as CountryCount[];
 
     // Get bot vs human counts
-    const botCounts = await AnalyticsSession.findAll({
+    const botCounts = (await AnalyticsSession.findAll({
       attributes: [
         "isBot",
         [sequelize.fn("COUNT", sequelize.col("id")), "count"],
       ],
       group: ["isBot"],
-    });
+      raw: true,
+    })) as BotCount[];
 
     // Get user type counts
-    const userTypeCounts = await AnalyticsSession.findAll({
+    const userTypeCounts = (await AnalyticsSession.findAll({
       attributes: [
         [
           sequelize.literal(`
@@ -310,7 +344,8 @@ export async function GET(request: NextRequest) {
         END
       `),
       ],
-    });
+      raw: true,
+    })) as UserTypeCount[];
 
     // Calculate some statistics
     const totalPageViews = PageView ? await PageView.count() : 0;
@@ -320,7 +355,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Calculate average session duration
-    const avgDurationResult = await AnalyticsSession.findOne({
+    const avgDurationResult = (await AnalyticsSession.findOne({
       attributes: [
         [sequelize.fn("AVG", sequelize.col("duration")), "avgDuration"],
       ],
@@ -328,7 +363,8 @@ export async function GET(request: NextRequest) {
         duration: { [Op.not]: null },
       },
       raw: true,
-    });
+    })) as AvgDurationResult | null;
+
     const avgSessionDuration = parseFloat(
       avgDurationResult?.avgDuration || "0"
     );
@@ -344,6 +380,38 @@ export async function GET(request: NextRequest) {
         startTime: { [Op.gte]: new Date(Date.now() - 24 * 60 * 60 * 1000) }, // within last 24 hours
       },
     });
+
+    // Helper functions for type-safe reductions
+    const reduceDeviceTypeCounts = (counts: DeviceTypeCount[]): CountRecord => {
+      return counts.reduce((acc: CountRecord, item: DeviceTypeCount) => {
+        acc[item.deviceType] = parseInt(item.count || "0");
+        return acc;
+      }, {});
+    };
+
+    const reduceCountryCounts = (counts: CountryCount[]): CountRecord => {
+      return counts.reduce((acc: CountRecord, item: CountryCount) => {
+        const country = item.country || "Unknown";
+        acc[country] = parseInt(item.count || "0");
+        return acc;
+      }, {});
+    };
+
+    const reduceBotCounts = (counts: BotCount[]): CountRecord => {
+      return counts.reduce((acc: CountRecord, item: BotCount) => {
+        const key = item.isBot ? "bots" : "humans";
+        acc[key] = parseInt(item.count || "0");
+        return acc;
+      }, {});
+    };
+
+    const reduceUserTypeCounts = (counts: UserTypeCount[]): CountRecord => {
+      return counts.reduce((acc: CountRecord, item: UserTypeCount) => {
+        const userType = item.userType || "unknown";
+        acc[userType] = parseInt(item.count || "0");
+        return acc;
+      }, {});
+    };
 
     console.log("✅ Analytics sessions data retrieved successfully");
 
@@ -384,39 +452,10 @@ export async function GET(request: NextRequest) {
         },
         filters: {
           deviceTypeOptions,
-          deviceTypeCounts: deviceTypeCounts.reduce(
-            (acc: Record<string, number>, item: AnalyticsSessionModel) => {
-              acc[item.deviceType] = parseInt(
-                item.getDataValue("count") as string
-              );
-              return acc;
-            },
-            {}
-          ),
-          countryCounts: countryCounts.reduce(
-            (acc: Record<string, number>, item: AnalyticsSessionModel) => {
-              const country = item.country || "Unknown";
-              acc[country] = parseInt(item.getDataValue("count") as string);
-              return acc;
-            },
-            {}
-          ),
-          botCounts: botCounts.reduce(
-            (acc: Record<string, number>, item: AnalyticsSessionModel) => {
-              const key = item.isBot ? "bots" : "humans";
-              acc[key] = parseInt(item.getDataValue("count") as string);
-              return acc;
-            },
-            {}
-          ),
-          userTypeCounts: userTypeCounts.reduce(
-            (acc: Record<string, number>, item: AnalyticsSessionModel) => {
-              const userType = item.getDataValue("userType") as string;
-              acc[userType] = parseInt(item.getDataValue("count") as string);
-              return acc;
-            },
-            {}
-          ),
+          deviceTypeCounts: reduceDeviceTypeCounts(deviceTypeCounts),
+          countryCounts: reduceCountryCounts(countryCounts),
+          botCounts: reduceBotCounts(botCounts),
+          userTypeCounts: reduceUserTypeCounts(userTypeCounts),
         },
         appliedFilters: {
           search,
@@ -437,39 +476,10 @@ export async function GET(request: NextRequest) {
           uniqueVisitors,
           avgSessionDuration,
           activeSessions,
-          deviceTypeCounts: deviceTypeCounts.reduce(
-            (acc: Record<string, number>, item: AnalyticsSessionModel) => {
-              acc[item.deviceType] = parseInt(
-                item.getDataValue("count") as string
-              );
-              return acc;
-            },
-            {}
-          ),
-          countryCounts: countryCounts.reduce(
-            (acc: Record<string, number>, item: AnalyticsSessionModel) => {
-              const country = item.country || "Unknown";
-              acc[country] = parseInt(item.getDataValue("count") as string);
-              return acc;
-            },
-            {}
-          ),
-          botCounts: botCounts.reduce(
-            (acc: Record<string, number>, item: AnalyticsSessionModel) => {
-              const key = item.isBot ? "bots" : "humans";
-              acc[key] = parseInt(item.getDataValue("count") as string);
-              return acc;
-            },
-            {}
-          ),
-          userTypeCounts: userTypeCounts.reduce(
-            (acc: Record<string, number>, item: AnalyticsSessionModel) => {
-              const userType = item.getDataValue("userType") as string;
-              acc[userType] = parseInt(item.getDataValue("count") as string);
-              return acc;
-            },
-            {}
-          ),
+          deviceTypeCounts: reduceDeviceTypeCounts(deviceTypeCounts),
+          countryCounts: reduceCountryCounts(countryCounts),
+          botCounts: reduceBotCounts(botCounts),
+          userTypeCounts: reduceUserTypeCounts(userTypeCounts),
         },
       },
       timestamp: new Date().toISOString(),
