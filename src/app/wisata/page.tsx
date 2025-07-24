@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import axios from "axios";
@@ -62,7 +62,8 @@ interface TravelsResponse {
   };
 }
 
-export default function WisataPage() {
+// Separate component that uses useSearchParams
+function WisataContent() {
   // States
   const [travels, setTravels] = useState<Travel[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -199,6 +200,7 @@ export default function WisataPage() {
     if (pagination.currentPage !== 1) {
       setPagination((prev) => ({ ...prev, currentPage: 1 }));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch, selectedCategory, selectedDusun, sortBy, sortOrder]);
 
   // URL sync
@@ -360,5 +362,67 @@ export default function WisataPage() {
         onClose={handleCloseModal}
       />
     </div>
+  );
+}
+
+// Loading fallback component
+function WisataPageLoading() {
+  return (
+    <div className="min-h-screen bg-slate-50">
+      {/* Header Skeleton */}
+      <div className="bg-gradient-to-r from-brand-secondary to-gray-900 text-white">
+        <div className="container mx-auto px-4 py-12 md:py-16">
+          <div className="text-center animate-pulse">
+            <div className="h-8 md:h-12 bg-white/20 rounded-lg mb-4 mx-auto max-w-md"></div>
+            <div className="h-4 md:h-6 bg-white/10 rounded-lg mx-auto max-w-2xl"></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-8">
+        <div className="space-y-8 animate-pulse">
+          {/* Stats Skeleton */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="bg-white rounded-lg p-4 h-24">
+                <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                <div className="h-6 bg-gray-300 rounded"></div>
+              </div>
+            ))}
+          </div>
+
+          {/* Filters Skeleton */}
+          <div className="bg-white rounded-lg p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-10 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
+
+          {/* Grid Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(12)].map((_, i) => (
+              <div key={i} className="bg-white rounded-lg overflow-hidden">
+                <div className="h-48 bg-gray-200"></div>
+                <div className="p-4 space-y-2">
+                  <div className="h-4 bg-gray-200 rounded"></div>
+                  <div className="h-3 bg-gray-100 rounded w-2/3"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main export with Suspense wrapper
+export default function WisataPage() {
+  return (
+    <Suspense fallback={<WisataPageLoading />}>
+      <WisataContent />
+    </Suspense>
   );
 }
