@@ -177,13 +177,36 @@ export default function AdminPage() {
     try {
       setSubmitting(true);
 
+      console.log("=== FORM SUBMIT DEBUG ===");
+      console.log("Form data received:", {
+        fullName: data.fullName,
+        email: data.email,
+        username: data.username,
+        password: data.password ? "PROVIDED" : "MISSING",
+        confirmPassword: data.confirmPassword ? "PROVIDED" : "MISSING",
+        isEditing: !!editingAdmin,
+      });
+
       if (editingAdmin) {
         // Update existing admin
         console.log("✏️ Updating admin:", editingAdmin.id);
 
+        const updatePayload: any = {
+          fullName: data.fullName,
+          email: data.email,
+          username: data.username,
+        };
+
+        // Only include password fields if password is being changed
+        if (data.password && data.password.trim() !== "") {
+          updatePayload.password = data.password;
+          updatePayload.confirmPassword = data.confirmPassword;
+          updatePayload.currentPassword = data.currentPassword;
+        }
+
         const response = await axios.put(
           `/api/admins/${editingAdmin.id}`,
-          data
+          updatePayload
         );
 
         if (response.data.success) {
@@ -193,6 +216,8 @@ export default function AdminPage() {
 
           // Refresh data
           await fetchAdmins();
+          setShowForm(false);
+          setEditingAdmin(null);
         } else {
           throw new Error(response.data.message);
         }
@@ -200,12 +225,38 @@ export default function AdminPage() {
         // Create new admin using register endpoint
         console.log("➕ Creating new admin");
 
-        const response = await axios.post("/api/register", {
-          fullName: data.fullName,
-          email: data.email,
-          username: data.username,
+        // Validate required fields for new admin
+        if (
+          !data.fullName ||
+          !data.email ||
+          !data.username ||
+          !data.password ||
+          !data.confirmPassword
+        ) {
+          toast.error("Semua field wajib diisi");
+          return;
+        }
+
+        if (data.password !== data.confirmPassword) {
+          toast.error("Konfirmasi password tidak cocok");
+          return;
+        }
+
+        const createPayload = {
+          fullName: data.fullName.trim(),
+          email: data.email.trim(),
+          username: data.username.trim(),
           password: data.password,
+          confirmPassword: data.confirmPassword, // PENTING: Kirim confirmPassword
+        };
+
+        console.log("Sending create payload:", {
+          ...createPayload,
+          password: "[HIDDEN]",
+          confirmPassword: "[HIDDEN]",
         });
+
+        const response = await axios.post("/api/register", createPayload);
 
         if (response.data.success) {
           toast.success("Admin berhasil ditambahkan", {
@@ -214,6 +265,7 @@ export default function AdminPage() {
 
           // Refresh data
           await fetchAdmins();
+          setShowForm(false);
         } else {
           throw new Error(response.data.message);
         }
@@ -225,6 +277,13 @@ export default function AdminPage() {
         const errorMessage = error.response?.data?.message || error.message;
         toast.error("Gagal menyimpan admin", {
           description: errorMessage,
+        });
+
+        // Log detailed error for debugging
+        console.log("Error details:", {
+          status: error.response?.status,
+          data: error.response?.data,
+          requestData: error.config?.data,
         });
       } else {
         toast.error("Terjadi kesalahan", {
@@ -314,7 +373,10 @@ export default function AdminPage() {
       {/* Form Dialog */}
       <AdminForm
         isOpen={showForm}
-        onClose={() => setShowForm(false)}
+        onClose={() => {
+          setShowForm(false);
+          setEditingAdmin(null);
+        }}
         onSubmit={handleFormSubmit}
         admin={editingAdmin}
         loading={submitting}
@@ -323,7 +385,10 @@ export default function AdminPage() {
       {/* Delete Confirmation Dialog */}
       <DeleteConfirmDialog
         isOpen={showDeleteDialog}
-        onClose={() => setShowDeleteDialog(false)}
+        onClose={() => {
+          setShowDeleteDialog(false);
+          setDeletingAdmin(null);
+        }}
         onConfirm={handleConfirmDelete}
         title="Hapus Admin"
         description={`Apakah Anda yakin ingin menghapus admin "${deletingAdmin?.fullName}"? Tindakan ini tidak dapat dibatalkan.`}

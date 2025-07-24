@@ -11,8 +11,9 @@ export interface AdminFormData {
   fullName: string;
   email: string;
   username: string;
-  password?: string;
+  password: string;
   currentPassword?: string;
+  confirmPassword: string;
 }
 
 export interface AdminsResponse {
@@ -41,5 +42,34 @@ export interface AdminsResponse {
       totalUsers: number;
     };
   };
+  timestamp: string;
+}
+
+export interface CreateAdminRequest {
+  fullName: string;
+  email: string;
+  username: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export interface UpdateAdminRequest {
+  fullName: string;
+  email: string;
+  username: string;
+  password?: string;
+  confirmPassword?: string;
+  currentPassword?: string;
+}
+
+export interface AdminResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    admin: Admin;
+    token?: string;
+    expiresIn?: string;
+  };
+  error?: string;
   timestamp: string;
 }
