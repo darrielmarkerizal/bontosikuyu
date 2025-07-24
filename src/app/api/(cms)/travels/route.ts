@@ -4,8 +4,7 @@ import { Op } from "sequelize";
 import type { WhereOptions } from "sequelize";
 
 // Define types for better type safety
-// Use Sequelize's WhereOptions for type compatibility
-type WhereConditions = WhereOptions<any>;
+type WhereConditions = WhereOptions;
 
 interface TravelWithCategory {
   id: number;
@@ -62,10 +61,10 @@ export async function GET(request: NextRequest) {
     const validatedLimit = Math.min(Math.max(1, limit), 100); // Max 100 items per page
     const offset = (validatedPage - 1) * validatedLimit;
 
-    // Build where conditions
+    // Build where conditions - FIX: Now properly typed
     const whereConditions: WhereConditions = {};
 
-    // Search by name - FIX: Add search functionality
+    // Search by name
     if (search && search.trim()) {
       whereConditions.name = {
         [Op.iLike]: `%${search.trim()}%`,
@@ -136,27 +135,27 @@ export async function GET(request: NextRequest) {
       }) as Promise<DusunOption[]>,
     ]);
 
-    // Count by dusun for stats - FIX: Specify table for id column
+    // Count by dusun for stats
     const dusunCounts = (await Travel.findAll({
       attributes: [
         "dusun",
         [
           Travel.sequelize!.fn("COUNT", Travel.sequelize!.col("Travel.id")),
           "count",
-        ], // FIX: Travel.id instead of id
+        ],
       ],
       group: ["dusun"],
       raw: true,
     })) as unknown as DusunCount[];
 
-    // Count by category for stats - FIX: Specify table for id column
+    // Count by category for stats
     const categoryCounts = (await Travel.findAll({
       attributes: [
         "travelCategoryId",
         [
           Travel.sequelize!.fn("COUNT", Travel.sequelize!.col("Travel.id")),
           "count",
-        ], // FIX: Travel.id instead of id
+        ],
       ],
       include: [
         {
@@ -358,7 +357,7 @@ export async function POST(request: NextRequest) {
         {
           model: TravelCategory,
           as: "category",
-          attributes: ["id", "name"], // FIX: Remove description
+          attributes: ["id", "name"],
         },
       ],
     })) as TravelWithCategory;
