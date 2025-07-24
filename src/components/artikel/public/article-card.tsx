@@ -13,9 +13,16 @@ gsap.registerPlugin(ScrollTrigger);
 interface ArticleCardProps {
   article: Article;
   index?: number;
+  onImageError?: () => void;
+  onImageLoad?: () => void;
 }
 
-export function ArticleCard({ article, index = 0 }: ArticleCardProps) {
+export function ArticleCard({
+  article,
+  index = 0,
+  onImageError,
+  onImageLoad,
+}: ArticleCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
 
@@ -98,6 +105,10 @@ export function ArticleCard({ article, index = 0 }: ArticleCardProps) {
           alt={article.title}
           fill
           className="object-cover"
+          onError={onImageError}
+          onLoad={onImageLoad}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          priority={index < 3} // Prioritize first 3 images
         />
       </div>
       <CardContent className="p-5">
