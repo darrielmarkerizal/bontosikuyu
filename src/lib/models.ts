@@ -54,6 +54,38 @@ export interface LogAttributes {
   updatedAt?: Date;
 }
 
+// ADD: Travel model interface
+export interface TravelCategoryAttributes {
+  id?: number;
+  name: string;
+  description?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface TravelAttributes {
+  id?: number;
+  name: string;
+  dusun:
+    | "Dusun Laiyolo"
+    | "Dusun Pangkaje'ne"
+    | "Dusun Timoro"
+    | "Dusun Kilotepo";
+  image?: string;
+  travelCategoryId: number;
+  category?: TravelCategoryAttributes;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface TravelCategoryInstance
+  extends Model<TravelCategoryAttributes>,
+    TravelCategoryAttributes {}
+
+export interface TravelInstance
+  extends Model<TravelAttributes>,
+    TravelAttributes {}
+
 export class Log extends Model<LogAttributes> implements LogAttributes {
   public id!: number;
   public action!:
@@ -102,11 +134,41 @@ export class Article
   public readonly updatedAt!: Date;
 }
 
+// ADD: Travel models
+export class TravelCategory
+  extends Model<TravelCategoryAttributes>
+  implements TravelCategoryAttributes
+{
+  public id!: number;
+  public name!: string;
+  public description?: string;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
+export class Travel
+  extends Model<TravelAttributes>
+  implements TravelAttributes
+{
+  public id!: number;
+  public name!: string;
+  public dusun!:
+    | "Dusun Laiyolo"
+    | "Dusun Pangkaje'ne"
+    | "Dusun Timoro"
+    | "Dusun Kilotepo";
+  public image?: string;
+  public travelCategoryId!: number;
+  public category?: TravelCategoryAttributes;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
 // Initialize models
 let modelsInitialized = false;
 
 export async function initializeModels() {
-  if (modelsInitialized) return { User, Article, Log };
+  if (modelsInitialized) return { User, Article, Log, TravelCategory, Travel };
 
   const sequelize = await getDatabase();
 
@@ -251,8 +313,97 @@ export async function initializeModels() {
     }
   );
 
+  // ADD: Initialize TravelCategory model
+  TravelCategory.init(
+    {
+      name: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+        validate: {
+          notEmpty: true,
+          len: [2, 100],
+        },
+      },
+      description: {
+        type: DataTypes.STRING(500),
+        allowNull: true,
+      },
+    },
+    {
+      sequelize,
+      modelName: "TravelCategory",
+      tableName: "TravelCategories",
+      timestamps: true,
+    }
+  );
+
+  // ADD: Initialize Travel model
+  Travel.init(
+    {
+      name: {
+        type: DataTypes.STRING(200),
+        allowNull: false,
+        validate: {
+          notEmpty: true,
+          len: [2, 200],
+        },
+      },
+      dusun: {
+        type: DataTypes.ENUM(
+          "Dusun Laiyolo",
+          "Dusun Pangkaje'ne",
+          "Dusun Timoro",
+          "Dusun Kilotepo"
+        ),
+        allowNull: false,
+        validate: {
+          isIn: [
+            [
+              "Dusun Laiyolo",
+              "Dusun Pangkaje'ne",
+              "Dusun Timoro",
+              "Dusun Kilotepo",
+            ],
+          ],
+        },
+      },
+      image: {
+        type: DataTypes.STRING(500),
+        allowNull: true,
+        validate: {
+          isUrl: true,
+        },
+      },
+      travelCategoryId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: {
+          notNull: true,
+          isInt: true,
+        },
+      },
+    },
+    {
+      sequelize,
+      modelName: "Travel",
+      tableName: "Travels",
+      timestamps: true,
+    }
+  );
+
+  // ADD: Define associations
+  Travel.belongsTo(TravelCategory, {
+    foreignKey: "travelCategoryId",
+    as: "category",
+  });
+
+  TravelCategory.hasMany(Travel, {
+    foreignKey: "travelCategoryId",
+    as: "travels",
+  });
+
   modelsInitialized = true;
-  return { User, Article, Log };
+  return { User, Article, Log, TravelCategory, Travel };
 }
 
 // Helper function to get models
