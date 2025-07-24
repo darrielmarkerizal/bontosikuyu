@@ -1,0 +1,423 @@
+{
+  "desa": {
+    "bidang_pemerintahan": {
+      "umum": {
+        "luas_desa_km2": 29.28,
+        "batas_wilayah": {
+          "utara": "Desa Harapan",
+          "selatan": "Laiyolo",
+          "barat": "Laut Flores",
+          "timur": "Laut Flores"
+        },
+        "kondisi_geografis": {
+          "ketinggian_m": "0-500",
+          "curah_hujan_mm_per_tahun": 2000,
+          "suhu_celcius": 20
+        },
+        "orbitasi": {
+          "ke_kecamatan_km": 0.3,
+          "ke_kabupaten_km": 23
+        }
+      }
+    },
+    "pertanahan": {
+      "status": {
+        "sertifikat_hak_milik": 0,
+        "sertifikat_hak_guna_usaha": 0,
+        "sertifikat_hak_guna_bangunan": 0,
+        "sertifikat_hak_pakai": 0,
+        "tanah_bersertifikat": 0,
+        "tanah_bersertifikat_prona": 257,
+        "tanah_non_sertifikat": 188
+      },
+      "peruntukan": {
+        "jalan": 10.8,
+        "sawah_ladang": 0,
+        "bangunan_umum": 2,
+        "empang": 6.5,
+        "pemukiman": 14,
+        "jalur_hijau": 466.97,
+        "perkuburan": 2.35,
+        "lain_lain": 476.67
+      },
+      "penggunaan": {
+        "industri": 0,
+        "pertokoan": 0,
+        "perkantoran": 0.75,
+        "pasar_desa": 0,
+        "tanah_wakaf": 0,
+        "sawah": {
+          "irigasi_teknis": 0,
+          "irigasi_setengah_teknis": 0,
+          "irigasi_sederhana": 0,
+          "irigasi_tadah_hujan": 0,
+          "pasang_surut": 0
+        },
+        "tanah_kering": {
+          "pekarangan": 8.5,
+          "perladangan": 424.34,
+          "tegalan": 50,
+          "perkebunan_negara": 0,
+          "perkebunan_swasta": 0,
+          "perkebunan_rakyat": 2200,
+          "tempat_wisata": 0
+        },
+        "belum_dikelola": {
+          "hutan": 567.66,
+          "rawa": 189.22,
+          "lain_lain": 476.67
+        }
+      }
+    },
+    "kependudukan": {
+      "jumlah_penduduk": {
+        "jenis_kelamin": {
+          "laki_laki": 497,
+          "perempuan": 502
+        },
+        "kepala_keluarga": 330,
+        "kewarganegaraan": {
+          "wni": { "laki_laki": 497, "perempuan": 502 },
+          "wna": { "laki_laki": 0, "perempuan": 0 }
+        }
+      },
+      "agama": {
+        "islam": 995,
+        "kristen": 4,
+        "katholik": 0,
+        "hindu": 0,
+        "budha": 0,
+        "penghayat": 0
+      },
+      "usia": {
+        "kelompok_pendidikan": {
+          "0_3": 48,
+          "4_6": 45,
+          "7_12": 87,
+          "13_15": 37,
+          "16_18": 46,
+          "19_ke_atas": 736
+        },
+        "kelompok_tenaga_kerja": {
+          "10_14": 0,
+          "15_19": 0,
+          "20_25": 0,
+          "27_40": 0,
+          "41_56": 0,
+          "57_ke_atas": 0
+        }
+      },
+      "pendidikan": {
+        "tk": 41,
+        "sd": 184,
+        "smp": 110,
+        "sma": 175,
+        "d1_d3": 29,
+        "sarjana": 32
+      },
+      "mata_pencaharian": {
+        "pns": 29,
+        "abri": 2,
+        "swasta": 0,
+        "wiraswasta": 9,
+        "tani": 188,
+        "pertukangan": 31,
+        "buruh_tani": 0,
+        "pensiunan": 7,
+        "nelayan": 50,
+        "pemulung": 0,
+        "jasa": 8
+      },
+      "mobilitas": {
+        "lahir": { "laki_laki": 5, "perempuan": 6 },
+        "mati": { "laki_laki": 9, "perempuan": 9 },
+        "datang": { "laki_laki": 8, "perempuan": 6 },
+        "pindah": { "laki_laki": 4, "perempuan": 5 },
+        "wajib_pilih": 746
+      }
+    },
+    "perangkat_desa": {
+      "kaur": 6,
+      "kadus": 4,
+      "staf": 4
+    },
+    "rk_rt": {
+      "jumlah_rk": 4,
+      "jumlah_rt": 4,
+      "pengurus_tertatar": 8
+    },
+    "pelayanan_masyarakat": {
+      "umum": 1,
+      "kependudukan": 1,
+      "legalisasi": 0
+    },
+    "pajak": {
+      "pbb": {
+        "jumlah_wp": 831,
+        "jumlah_sppt": 831,
+        "ketetapan": 32283445,
+        "realisasi": 32283445
+      }
+    },
+    "lembaga": {
+      "lpm": {
+        "jumlah_anggota": 40,
+        "tanggal_pembentukan": "2001-10-09"
+      }
+    },
+    "keputusan_desa": {
+      "ditetapkan": 23,
+      "disyahkan": 29
+    },
+    "keputusan_kepala_desa": {
+      "tindak_lanjut": 29,
+      "kebijaksanaan": 29,
+      "mengatur": 29,
+      "tidak_mengatur": 0
+    },
+    "keuangan_desa": {
+      "belanja": {
+        "silpa": 18814000.04,
+        "dana_desa": 651334000,
+        "add": 736847000,
+        "penerimaan": 0,
+        "pengeluaran": 0
+      },
+      "pad": {
+        "tanah_kas_desa": 0,
+        "pasar_desa": 0,
+        "pungutan_desa": 0,
+        "swadaya": 0,
+        "gotong_royong": 0,
+        "lain_lain": 0
+      },
+      "bantuan": {
+        "pusat": 0,
+        "provinsi": 0,
+        "kabupaten": 0
+      },
+      "penduduk_miskin": {
+        "laki_laki": 11,
+        "perempuan": 14,
+        "jumlah_kk_miskin": 25
+      }
+    },
+    "keamanan": {
+      "hansip": {
+        "jumlah_laki_laki": 8,
+        "jumlah_perempuan": 0,
+        "alat_pemadam": 0,
+        "terlatih": 8
+      },
+      "ketertiban": {
+        "kriminal": 0,
+        "bencana_alam": 0,
+        "operasi_perbitan": 0,
+        "penyuluhan": 5,
+        "pos_kamling": 5,
+        "balakar": 0,
+        "kenakalan_remaja": 0,
+        "peronda": 4,
+        "satpam": 0,
+        "posko_bencana": 0,
+        "posko_hutan": 0
+      },
+      "politik": {
+        "pemilu_2024": {
+          "pemilih": 757,
+          "tps": 4
+        },
+        "bekas_napi": 0,
+        "bekas_tapol_g30s_pki": {
+          "a": 0,
+          "b": 0,
+          "c": 0
+        },
+        "mutasi": 0
+      }
+    },
+    "bidang_pembangunan": {
+      "agama": {
+        "masjid": 4,
+        "mushola": 0,
+        "wihara": 0,
+        "gereja": 0,
+        "pura": 0
+      },
+      "kesehatan": {
+        "puskesmas": 1,
+        "apotik": 0,
+        "lab": 0,
+        "rs_bersalin": 0
+      },
+      "penduduk": {
+        "jumlah_rumah": 251
+      },
+      "pendidikan": {
+        "pendidikan_umum": [
+          {
+            "jenis": "Kelompok Bermain",
+            "negeri": { "gedung": 0, "guru": 0, "murid": 0 },
+            "swasta": { "gedung": 1, "guru": 0, "murid": 0 }
+          },
+          {
+            "jenis": "TK",
+            "negeri": { "gedung": 0, "guru": 0, "murid": 0 },
+            "swasta": { "gedung": 2, "guru": 9, "murid": 34 }
+          },
+          {
+            "jenis": "Sekolah Dasar",
+            "negeri": { "gedung": 2, "guru": 21, "murid": 54 },
+            "swasta": { "gedung": 0, "guru": 0, "murid": 0 }
+          },
+          {
+            "jenis": "SMP/SLTP",
+            "negeri": { "gedung": 1, "guru": 2, "murid": 39 },
+            "swasta": { "gedung": 0, "guru": 0, "murid": 0 }
+          },
+          {
+            "jenis": "SMA/SLTA",
+            "negeri": { "gedung": 0, "guru": 0, "murid": 0 },
+            "swasta": { "gedung": 0, "guru": 0, "murid": 0 }
+          },
+          {
+            "jenis": "Akademik",
+            "negeri": { "gedung": 0, "guru": 0, "murid": 0 },
+            "swasta": { "gedung": 0, "guru": 0, "murid": 0 }
+          },
+          {
+            "jenis": "Institut/Sekolah Tinggi/Universitas",
+            "negeri": { "gedung": 0, "guru": 0, "murid": 0 },
+            "swasta": { "gedung": 0, "guru": 0, "murid": 0 }
+          }
+        ],
+        "pendidikan_khusus": [
+          {
+            "jenis": "Pondok Pesantren",
+            "gedung": 0,
+            "guru_pelatih": 0,
+            "murid": 0
+          },
+          {
+            "jenis": "Madrasah",
+            "gedung": 0,
+            "guru_pelatih": 0,
+            "murid": 0
+          },
+          {
+            "jenis": "SLB-A",
+            "gedung": 0,
+            "guru_pelatih": 0,
+            "murid": 0
+          },
+          {
+            "jenis": "SLB-B",
+            "gedung": 0,
+            "guru_pelatih": 0,
+            "murid": 0
+          },
+          {
+            "jenis": "SLB-C",
+            "gedung": 0,
+            "guru_pelatih": 0,
+            "murid": 0
+          }
+        ],
+        "pendidikan_non_formal": [
+          {
+            "jenis": "Menjahit",
+            "gedung": 0,
+            "guru_pelatih": 2,
+            "murid": 20
+          },
+          {
+            "jenis": "Balai Latihan Kerja",
+            "gedung": 0,
+            "guru_pelatih": 0,
+            "murid": 0
+          },
+          {
+            "jenis": "Kursus",
+            "gedung": 0,
+            "guru_pelatih": 0,
+            "murid": 0
+          },
+          {
+            "jenis": "Bengkel Mobil",
+            "gedung": 0,
+            "guru_pelatih": 0,
+            "murid": 0
+          },
+          {
+            "jenis": "Bengkel Motor",
+            "gedung": 0,
+            "guru_pelatih": 0,
+            "murid": 0
+          },
+          {
+            "jenis": "Radio",
+            "gedung": 0,
+            "guru_pelatih": 0,
+            "murid": 0
+          },
+          {
+            "jenis": "Salon Kecantikan",
+            "gedung": 0,
+            "guru_pelatih": 0,
+            "murid": 0
+          },
+          {
+            "jenis": "Stir Mobil",
+            "gedung": 0,
+            "guru_pelatih": 0,
+            "murid": 0
+          },
+          {
+            "jenis": "PLK (Pusat Latihan Kerja)",
+            "gedung": 0,
+            "guru_pelatih": 0,
+            "murid": 0
+          },
+          {
+            "jenis": "Lain-Lain (Mencetak Buku, Bahasa)",
+            "gedung": 0,
+            "guru_pelatih": 0,
+            "murid": 0
+          }
+        ]
+      },
+      "sarana_olahraga_kesenian_dan_sosial": {
+        "olahraga": {
+          "sepak_bola": 2,
+          "takraw": 3,
+          "volly": 3,
+          "bulu_tangkis": 0,
+          "tenis_meja": 0,
+          "tenis": 0,
+          "atletik": 0,
+          "pacuan_kuda": 0,
+          "golf": 0,
+          "softball": 0,
+          "renang": 0,
+          "bowling": 0,
+          "fitnes": 0,
+          "bilyard": 0
+        },
+        "kesenian": {
+          "sarana_kerja": 0,
+          "gelanggang_remaja": 0,
+          "gedung_kesenian": 0,
+          "bioskop": 0,
+          "klub_malam": 0,
+          "sandiwara": 0
+        },
+        "sosial": {
+          "panti_asuhan": 0,
+          "panti_wreda": 0,
+          "panti_pijat_tuna_netra": 0,
+          "rumah_jompo": 0
+        }
+      }
+    }
+  }
+}
