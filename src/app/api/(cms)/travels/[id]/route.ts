@@ -37,6 +37,36 @@ interface TravelDetailApiResponse {
   timestamp: string;
 }
 
+// Add interface for update data
+interface TravelUpdateData {
+  name?: string;
+  dusun?:
+    | "Dusun Laiyolo"
+    | "Dusun Pangkaje'ne"
+    | "Dusun Timoro"
+    | "Dusun Kilotepo";
+  image?: string | null;
+  travelCategoryId?: number;
+}
+
+// Add interface for existing travel from database
+interface ExistingTravelData {
+  id: number;
+  name: string;
+  dusun: string;
+  image: string | null;
+  travelCategoryId: number;
+  createdAt: Date;
+  updatedAt: Date;
+  get: (field: string) => string | number | null;
+  dataValues: {
+    name: string;
+    dusun: string;
+    image: string | null;
+    travelCategoryId: number;
+  };
+}
+
 // GET /api/(cms)/travels/[id] - Get specific travel by ID with related travels
 export async function GET(
   request: NextRequest,
@@ -473,8 +503,10 @@ export async function PATCH(
     const body = await request.json();
     console.log("🔧 Partial update travel ID:", travelId, "with data:", body);
 
-    // Check if travel exists
-    const existingTravel = await Travel.findByPk(travelId);
+    // Check if travel exists - Fix: Use proper typing
+    const existingTravel = (await Travel.findByPk(
+      travelId
+    )) as ExistingTravelData | null;
     if (!existingTravel) {
       return NextResponse.json(
         {
@@ -487,7 +519,7 @@ export async function PATCH(
     }
 
     // Build update object with only provided fields
-    const updateData: any = {};
+    const updateData: TravelUpdateData = {};
 
     if (body.name !== undefined) {
       if (!body.name || !body.name.trim()) {
@@ -573,10 +605,10 @@ export async function PATCH(
       updateData.travelCategoryId = categoryId;
     }
 
-    // Check for name duplication if name or dusun is being updated
+    // Check for name duplication if name or dusun is being updated - Fix: Use dataValues instead of get()
     if (updateData.name || updateData.dusun) {
-      const checkName = updateData.name || existingTravel.get("name");
-      const checkDusun = updateData.dusun || existingTravel.get("dusun");
+      const checkName = updateData.name || existingTravel.dataValues.name;
+      const checkDusun = updateData.dusun || existingTravel.dataValues.dusun;
 
       const duplicateTravel = await Travel.findOne({
         where: {
@@ -612,8 +644,12 @@ export async function PATCH(
       );
     }
 
-    // Update travel
-    await Travel.update(updateData, {
+    // Filter out null values and update travel
+    const filteredUpdateData = Object.fromEntries(
+      Object.entries(updateData).filter(([value]) => value !== null)
+    );
+
+    await Travel.update(filteredUpdateData, {
       where: { id: travelId },
     });
 

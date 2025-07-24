@@ -95,11 +95,6 @@ export function WisataFilters({
     (cat) => cat.id.toString() === selectedCategory
   )?.name;
 
-  const currentSortOption = sortOptions.find(
-    (option) =>
-      option.field === currentSort.field && option.order === currentSort.order
-  );
-
   const currentSortValue = `${currentSort.field}-${currentSort.order}`;
 
   return (
