@@ -53,6 +53,7 @@ export interface CreateAdminRequest {
   confirmPassword: string;
 }
 
+// FIX: Add proper UpdateAdminRequest interface
 export interface UpdateAdminRequest {
   fullName: string;
   email: string;

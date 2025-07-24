@@ -15,6 +15,7 @@ import {
   Admin,
   AdminsResponse,
   AdminFormData,
+  UpdateAdminRequest,
 } from "@/components/admin/admin-types";
 
 export default function AdminPage() {
@@ -137,11 +138,9 @@ export default function AdminPage() {
     fetchAdmins();
   }, [fetchAdmins]);
 
-  // Reset to first page when filters change
+  // FIX: Reset to first page when filters change - Remove pagination.currentPage dependency
   useEffect(() => {
-    if (pagination.currentPage !== 1) {
-      setPagination((prev) => ({ ...prev, currentPage: 1 }));
-    }
+    setPagination((prev) => ({ ...prev, currentPage: 1 }));
   }, [debouncedSearch, sortBy, sortOrder]);
 
   // Event handlers
@@ -191,7 +190,8 @@ export default function AdminPage() {
         // Update existing admin
         console.log("✏️ Updating admin:", editingAdmin.id);
 
-        const updatePayload: any = {
+        // FIX: Replace 'any' with proper type
+        const updatePayload: UpdateAdminRequest = {
           fullName: data.fullName,
           email: data.email,
           username: data.username,
