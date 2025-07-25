@@ -2,13 +2,10 @@
 
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { Article } from "./types";
-
-gsap.registerPlugin(ScrollTrigger);
 
 interface ArticleCardProps {
   article: Article;
@@ -32,7 +29,7 @@ export function ArticleCard({
 
     if (!card || !image) return;
 
-    // Scroll trigger animation
+    // Initial animation on mount
     gsap.fromTo(
       card,
       {
@@ -47,11 +44,6 @@ export function ArticleCard({
         duration: 0.8,
         ease: "power2.out",
         delay: index * 0.1,
-        scrollTrigger: {
-          trigger: card,
-          start: "top 90%",
-          toggleActions: "play none none reverse",
-        },
       }
     );
 
@@ -108,7 +100,7 @@ export function ArticleCard({
           onError={onImageError}
           onLoad={onImageLoad}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          priority={index < 3} // Prioritize first 3 images
+          priority={index < 3}
         />
       </div>
       <CardContent className="p-5">

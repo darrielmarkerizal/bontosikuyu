@@ -2,13 +2,10 @@
 
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { SidebarArticle } from "./sidebar-article";
 import { SidebarArticleType } from "./types";
-
-gsap.registerPlugin(ScrollTrigger);
 
 interface SidebarProps {
   articles: SidebarArticleType[];
@@ -17,17 +14,15 @@ interface SidebarProps {
 export function Sidebar({ articles }: SidebarProps) {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const recentArticlesRef = useRef<HTMLDivElement>(null);
-  const ctaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const recent = recentArticlesRef.current;
-    const cta = ctaRef.current;
 
-    if (!recent || !cta) return;
+    if (!recent) return;
 
-    // Stagger animation for sidebar items
+    // Immediate animation on mount
     gsap.fromTo(
-      [recent, cta],
+      recent,
       {
         x: 60,
         opacity: 0,
@@ -39,12 +34,6 @@ export function Sidebar({ articles }: SidebarProps) {
         rotateY: 0,
         duration: 0.8,
         ease: "power2.out",
-        stagger: 0.2,
-        scrollTrigger: {
-          trigger: sidebarRef.current,
-          start: "top 80%",
-          toggleActions: "play none none reverse",
-        },
       }
     );
   }, []);
