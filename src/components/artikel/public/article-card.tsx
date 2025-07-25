@@ -5,6 +5,7 @@ import { gsap } from "gsap";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
+import Link from "next/link";
 import { Article } from "./types";
 
 interface ArticleCardProps {
@@ -90,38 +91,43 @@ export function ArticleCard({
   }, [index]);
 
   return (
-    <Card ref={cardRef} className="overflow-hidden group cursor-pointer">
-      <div ref={imageRef} className="relative h-48 overflow-hidden">
-        <Image
-          src={article.image}
-          alt={article.title}
-          fill
-          className="object-cover"
-          onError={onImageError}
-          onLoad={onImageLoad}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          priority={index < 3}
-        />
-      </div>
-      <CardContent className="p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <Badge variant="secondary" className="text-xs">
-            {article.category}
-          </Badge>
+    <Link href={`/artikel/${article.id}`} className="block">
+      <Card
+        ref={cardRef}
+        className="overflow-hidden group cursor-pointer hover:shadow-lg transition-shadow duration-300"
+      >
+        <div ref={imageRef} className="relative h-48 overflow-hidden">
+          <Image
+            src={article.image}
+            alt={article.title}
+            fill
+            className="object-cover"
+            onError={onImageError}
+            onLoad={onImageLoad}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority={index < 3}
+          />
         </div>
-        <h3 className="font-bold text-slate-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors duration-300">
-          {article.title}
-        </h3>
-        <p className="text-sm text-slate-600 mb-4 line-clamp-2">
-          {article.excerpt}
-        </p>
-        <div className="flex items-center justify-between text-xs text-slate-500">
-          <span>{article.author}</span>
-          <span>
-            {article.date} • {article.readTime}
-          </span>
-        </div>
-      </CardContent>
-    </Card>
+        <CardContent className="p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Badge variant="secondary" className="text-xs">
+              {article.category}
+            </Badge>
+          </div>
+          <h3 className="font-bold text-slate-900 mb-2 line-clamp-2 group-hover:text-brand-navy transition-colors duration-300">
+            {article.title}
+          </h3>
+          <p className="text-sm text-slate-600 mb-4 line-clamp-2">
+            {article.excerpt}
+          </p>
+          <div className="flex items-center justify-between text-xs text-slate-500">
+            <span>{article.author}</span>
+            <span>
+              {article.date} • {article.readTime}
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }

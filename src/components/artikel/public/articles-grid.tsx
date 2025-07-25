@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import {
   Pagination,
@@ -29,8 +29,11 @@ export function ArticlesGrid({
 }: ArticlesGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const paginationRef = useRef<HTMLDivElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+
     if (paginationRef.current) {
       gsap.fromTo(
         paginationRef.current,
@@ -67,131 +70,146 @@ export function ArticlesGrid({
     }
   };
 
-  const renderPaginationItems = () => {
-    const items = [];
-    const maxVisiblePages = 5;
+  // Get responsive max visible pages
+  const getMaxVisiblePages = () => {
+    if (!isMounted) return 3; // Default for SSR
 
-    if (totalPages <= maxVisiblePages) {
+    const width = window.innerWidth;
+    if (width < 640) return 3; // Mobile (sm)
+    if (width < 1024) return 4; // Tablet (lg)
+    return 5; // Desktop
+  };
+
+  const getPageNumbers = () => {
+    const maxVisible = getMaxVisiblePages();
+    const pages = [];
+
+    if (totalPages <= maxVisible) {
       // Show all pages if total is small
       for (let i = 1; i <= totalPages; i++) {
-        items.push(
-          <PaginationItem key={i}>
-            <PaginationLink
-              onClick={() => handlePageChange(i)}
-              isActive={currentPage === i}
-              className="cursor-pointer"
-            >
-              {i}
-            </PaginationLink>
-          </PaginationItem>
-        );
+        pages.push(i);
       }
     } else {
-      // Show first page
-      items.push(
-        <PaginationItem key={1}>
-          <PaginationLink
-            onClick={() => handlePageChange(1)}
-            isActive={currentPage === 1}
-            className="cursor-pointer"
-          >
-            1
-          </PaginationLink>
-        </PaginationItem>
-      );
-
-      // Show ellipsis if needed
-      if (currentPage > 3) {
-        items.push(
-          <PaginationItem key="ellipsis1">
-            <PaginationEllipsis />
-          </PaginationItem>
-        );
-      }
-
-      // Show current page and surrounding pages
-      const start = Math.max(2, currentPage - 1);
-      const end = Math.min(totalPages - 1, currentPage + 1);
-
-      for (let i = start; i <= end; i++) {
-        items.push(
-          <PaginationItem key={i}>
-            <PaginationLink
-              onClick={() => handlePageChange(i)}
-              isActive={currentPage === i}
-              className="cursor-pointer"
-            >
-              {i}
-            </PaginationLink>
-          </PaginationItem>
-        );
-      }
-
-      // Show ellipsis if needed
-      if (currentPage < totalPages - 2) {
-        items.push(
-          <PaginationItem key="ellipsis2">
-            <PaginationEllipsis />
-          </PaginationItem>
-        );
-      }
-
-      // Show last page
-      if (totalPages > 1) {
-        items.push(
-          <PaginationItem key={totalPages}>
-            <PaginationLink
-              onClick={() => handlePageChange(totalPages)}
-              isActive={currentPage === totalPages}
-              className="cursor-pointer"
-            >
-              {totalPages}
-            </PaginationLink>
-          </PaginationItem>
-        );
+      // Smart pagination logic
+      if (currentPage <= 3) {
+        // Near beginning
+        for (let i = 1; i <= Math.min(maxVisible - 1, totalPages); i++) {
+          pages.push(i);
+        }
+        if (totalPages > maxVisible - 1) {
+          pages.push("...");
+          pages.push(totalPages);
+        }
+      } else if (currentPage >= totalPages - 2) {
+        // Near end
+        pages.push(1);
+        pages.push("...");
+        for (
+          let i = Math.max(totalPages - maxVisible + 2, 1);
+          i <= totalPages;
+          i++
+        ) {
+          pages.push(i);
+        }
+      } else {
+        // Middle
+        pages.push(1);
+        pages.push("...");
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push("...");
+        pages.push(totalPages);
       }
     }
 
-    return items;
+    return pages;
+  };
+
+  const renderDesktopPagination = () => {
+    const pages = getPageNumbers();
+
+    return pages.map((page, index) => (
+      <PaginationItem key={`page-${index}`}>
+        {page === "..." ? (
+          <PaginationEllipsis className="min-w-[36px] sm:min-w-[40px] h-8 sm:h-10 flex items-center justify-center" />
+        ) : (
+          <PaginationLink
+            onClick={() => handlePageChange(page as number)}
+            isActive={page === currentPage}
+            className="cursor-pointer min-w-[36px] sm:min-w-[40px] h-8 sm:h-10 flex items-center justify-center text-sm"
+          >
+            {page}
+          </PaginationLink>
+        )}
+      </PaginationItem>
+    ));
   };
 
   return (
-    <>
-      <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div className="w-full overflow-x-hidden">
+      {/* Articles Grid - 3 columns on desktop for better space utilization */}
+      <div
+        ref={gridRef}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
+      >
         {articles.map((article, index) => (
           <ArticleCard key={article.id} article={article} index={index} />
         ))}
       </div>
 
       {totalPages > 1 && (
-        <div ref={paginationRef} className="flex justify-center">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  className={`cursor-pointer ${
-                    currentPage === 1 ? "pointer-events-none opacity-50" : ""
-                  }`}
-                />
-              </PaginationItem>
+        <div ref={paginationRef} className="w-full">
+          <div className="flex justify-center px-4">
+            <Pagination className="w-full max-w-fit">
+              <PaginationContent className="flex items-center justify-center gap-1 flex-wrap">
+                {/* Previous Button */}
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    className={`cursor-pointer min-w-[36px] sm:min-w-[40px] h-8 sm:h-10 flex items-center justify-center px-2 sm:px-3 text-sm ${
+                      currentPage === 1
+                        ? "pointer-events-none opacity-50"
+                        : "hover:bg-gray-100"
+                    }`}
+                  />
+                </PaginationItem>
 
-              {renderPaginationItems()}
+                {/* Desktop & Tablet: Show page numbers */}
+                <div className="hidden sm:contents">
+                  {renderDesktopPagination()}
+                </div>
 
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  className={`cursor-pointer ${
-                    currentPage === totalPages
-                      ? "pointer-events-none opacity-50"
-                      : ""
-                  }`}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+                {/* Mobile: Show only current page info */}
+                <div className="sm:hidden flex items-center justify-center min-w-[80px] px-3 py-1 text-sm text-muted-foreground bg-gray-50 rounded-md">
+                  <span className="font-medium">
+                    {currentPage} / {totalPages}
+                  </span>
+                </div>
+
+                {/* Next Button */}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    className={`cursor-pointer min-w-[36px] sm:min-w-[40px] h-8 sm:h-10 flex items-center justify-center px-2 sm:px-3 text-sm ${
+                      currentPage === totalPages
+                        ? "pointer-events-none opacity-50"
+                        : "hover:bg-gray-100"
+                    }`}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+
+          {/* Page Info - Hidden on mobile, shown on tablet+ */}
+          <div className="hidden sm:flex justify-center mt-4">
+            <div className="text-sm text-muted-foreground">
+              Halaman {currentPage} dari {totalPages}
+            </div>
+          </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
