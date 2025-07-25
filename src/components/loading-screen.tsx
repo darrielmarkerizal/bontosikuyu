@@ -20,6 +20,19 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
   const texts = ["Selamat Datang", "Salama' ki Datang", "Welcome"];
 
   useEffect(() => {
+    // Check if user has visited before in this session
+    const hasVisited = sessionStorage.getItem("hasVisitedSite");
+
+    if (hasVisited) {
+      // Skip loading screen for subsequent navigations
+      setIsAnimating(false);
+      onComplete();
+      return;
+    }
+
+    // Mark as visited for this session
+    sessionStorage.setItem("hasVisitedSite", "true");
+
     const container = containerRef.current;
     const logo = logoRef.current;
     const progress = progressRef.current;

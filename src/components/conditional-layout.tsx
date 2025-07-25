@@ -1,10 +1,12 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/navbar";
-import { LenisProvider } from "@/components/lenis-provider";
 import Footer from "@/components/footer";
+import LoadingScreen from "@/components/loading-screen";
 import ClientLayout from "@/components/client-layout";
+import { LenisProvider } from "@/components/lenis-provider";
 
 interface ConditionalLayoutProps {
   children: React.ReactNode;
@@ -14,20 +16,40 @@ export default function ConditionalLayout({
   children,
 }: ConditionalLayoutProps) {
   const pathname = usePathname();
+  const [showLoading, setShowLoading] = useState(true);
+  const [isLoadingComplete, setIsLoadingComplete] = useState(false);
 
-  // Check if current path is CMS route
+  // Check if current route should show CMS layout
   const isCMSRoute =
-    pathname.startsWith("/login") ||
-    pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/register") ||
-    pathname.startsWith("/forgot-password");
+    pathname.startsWith("/dashboard") || pathname.startsWith("/login");
 
-  // For CMS routes, return children directly without ClientLayout
+  useEffect(() => {
+    // Check if this is the first visit in this session
+    const hasVisited = sessionStorage.getItem("hasVisitedSite");
+
+    if (hasVisited || isCMSRoute) {
+      // Skip loading screen for subsequent visits or CMS routes
+      setShowLoading(false);
+      setIsLoadingComplete(true);
+    }
+  }, [isCMSRoute]);
+
+  const handleLoadingComplete = () => {
+    setShowLoading(false);
+    setIsLoadingComplete(true);
+  };
+
+  // Don't show anything until loading is resolved
+  if (!isLoadingComplete && showLoading) {
+    return <LoadingScreen onComplete={handleLoadingComplete} />;
+  }
+
+  // CMS routes (dashboard, login) - no navbar/footer
   if (isCMSRoute) {
     return <>{children}</>;
   }
 
-  // For website routes, use ClientLayout with navbar and footer
+  // Public routes - with navbar/footer
   return (
     <ClientLayout>
       <LenisProvider>
