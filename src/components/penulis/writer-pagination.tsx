@@ -95,9 +95,7 @@ export function WriterPagination({
               <PaginationContent className="gap-0 sm:gap-1">
                 <PaginationItem>
                   <PaginationPrevious
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
+                    onClick={() => {
                       if (hasPrevPage) onPageChange(currentPage - 1);
                     }}
                     className={`${!hasPrevPage ? "pointer-events-none opacity-50" : ""} px-2 sm:px-3`}
@@ -112,11 +110,7 @@ export function WriterPagination({
                         <PaginationEllipsis />
                       ) : (
                         <PaginationLink
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            onPageChange(page as number);
-                          }}
+                          onClick={() => onPageChange(page as number)}
                           isActive={page === currentPage}
                           className="min-w-[36px] h-9 px-3"
                         >
@@ -136,9 +130,7 @@ export function WriterPagination({
 
                 <PaginationItem>
                   <PaginationNext
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
+                    onClick={() => {
                       if (hasNextPage) onPageChange(currentPage + 1);
                     }}
                     className={`${!hasNextPage ? "pointer-events-none opacity-50" : ""} px-2 sm:px-3`}

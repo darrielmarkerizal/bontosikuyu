@@ -1,3 +1,4 @@
+// filepath: /Users/darrielmarkerizal/Coding/laiyolobaru/src/components/artikel/article-pagination.tsx
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -73,39 +74,6 @@ export function ArticlePagination({
     return pages;
   };
 
-  // Responsive page numbers based on screen size
-  const renderPaginationItems = () => {
-    // Mobile: Show fewer pages
-    const isMobile = window.innerWidth < 640;
-    const isTablet = window.innerWidth >= 640 && window.innerWidth < 1024;
-
-    let maxVisible = 5; // Desktop default
-    if (isMobile) maxVisible = 3;
-    else if (isTablet) maxVisible = 4;
-
-    const pages = getPageNumbers(maxVisible);
-
-    return pages.map((page, index) => (
-      <PaginationItem key={index}>
-        {page === "..." ? (
-          <PaginationEllipsis />
-        ) : (
-          <PaginationLink
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              onPageChange(page as number);
-            }}
-            isActive={page === currentPage}
-            className="min-w-[36px] sm:min-w-[40px]"
-          >
-            {page}
-          </PaginationLink>
-        )}
-      </PaginationItem>
-    ));
-  };
-
   return (
     <Card>
       <CardContent className="p-3 sm:p-4">
@@ -128,9 +96,7 @@ export function ArticlePagination({
               <PaginationContent className="gap-0 sm:gap-1">
                 <PaginationItem>
                   <PaginationPrevious
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
+                    onClick={() => {
                       if (hasPrevPage) onPageChange(currentPage - 1);
                     }}
                     className={`${!hasPrevPage ? "pointer-events-none opacity-50" : ""} px-2 sm:px-3`}
@@ -139,7 +105,21 @@ export function ArticlePagination({
 
                 {/* Desktop and Tablet: Show page numbers */}
                 <div className="hidden sm:contents">
-                  {renderPaginationItems()}
+                  {getPageNumbers().map((page, index) => (
+                    <PaginationItem key={index}>
+                      {page === "..." ? (
+                        <PaginationEllipsis />
+                      ) : (
+                        <PaginationLink
+                          onClick={() => onPageChange(page as number)}
+                          isActive={page === currentPage}
+                          className="min-w-[36px] sm:min-w-[40px]"
+                        >
+                          {page}
+                        </PaginationLink>
+                      )}
+                    </PaginationItem>
+                  ))}
                 </div>
 
                 {/* Mobile: Show only current page info */}
@@ -151,9 +131,7 @@ export function ArticlePagination({
 
                 <PaginationItem>
                   <PaginationNext
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
+                    onClick={() => {
                       if (hasNextPage) onPageChange(currentPage + 1);
                     }}
                     className={`${!hasNextPage ? "pointer-events-none opacity-50" : ""} px-2 sm:px-3`}

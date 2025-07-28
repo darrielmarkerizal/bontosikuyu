@@ -79,9 +79,6 @@ const PaginationPrevious = ({
   >
     <ChevronLeft className="h-4 w-4" />
     <span className="hidden sm:inline">{children || "Sebelumnya"}</span>
-    <span className="sm:hidden">
-      <ChevronLeft className="h-4 w-4" />
-    </span>
   </button>
 );
 PaginationPrevious.displayName = "PaginationPrevious";
@@ -101,10 +98,7 @@ const PaginationNext = ({
     {...props}
   >
     <span className="hidden sm:inline">{children || "Selanjutnya"}</span>
-    <span className="sm:hidden">
-      <ChevronRight className="h-4 w-4" />
-    </span>
-    <ChevronRight className="h-4 w-4 hidden sm:inline" />
+    <ChevronRight className="h-4 w-4" />
   </button>
 );
 PaginationNext.displayName = "PaginationNext";
