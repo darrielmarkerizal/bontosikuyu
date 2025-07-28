@@ -1,6 +1,8 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { BoxReveal } from "@/components/magicui/box-reveal";
+import { ArrowRight, Stethoscope } from "lucide-react";
 
 export default function Hero() {
   return (
@@ -75,19 +77,52 @@ export default function Hero() {
               textAlign="center"
             >
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-                <Button
-                  size="lg"
-                  className="bg-brand-primary text-brand-secondary hover:bg-white hover:text-brand-secondary px-8 py-4 text-lg font-plus-jakarta-sans font-semibold shadow-xl transition-colors duration-300"
-                >
-                  Mulai Deteksi Stunting
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-2 border-brand-primary bg-brand-primary/10 text-brand-primary hover:bg-white hover:text-brand-secondary px-8 py-4 text-lg font-plus-jakarta-sans font-medium backdrop-blur-sm shadow-xl transition-colors duration-300"
-                >
-                  Jelajahi Artikel
-                </Button>
+                {/* Primary CTA - Deteksi Stunting */}
+                <Link href="/stunting">
+                  <Button
+                    size="lg"
+                    className="bg-brand-primary text-brand-secondary hover:bg-white hover:text-brand-secondary px-8 py-4 text-lg font-plus-jakarta-sans font-semibold shadow-xl transition-all duration-300 group w-full sm:w-auto"
+                  >
+                    <Stethoscope className="mr-2 h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
+                    Mulai Deteksi Stunting
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                  </Button>
+                </Link>
+
+                {/* Secondary CTA - Artikel */}
+                <Link href="/artikel">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="border-2 border-brand-primary bg-brand-primary/10 text-brand-primary hover:bg-white hover:text-brand-secondary px-8 py-4 text-lg font-plus-jakarta-sans font-medium backdrop-blur-sm shadow-xl transition-all duration-300 group w-full sm:w-auto"
+                  >
+                    Jelajahi Artikel
+                    <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                  </Button>
+                </Link>
+              </div>
+            </BoxReveal>
+
+            {/* Additional Info */}
+            <BoxReveal
+              boxColor="#21BCA8"
+              duration={0.8}
+              width="100%"
+              textAlign="center"
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-gray-300 font-plus-jakarta-sans pt-8">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-brand-primary rounded-full"></div>
+                  <span>AI Deteksi Stunting</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-brand-primary rounded-full"></div>
+                  <span>Artikel Kesehatan</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-brand-primary rounded-full"></div>
+                  <span>Informasi Desa</span>
+                </div>
               </div>
             </BoxReveal>
           </div>
