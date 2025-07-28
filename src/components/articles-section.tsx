@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { BoxReveal } from "./magicui/box-reveal";
-import { ArticleCard } from "@/components/artikel/public/article-card";
+import { ArticleCard } from "./artikel/public/article-card";
 import { Article } from "@/components/artikel/public/types";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
