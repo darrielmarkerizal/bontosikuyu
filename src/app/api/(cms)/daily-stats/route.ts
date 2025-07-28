@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Op } from "sequelize";
 
+// Force dynamic rendering for this API route
+export const dynamic = "force-dynamic";
+
 // Define proper interfaces for Sequelize models
 interface DailyStatsModel {
   id: number;
@@ -113,8 +116,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Parse query parameters
-    const { searchParams } = new URL(request.url);
+    // Parse query parameters safely
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
 
     // Pagination
     const page = parseInt(searchParams.get("page") || "1");

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Op } from "sequelize";
 
+export const dynamic = "force-dynamic";
+
 // Define proper interfaces for Sequelize models
 interface AnalyticsSessionModel {
   id: number;

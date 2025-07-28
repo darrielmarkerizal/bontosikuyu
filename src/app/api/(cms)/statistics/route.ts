@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Op, fn, col, literal } from "sequelize";
 
+// Force dynamic rendering for this API route
+export const dynamic = "force-dynamic";
+
 // Define interfaces for combined statistics
 interface OverallStatistics {
   totalSessions: number;
@@ -613,8 +616,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Parse query parameters
-    const { searchParams } = new URL(request.url);
+    // Parse query parameters safely
+    const url = new URL(request.url);
+    const searchParams = url.searchParams;
+
     const dateFrom = searchParams.get("dateFrom");
     const dateTo = searchParams.get("dateTo");
     const timeRange = searchParams.get("timeRange") || "30d";
