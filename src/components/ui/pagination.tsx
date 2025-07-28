@@ -37,57 +37,75 @@ PaginationItem.displayName = "PaginationItem";
 type PaginationLinkProps = {
   isActive?: boolean;
 } & Pick<ButtonProps, "size"> &
-  React.ComponentProps<"a">;
+  React.ComponentProps<"button">;
 
 const PaginationLink = ({
   className,
   isActive,
   size = "icon",
+  children,
   ...props
 }: PaginationLinkProps) => (
-  <a
+  <button
     aria-current={isActive ? "page" : undefined}
     className={cn(
       buttonVariants({
-        variant: isActive ? "outline" : "ghost",
+        variant: isActive ? "default" : "outline",
         size,
       }),
+      "transition-all duration-200",
       className
     )}
     {...props}
-  />
+  >
+    {children}
+  </button>
 );
 PaginationLink.displayName = "PaginationLink";
 
 const PaginationPrevious = ({
   className,
+  children,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) => (
-  <PaginationLink
+}: React.ComponentProps<"button"> & { children?: React.ReactNode }) => (
+  <button
     aria-label="Go to previous page"
-    size="default"
-    className={cn("gap-1 pl-2.5", className)}
+    className={cn(
+      buttonVariants({ variant: "outline", size: "default" }),
+      "gap-1 pl-2.5 transition-all duration-200",
+      className
+    )}
     {...props}
   >
     <ChevronLeft className="h-4 w-4" />
-    <span>Sebelumnya</span>
-  </PaginationLink>
+    <span className="hidden sm:inline">{children || "Sebelumnya"}</span>
+    <span className="sm:hidden">
+      <ChevronLeft className="h-4 w-4" />
+    </span>
+  </button>
 );
 PaginationPrevious.displayName = "PaginationPrevious";
 
 const PaginationNext = ({
   className,
+  children,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) => (
-  <PaginationLink
+}: React.ComponentProps<"button"> & { children?: React.ReactNode }) => (
+  <button
     aria-label="Go to next page"
-    size="default"
-    className={cn("gap-1 pr-2.5", className)}
+    className={cn(
+      buttonVariants({ variant: "outline", size: "default" }),
+      "gap-1 pr-2.5 transition-all duration-200",
+      className
+    )}
     {...props}
   >
-    <span>Selanjutnya</span>
-    <ChevronRight className="h-4 w-4" />
-  </PaginationLink>
+    <span className="hidden sm:inline">{children || "Selanjutnya"}</span>
+    <span className="sm:hidden">
+      <ChevronRight className="h-4 w-4" />
+    </span>
+    <ChevronRight className="h-4 w-4 hidden sm:inline" />
+  </button>
 );
 PaginationNext.displayName = "PaginationNext";
 
