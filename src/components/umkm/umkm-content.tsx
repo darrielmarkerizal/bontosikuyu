@@ -240,7 +240,7 @@ export default function UmkmPageContent() {
             <div className="flex items-center justify-between">
               <div className="text-gray-600 font-plus-jakarta-sans">
                 {loading ? (
-                  <div className="h-5 w-32 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-5 w-32 bg-gray-200 rounded"></div>
                 ) : (
                   <span>
                     Menampilkan {umkmList.length} dari {pagination.totalItems}{" "}

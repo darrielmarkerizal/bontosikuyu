@@ -93,9 +93,9 @@ export default function Footer() {
     >
       {/* Background decoration */}
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 left-20 w-32 h-32 bg-brand-primary rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-20 left-20 w-32 h-32 bg-brand-primary rounded-full blur-3xl"></div>
         <div
-          className="absolute bottom-20 right-20 w-24 h-24 bg-brand-accent rounded-full blur-2xl animate-pulse"
+          className="absolute bottom-20 right-20 w-24 h-24 bg-brand-accent rounded-full blur-2xl"
           style={{ animationDelay: "1s" }}
         ></div>
       </div>

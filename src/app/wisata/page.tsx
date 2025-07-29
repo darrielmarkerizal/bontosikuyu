@@ -372,7 +372,7 @@ function WisataPageLoading() {
       {/* Header Skeleton */}
       <div className="bg-gradient-to-r from-brand-secondary to-gray-900 text-white">
         <div className="container mx-auto px-4 py-12 md:py-16">
-          <div className="text-center animate-pulse">
+          <div className="text-center">
             <div className="h-8 md:h-12 bg-white/20 rounded-lg mb-4 mx-auto max-w-md"></div>
             <div className="h-4 md:h-6 bg-white/10 rounded-lg mx-auto max-w-2xl"></div>
           </div>
@@ -380,7 +380,7 @@ function WisataPageLoading() {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="space-y-8 animate-pulse">
+        <div className="space-y-8">
           {/* Stats Skeleton */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[...Array(4)].map((_, i) => (

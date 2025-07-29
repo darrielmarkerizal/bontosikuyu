@@ -117,7 +117,6 @@ export default function Navbar() {
                       stroke="currentColor"
                       strokeWidth="2"
                       strokeLinecap="round"
-                      className="animate-pulse"
                     />
                   </svg>
                 </span>

@@ -44,19 +44,19 @@ interface UmkmGridProps {
 function UmkmCardSkeleton() {
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300">
-      <div className="h-48 bg-gray-200 animate-pulse"></div>
+      <div className="h-48 bg-gray-200"></div>
       <CardContent className="p-6 space-y-4">
         <div className="space-y-2">
-          <div className="h-6 bg-gray-200 rounded animate-pulse"></div>
-          <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+          <div className="h-6 bg-gray-200 rounded"></div>
+          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
         </div>
         <div className="space-y-2">
-          <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
-          <div className="h-4 bg-gray-200 rounded w-2/3 animate-pulse"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
         </div>
         <div className="flex justify-between items-center pt-2">
-          <div className="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
-          <div className="h-9 bg-gray-200 rounded w-24 animate-pulse"></div>
+          <div className="h-6 bg-gray-200 rounded w-20"></div>
+          <div className="h-9 bg-gray-200 rounded w-24"></div>
         </div>
       </CardContent>
     </Card>

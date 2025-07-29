@@ -172,7 +172,7 @@ export function AISuggestions({ prediction, childData }: AISuggestionsProps) {
           <div className="text-center py-10">
             <div className="flex items-center justify-center mb-6">
               <div className="relative">
-                <Brain className="h-10 w-10 text-brand-accent animate-pulse" />
+                <Brain className="h-10 w-10 text-brand-accent" />
                 <div className="absolute -top-1 -right-1">
                   <RefreshCw className="h-5 w-5 text-brand-primary animate-spin" />
                 </div>
@@ -182,7 +182,7 @@ export function AISuggestions({ prediction, childData }: AISuggestionsProps) {
               AI sedang menganalisis dan membuat saran khusus untuk anak Anda...
             </p>
             <div className="mt-4 bg-gray-200 rounded-full h-3 overflow-hidden max-w-xs mx-auto">
-              <div className="bg-gradient-to-r from-brand-secondary to-brand-accent h-full rounded-full animate-pulse w-3/4 transition-all duration-300"></div>
+              <div className="bg-gradient-to-r from-brand-secondary to-brand-accent h-full rounded-full w-3/4 transition-all duration-300"></div>
             </div>
           </div>
         )}

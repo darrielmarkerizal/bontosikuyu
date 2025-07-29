@@ -293,7 +293,7 @@ export default function ArticlesSection() {
       {[...Array(3)].map((_, index) => (
         <div
           key={index}
-          className="bg-white rounded-xl overflow-hidden shadow-lg animate-pulse"
+          className="bg-white rounded-xl overflow-hidden shadow-lg "
         >
           <div className="h-48 bg-gray-200"></div>
           <div className="p-6 space-y-4">
