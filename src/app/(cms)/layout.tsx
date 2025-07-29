@@ -18,7 +18,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -35,11 +34,9 @@ import {
   Store,
   MapPin,
   FileText as LogIcon,
-  BookOpen,
   LogOut,
   Settings,
   Shield,
-  Plus,
   User,
   ChevronLeft,
   ChevronRight,
@@ -76,12 +73,6 @@ const menuCategories = [
         url: "/dashboard/penulis",
         icon: Users,
         description: "Kelola penulis artikel",
-      },
-      {
-        title: "Monografis",
-        url: "/dashboard/monografis",
-        icon: BookOpen,
-        description: "Data monografis desa",
       },
     ],
   },
@@ -124,27 +115,6 @@ const menuCategories = [
         description: "Kelola pengguna admin",
       },
     ],
-  },
-];
-
-const quickActions = [
-  {
-    title: "Artikel Baru",
-    icon: Plus,
-    url: "/dashboard/artikel/tambah",
-    variant: "default" as const,
-  },
-  {
-    title: "Tambah UMKM",
-    icon: Store,
-    url: "/dashboard/umkm/tambah",
-    variant: "outline" as const,
-  },
-  {
-    title: "Tambah Wisata",
-    icon: MapPin,
-    url: "/dashboard/pariwisata/tambah",
-    variant: "outline" as const,
   },
 ];
 
@@ -335,31 +305,6 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
           </SidebarHeader>
 
           <SidebarContent>
-            {/* Quick Actions */}
-            {!sidebarCollapsed && (
-              <SidebarGroup>
-                <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3">
-                  Quick Actions
-                </SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <div className="p-3 space-y-2">
-                    {quickActions.map((action) => (
-                      <Button
-                        key={action.title}
-                        size="sm"
-                        variant={action.variant}
-                        className="w-full justify-start h-8"
-                        onClick={() => router.push(action.url)}
-                      >
-                        <action.icon className="w-3 h-3 mr-2" />
-                        {action.title}
-                      </Button>
-                    ))}
-                  </div>
-                </SidebarGroupContent>
-              </SidebarGroup>
-            )}
-
             {/* Menu Categories */}
             {menuCategories.map((category) => (
               <SidebarGroup key={category.title}>

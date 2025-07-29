@@ -1,8 +1,8 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -10,39 +10,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import {
-  Search,
-  Filter,
-  X,
-  SortAsc,
-  SortDesc,
-  MapPin,
-  Tag,
-} from "lucide-react";
-
-interface Category {
-  id: number;
-  name: string;
-}
+import { Card, CardContent } from "@/components/ui/card";
+import { Search, X } from "lucide-react";
 
 interface UmkmFiltersProps {
   search: string;
   selectedCategory: string;
   selectedDusun: string;
-  categories: Category[];
+  categories: Array<{ id: number; name: string }>;
   dusunOptions: string[];
-  onSearch: (search: string) => void;
+  onSearch: (value: string) => void;
   onCategoryFilter: (categoryId: string) => void;
   onDusunFilter: (dusun: string) => void;
   onSort: (field: string, order: "ASC" | "DESC") => void;
-  onResetFilters: () => void;
   currentSort: { field: string; order: "ASC" | "DESC" };
-  loading: boolean;
-  totalItems: number;
 }
 
-export default function UmkmFilters({
+export function UmkmFilters({
   search,
   selectedCategory,
   selectedDusun,
@@ -52,244 +36,193 @@ export default function UmkmFilters({
   onCategoryFilter,
   onDusunFilter,
   onSort,
-  onResetFilters,
   currentSort,
-  loading,
-  totalItems,
 }: UmkmFiltersProps) {
-  const sortOptions = [
-    {
-      value: "umkmName-ASC",
-      label: "Nama A-Z",
-      field: "umkmName",
-      order: "ASC" as const,
-    },
-    {
-      value: "umkmName-DESC",
-      label: "Nama Z-A",
-      field: "umkmName",
-      order: "DESC" as const,
-    },
-    {
-      value: "createdAt-DESC",
-      label: "Terbaru",
-      field: "createdAt",
-      order: "DESC" as const,
-    },
-    {
-      value: "createdAt-ASC",
-      label: "Terlama",
-      field: "createdAt",
-      order: "ASC" as const,
-    },
-  ];
+  const handleSortChange = (value: string) => {
+    const [field, order] = value.split("-");
+    onSort(field, order as "ASC" | "DESC");
+  };
 
-  const activeFiltersCount = [
-    search,
-    selectedCategory !== "all" ? selectedCategory : null,
-    selectedDusun !== "all" ? selectedDusun : null,
-  ].filter(Boolean).length;
+  const getSortValue = () => {
+    return `${currentSort.field}-${currentSort.order}`;
+  };
 
-  const selectedCategoryName = categories.find(
-    (cat) => cat.id.toString() === selectedCategory
-  )?.name;
+  const clearFilters = () => {
+    onSearch("");
+    onCategoryFilter("all");
+    onDusunFilter("all");
+  };
 
-  const currentSortValue = `${currentSort.field}-${currentSort.order}`;
+  const hasActiveFilters =
+    search ||
+    (selectedCategory && selectedCategory !== "all") ||
+    (selectedDusun && selectedDusun !== "all");
 
   return (
-    <Card className="border-0 bg-white shadow-lg">
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center gap-2 text-brand-secondary font-sentient">
-          <Filter className="h-5 w-5" />
-          Filter & Pencarian
-        </CardTitle>
-        {totalItems > 0 && (
-          <p className="text-sm text-gray-600 font-plus-jakarta-sans">
-            {totalItems} UMKM ditemukan
-          </p>
-        )}
-      </CardHeader>
-
-      <CardContent className="space-y-6">
-        {/* Search */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700 font-plus-jakarta-sans">
-            Cari UMKM
-          </label>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Nama UMKM atau pemilik..."
-              value={search}
-              onChange={(e) => onSearch(e.target.value)}
-              className="pl-10 h-11 font-plus-jakarta-sans"
-              disabled={loading}
-            />
-            {search && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onSearch("")}
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
-                disabled={loading}
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Category Filter */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700 font-plus-jakarta-sans">
-            Kategori
-          </label>
-          <Select
-            value={selectedCategory}
-            onValueChange={onCategoryFilter}
-            disabled={loading}
-          >
-            <SelectTrigger className="h-11">
-              <div className="flex items-center gap-2">
-                <Tag className="h-4 w-4 text-gray-400" />
-                <SelectValue placeholder="Pilih kategori" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Semua Kategori</SelectItem>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id.toString()}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Dusun Filter */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700 font-plus-jakarta-sans">
-            Dusun
-          </label>
-          <Select
-            value={selectedDusun}
-            onValueChange={onDusunFilter}
-            disabled={loading}
-          >
-            <SelectTrigger className="h-11">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-gray-400" />
-                <SelectValue placeholder="Pilih dusun" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Semua Dusun</SelectItem>
-              {dusunOptions.map((dusun) => (
-                <SelectItem key={dusun} value={dusun}>
-                  {dusun.replace("Dusun ", "")}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Sort */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700 font-plus-jakarta-sans">
-            Urutkan
-          </label>
-          <Select
-            value={currentSortValue}
-            onValueChange={(value) => {
-              const option = sortOptions.find((opt) => opt.value === value);
-              if (option) {
-                onSort(option.field, option.order);
-              }
-            }}
-            disabled={loading}
-          >
-            <SelectTrigger className="h-11">
-              <div className="flex items-center gap-2">
-                {currentSort.order === "ASC" ? (
-                  <SortAsc className="h-4 w-4 text-gray-400" />
-                ) : (
-                  <SortDesc className="h-4 w-4 text-gray-400" />
-                )}
-                <SelectValue placeholder="Pilih urutan" />
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              {sortOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Reset Button */}
-        <div className="space-y-2">
-          <Button
-            variant="outline"
-            onClick={onResetFilters}
-            disabled={loading || activeFiltersCount === 0}
-            className="w-full h-11 flex items-center gap-2 font-plus-jakarta-sans"
-          >
-            <X className="h-4 w-4" />
-            Reset Filter
-          </Button>
-        </div>
-
-        {/* Active Filters Display */}
-        {activeFiltersCount > 0 && (
-          <div className="space-y-3 pt-4 border-t">
-            <span className="text-sm font-medium text-gray-600 font-plus-jakarta-sans">
-              Filter aktif:
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {search && (
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  Pencarian: &ldquo;{search}&rdquo;
+    <Card>
+      <CardContent className="p-4">
+        <div className="space-y-4">
+          {/* Main Filters Row */}
+          <div className="flex flex-col lg:flex-row gap-4">
+            {/* Search */}
+            <div className="flex-1">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Cari UMKM berdasarkan nama, pemilik, atau nomor telepon..."
+                  value={search}
+                  onChange={(e) => onSearch(e.target.value)}
+                  className="pl-10"
+                />
+                {search && (
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => onSearch("")}
-                    className="h-4 w-4 p-0 hover:bg-transparent"
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Category Filter */}
+            <div className="w-full lg:w-48">
+              <Select
+                value={selectedCategory || "all"}
+                onValueChange={(value) =>
+                  onCategoryFilter(value === "all" ? "all" : value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Kategori UMKM" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Kategori</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem
+                      key={category.id}
+                      value={category.id.toString()}
+                    >
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Dusun Filter */}
+            <div className="w-full lg:w-48">
+              <Select
+                value={selectedDusun || "all"}
+                onValueChange={(value) =>
+                  onDusunFilter(value === "all" ? "all" : value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Dusun" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Dusun</SelectItem>
+                  {dusunOptions.map((dusun) => (
+                    <SelectItem key={dusun} value={dusun}>
+                      {dusun}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Sort Select */}
+            <div className="w-full lg:w-48">
+              <Select value={getSortValue()} onValueChange={handleSortChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Urutkan" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="createdAt-DESC">Terbaru</SelectItem>
+                  <SelectItem value="createdAt-ASC">Terlama</SelectItem>
+                  <SelectItem value="umkmName-ASC">Nama A-Z</SelectItem>
+                  <SelectItem value="umkmName-DESC">Nama Z-A</SelectItem>
+                  <SelectItem value="ownerName-ASC">Pemilik A-Z</SelectItem>
+                  <SelectItem value="ownerName-DESC">Pemilik Z-A</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Active Filters Display */}
+          {hasActiveFilters && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm text-gray-600">Filter Aktif:</span>
+
+              {search && (
+                <Badge
+                  variant="secondary"
+                  className="text-xs bg-blue-50 text-blue-700 hover:bg-blue-100"
+                >
+                  Pencarian: &quot;{search}&quot;
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onSearch("")}
+                    className="ml-1 h-4 w-4 p-0 hover:bg-transparent"
                   >
                     <X className="h-3 w-3" />
                   </Button>
                 </Badge>
               )}
-              {selectedCategory !== "all" && selectedCategoryName && (
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  Kategori: {selectedCategoryName}
+
+              {selectedCategory && selectedCategory !== "all" && (
+                <Badge
+                  variant="secondary"
+                  className="text-xs bg-purple-50 text-purple-700 hover:bg-purple-100"
+                >
+                  Kategori:{" "}
+                  {
+                    categories.find((c) => c.id.toString() === selectedCategory)
+                      ?.name
+                  }
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => onCategoryFilter("all")}
-                    className="h-4 w-4 p-0 hover:bg-transparent"
+                    className="ml-1 h-4 w-4 p-0 hover:bg-transparent"
                   >
                     <X className="h-3 w-3" />
                   </Button>
                 </Badge>
               )}
-              {selectedDusun !== "all" && (
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  Dusun: {selectedDusun.replace("Dusun ", "")}
+
+              {selectedDusun && selectedDusun !== "all" && (
+                <Badge
+                  variant="secondary"
+                  className="text-xs bg-green-50 text-green-700 hover:bg-green-100"
+                >
+                  Dusun: {selectedDusun}
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => onDusunFilter("all")}
-                    className="h-4 w-4 p-0 hover:bg-transparent"
+                    className="ml-1 h-4 w-4 p-0 hover:bg-transparent"
                   >
                     <X className="h-3 w-3" />
                   </Button>
                 </Badge>
               )}
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="text-xs text-red-600 hover:text-red-700"
+              >
+                Hapus Semua Filter
+              </Button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </CardContent>
     </Card>
   );
