@@ -11,13 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Edit, Phone, Trash2, MoreHorizontal, User } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Edit, Phone, Trash2, User } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -64,18 +58,10 @@ export function WriterTable({
         "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100",
       "Dusun Laiyolo":
         "bg-green-50 text-green-700 border-green-200 hover:bg-green-100",
-      "Dusun Bontosikuyu":
+      "Dusun Timoro":
         "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100",
-      "Dusun Selayar":
+      "Dusun Kilotepo":
         "bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100",
-      "Dusun Tambak":
-        "bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-100",
-      "Dusun Lantang":
-        "bg-pink-50 text-pink-700 border-pink-200 hover:bg-pink-100",
-      "Dusun Bontosikuyu Selatan":
-        "bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100",
-      "Dusun Bontosikuyu Utara":
-        "bg-cyan-50 text-cyan-700 border-cyan-200 hover:bg-cyan-100",
     };
     return (
       colors[dusun as keyof typeof colors] ||
@@ -114,7 +100,7 @@ export function WriterTable({
                   <TableHead className="w-[20%] min-w-[120px]">
                     Tanggal Daftar
                   </TableHead>
-                  <TableHead className="w-[15%] min-w-[100px] text-right">
+                  <TableHead className="w-[15%] min-w-[120px] text-right">
                     Aksi
                   </TableHead>
                 </TableRow>
@@ -130,12 +116,12 @@ export function WriterTable({
                         <div className="flex-shrink-0 h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-gray-200 transition-colors duration-200">
                           <User className="h-5 w-5 text-gray-500 group-hover:text-gray-700 transition-colors duration-200" />
                         </div>
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Link
                                 href={`/dashboard/penulis/${writer.id}`}
-                                className="font-medium text-sm truncate cursor-pointer max-w-[150px] group-hover:text-foreground transition-colors duration-200 hover:underline"
+                                className="font-medium text-sm truncate block max-w-[150px] group-hover:text-blue-600 hover:text-blue-700 transition-colors duration-200 cursor-pointer hover:underline"
                               >
                                 {writer.fullName}
                               </Link>
@@ -172,33 +158,39 @@ export function WriterTable({
                       </span>
                     </TableCell>
                     <TableCell className="text-right align-middle">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="h-8 w-8 p-0 hover:bg-muted/80 transition-colors duration-200"
-                          >
-                            <span className="sr-only">Buka menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => onEdit(writer)}
-                            className="hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200"
-                          >
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit Penulis
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-200"
-                            onClick={() => onDelete(writer)}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Hapus Penulis
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex items-center justify-end gap-2">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onEdit(writer)}
+                              className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Edit Penulis</p>
+                          </TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onDelete(writer)}
+                              className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-700 transition-colors duration-200"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Hapus Penulis</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

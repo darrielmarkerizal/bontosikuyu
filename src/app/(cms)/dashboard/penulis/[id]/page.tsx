@@ -128,7 +128,7 @@ export default function WriterDetailPage() {
 
   const getStatusBadge = (status: string) => {
     const baseClasses = "text-xs font-medium";
-    if (status === "published") {
+    if (status === "publish") {
       return (
         <Badge
           className={`${baseClasses} bg-green-50 text-green-700 border-green-200`}
@@ -161,8 +161,8 @@ export default function WriterDetailPage() {
 
   if (!writer) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
+      <div className="flex items-center justify-center min-h-[400px] px-4">
+        <div className="text-center max-w-md">
           <User className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium mb-2">Penulis tidak ditemukan</h3>
           <p className="text-muted-foreground mb-4">
@@ -178,55 +178,62 @@ export default function WriterDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-4 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <Button
             variant="outline"
             size="icon"
             onClick={() => router.push("/dashboard/penulis")}
+            className="shrink-0"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div>
-            <h1 className="text-2xl font-bold">Detail Penulis</h1>
-            <p className="text-muted-foreground">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold leading-tight">
+              Detail Penulis
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground mt-1">
               Informasi lengkap dan performa penulis
             </p>
           </div>
         </div>
         <Button
           onClick={() => router.push(`/dashboard/penulis/edit/${writer.id}`)}
+          className="shrink-0 w-full sm:w-auto"
         >
           <Edit className="mr-2 h-4 w-4" />
-          Edit Penulis
+          <span className="hidden sm:inline">Edit Penulis</span>
+          <span className="sm:hidden">Edit</span>
         </Button>
       </div>
 
       {/* Writer Info */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
             <User className="h-5 w-5" />
             Informasi Penulis
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium text-muted-foreground">
                 Nama Lengkap
               </label>
-              <p className="text-lg font-semibold">{writer.fullName}</p>
+              <p className="text-base sm:text-lg font-semibold break-words">
+                {writer.fullName}
+              </p>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-muted-foreground">
                 Nomor Telepon
               </label>
               <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-muted-foreground" />
-                <span className="font-mono">
+                <Phone className="h-4 w-4 text-muted-foreground shrink-0" />
+                <span className="font-mono text-sm sm:text-base break-all">
                   {formatPhoneNumber(writer.phoneNumber)}
                 </span>
               </div>
@@ -236,10 +243,10 @@ export default function WriterDetailPage() {
                 Dusun
               </label>
               <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
+                <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
                 <Badge
                   variant="outline"
-                  className={getDusunBadgeColor(writer.dusun)}
+                  className={`${getDusunBadgeColor(writer.dusun)} text-xs sm:text-sm`}
                 >
                   {writer.dusun}
                 </Badge>
@@ -250,8 +257,10 @@ export default function WriterDetailPage() {
                 Tanggal Bergabung
               </label>
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span>{formatDate(writer.createdAt)}</span>
+                <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
+                <span className="text-sm sm:text-base break-words">
+                  {formatDate(writer.createdAt)}
+                </span>
               </div>
             </div>
           </div>
@@ -259,63 +268,63 @@ export default function WriterDetailPage() {
       </Card>
 
       {/* Performance Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">
                   Total Artikel
                 </p>
-                <p className="text-2xl font-bold">
+                <p className="text-xl sm:text-2xl font-bold">
                   {writer.performance.totalArticles}
                 </p>
               </div>
-              <FileText className="h-8 w-8 text-blue-500" />
+              <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500 shrink-0 ml-2" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Artikel Dipublikasi
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">
+                  Dipublikasi
                 </p>
-                <p className="text-2xl font-bold">
+                <p className="text-xl sm:text-2xl font-bold">
                   {writer.performance.publishedArticles}
                 </p>
               </div>
-              <Eye className="h-8 w-8 text-green-500" />
+              <Eye className="h-6 w-6 sm:h-8 sm:w-8 text-green-500 shrink-0 ml-2" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Artikel Draft
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">
+                  Draft
                 </p>
-                <p className="text-2xl font-bold">
+                <p className="text-xl sm:text-2xl font-bold">
                   {writer.performance.draftArticles}
                 </p>
               </div>
-              <FileText className="h-8 w-8 text-yellow-500" />
+              <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-500 shrink-0 ml-2" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Artikel Bulan Ini
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">
+                  Bulan Ini
                 </p>
-                <p className="text-2xl font-bold">
+                <p className="text-xl sm:text-2xl font-bold">
                   {writer.performance.articlesThisMonth}
                 </p>
                 <div className="flex items-center gap-1 mt-1">
@@ -331,18 +340,18 @@ export default function WriterDetailPage() {
                   </span>
                 </div>
               </div>
-              <Calendar className="h-8 w-8 text-orange-500" />
+              <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-orange-500 shrink-0 ml-2" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Recent Articles */}
+      {/* All Articles */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
             <FileText className="h-5 w-5" />
-            Artikel Terbaru
+            Semua Artikel ({writer.recentArticles.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -351,18 +360,27 @@ export default function WriterDetailPage() {
               {writer.recentArticles.map((article) => (
                 <div
                   key={article.id}
-                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors gap-3 sm:gap-4"
                 >
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium truncate">{article.title}</h4>
-                    <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+                    <h4 className="font-medium text-sm sm:text-base break-words">
+                      {article.title}
+                    </h4>
+                    <div className="flex items-center gap-4 mt-1 text-xs sm:text-sm text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {formatDate(article.createdAt)}
+                        <span className="hidden sm:inline">
+                          {formatDate(article.createdAt)}
+                        </span>
+                        <span className="sm:hidden">
+                          {format(new Date(article.createdAt), "dd/MM/yyyy", {
+                            locale: id,
+                          })}
+                        </span>
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 ml-4">
+                  <div className="flex items-center gap-2 shrink-0">
                     {getStatusBadge(article.status)}
                     <Button
                       variant="ghost"
@@ -370,6 +388,7 @@ export default function WriterDetailPage() {
                       onClick={() =>
                         router.push(`/dashboard/artikel/${article.id}`)
                       }
+                      className="h-8 w-8 p-0"
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
@@ -378,10 +397,10 @@ export default function WriterDetailPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8">
+            <div className="text-center py-8 px-4">
               <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-medium mb-2">Belum ada artikel</h3>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground text-sm sm:text-base">
                 Penulis ini belum memiliki artikel yang dipublikasikan.
               </p>
             </div>

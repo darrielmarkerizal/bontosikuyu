@@ -178,6 +178,10 @@ export default function PenulisPage() {
     router.push("/dashboard/penulis/tambah");
   };
 
+  const handleEditWriter = (writer: Writer) => {
+    router.push(`/dashboard/penulis/edit/${writer.id}`);
+  };
+
   const handleDeleteWriter = (writer: Writer) => {
     setDeletingWriter(writer);
     setShowDeleteDialog(true);
@@ -250,7 +254,7 @@ export default function PenulisPage() {
           <WriterTable
             writers={writers}
             loading={loading}
-            onEdit={() => {}}
+            onEdit={handleEditWriter}
             onDelete={handleDeleteWriter}
           />
 
