@@ -369,6 +369,7 @@ export default function UmkmPage() {
             onDusunFilter={handleDusunFilter}
             onSort={handleSort}
             currentSort={{ field: sortBy, order: sortOrder }}
+            loading={loading}
           />
 
           {/* Table */}

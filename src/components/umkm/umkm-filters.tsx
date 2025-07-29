@@ -24,6 +24,7 @@ interface UmkmFiltersProps {
   onDusunFilter: (dusun: string) => void;
   onSort: (field: string, order: "ASC" | "DESC") => void;
   currentSort: { field: string; order: "ASC" | "DESC" };
+  loading: boolean;
 }
 
 export function UmkmFilters({

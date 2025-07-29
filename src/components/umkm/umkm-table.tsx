@@ -31,8 +31,12 @@ interface Umkm {
   umkmName: string;
   ownerName: string;
   phone: string;
-  dusun: string;
-  image: string | null;
+  dusun:
+    | "Dusun Laiyolo"
+    | "Dusun Pangkaje'ne"
+    | "Dusun Timoro"
+    | "Dusun Kilotepo";
+  image?: string; // Make image optional with ?
   category: {
     id: number;
     name: string;

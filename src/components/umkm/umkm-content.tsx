@@ -4,9 +4,9 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import UmkmBanner from "./umkm-banner";
-import UmkmFilters from "./umkm-filters";
+import { UmkmFilters } from "./umkm-filters";
 import UmkmGrid from "./umkm-grid";
-import UmkmPagination from "./umkm-pagination";
+import { UmkmPagination } from "./umkm-pagination";
 import { useDebounce } from "@/hooks/use-debounce";
 
 interface Umkm {
@@ -167,7 +167,14 @@ export default function UmkmPageContent() {
     if (pagination.currentPage !== 1) {
       setPagination((prev) => ({ ...prev, currentPage: 1 }));
     }
-  }, [debouncedSearch, selectedCategory, selectedDusun, sortBy, sortOrder]);
+  }, [
+    debouncedSearch,
+    selectedCategory,
+    selectedDusun,
+    sortBy,
+    sortOrder,
+    pagination.currentPage,
+  ]);
 
   // Event handlers
   const handlePageChange = (page: number) => {
@@ -226,10 +233,8 @@ export default function UmkmPageContent() {
                 onCategoryFilter={handleCategoryFilter}
                 onDusunFilter={handleDusunFilter}
                 onSort={handleSort}
-                onResetFilters={handleResetFilters}
                 currentSort={{ field: sortBy, order: sortOrder }}
                 loading={loading}
-                totalItems={pagination.totalItems}
               />
             </div>
           </div>
