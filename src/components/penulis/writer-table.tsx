@@ -26,7 +26,8 @@ import {
 } from "@/components/ui/tooltip";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { Writer, dusunColors } from "./writer-types";
+import { Writer } from "./writer-types";
+import Link from "next/link";
 
 interface WriterTableProps {
   writers: Writer[];
@@ -57,6 +58,31 @@ export function WriterTable({
     return phone;
   };
 
+  const getDusunBadgeColor = (dusun: string) => {
+    const colors = {
+      "Dusun Pangkaje'ne":
+        "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100",
+      "Dusun Laiyolo":
+        "bg-green-50 text-green-700 border-green-200 hover:bg-green-100",
+      "Dusun Bontosikuyu":
+        "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100",
+      "Dusun Selayar":
+        "bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100",
+      "Dusun Tambak":
+        "bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-100",
+      "Dusun Lantang":
+        "bg-pink-50 text-pink-700 border-pink-200 hover:bg-pink-100",
+      "Dusun Bontosikuyu Selatan":
+        "bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100",
+      "Dusun Bontosikuyu Utara":
+        "bg-cyan-50 text-cyan-700 border-cyan-200 hover:bg-cyan-100",
+    };
+    return (
+      colors[dusun as keyof typeof colors] ||
+      "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+    );
+  };
+
   if (loading) {
     return (
       <Card>
@@ -77,7 +103,7 @@ export function WriterTable({
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="hover:bg-muted/50">
                   <TableHead className="w-[25%] min-w-[180px]">
                     Nama Lengkap
                   </TableHead>
@@ -95,64 +121,77 @@ export function WriterTable({
               </TableHeader>
               <TableBody>
                 {writers.map((writer) => (
-                  <TableRow key={writer.id}>
+                  <TableRow
+                    key={writer.id}
+                    className="hover:bg-muted/30 transition-colors duration-200"
+                  >
                     <TableCell className="align-middle">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0 h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
-                          <User className="h-5 w-5 text-gray-500" />
+                      <div className="flex items-center space-x-3 group">
+                        <div className="flex-shrink-0 h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-gray-200 transition-colors duration-200">
+                          <User className="h-5 w-5 text-gray-500 group-hover:text-gray-700 transition-colors duration-200" />
                         </div>
                         <div>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <p className="font-medium text-sm truncate cursor-help max-w-[150px]">
+                              <Link
+                                href={`/dashboard/penulis/${writer.id}`}
+                                className="font-medium text-sm truncate cursor-pointer max-w-[150px] group-hover:text-foreground transition-colors duration-200 hover:underline"
+                              >
                                 {writer.fullName}
-                              </p>
+                              </Link>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>{writer.fullName}</p>
+                              <p>Klik untuk melihat detail</p>
                             </TooltipContent>
                           </Tooltip>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 group-hover:text-gray-600 transition-colors duration-200">
                             ID: {writer.id}
                           </p>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell className="align-middle">
-                      <div className="flex items-center space-x-2">
-                        <Phone className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm font-mono">
+                      <div className="flex items-center space-x-2 group">
+                        <Phone className="h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-colors duration-200" />
+                        <span className="text-sm font-mono group-hover:text-foreground transition-colors duration-200">
                           {formatPhoneNumber(writer.phoneNumber)}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell className="align-middle">
                       <Badge
-                        className={`${dusunColors[writer.dusun]} whitespace-nowrap`}
+                        variant="outline"
+                        className={`${getDusunBadgeColor(writer.dusun)} text-xs font-medium transition-all duration-200 hover:scale-105`}
                       >
                         {writer.dusun}
                       </Badge>
                     </TableCell>
                     <TableCell className="align-middle">
-                      <span className="text-sm text-gray-600 whitespace-nowrap">
+                      <span className="text-sm text-gray-600 whitespace-nowrap group-hover:text-foreground transition-colors duration-200">
                         {formatDate(writer.createdAt)}
                       </span>
                     </TableCell>
                     <TableCell className="text-right align-middle">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
+                          <Button
+                            variant="ghost"
+                            className="h-8 w-8 p-0 hover:bg-muted/80 transition-colors duration-200"
+                          >
                             <span className="sr-only">Buka menu</span>
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onEdit(writer)}>
+                          <DropdownMenuItem
+                            onClick={() => onEdit(writer)}
+                            className="hover:bg-blue-50 hover:text-blue-700 transition-colors duration-200"
+                          >
                             <Edit className="mr-2 h-4 w-4" />
                             Edit Penulis
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            className="text-red-600"
+                            className="text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-200"
                             onClick={() => onDelete(writer)}
                           >
                             <Trash2 className="mr-2 h-4 w-4" />

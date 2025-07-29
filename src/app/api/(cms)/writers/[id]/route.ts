@@ -22,13 +22,21 @@ interface SequelizeValidationError extends Error {
   }>;
 }
 
-// GET - Get single writer by ID
+// Add this interface after the existing interfaces
+interface ArticleModel {
+  id: number;
+  title: string;
+  status: string;
+  createdAt: Date;
+}
+
+// GET - Get single writer by ID with performance metrics
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    console.log("🔍 Getting writer by ID:", params.id);
+    console.log("🔍 Getting writer by ID with performance:", params.id);
 
     // Import sequelize and models directly
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -50,9 +58,16 @@ export async function GET(
       );
     }
 
-    // Import Writer model
+    // Import models
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const Writer = require("../../../../../../models/writer.js")(
+      sequelize,
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require("sequelize").DataTypes
+    );
+
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const Article = require("../../../../../../models/article.js")(
       sequelize,
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       require("sequelize").DataTypes
@@ -82,7 +97,69 @@ export async function GET(
       );
     }
 
-    console.log("✅ Writer found:", writer.fullName);
+    // Get performance metrics
+    const totalArticles = await Article.count({
+      where: { writerId },
+    });
+
+    const publishedArticles = await Article.count({
+      where: { writerId, status: "publish" },
+    });
+
+    const draftArticles = await Article.count({
+      where: { writerId, status: "draft" },
+    });
+
+    // Get last article date
+    const lastArticle = await Article.findOne({
+      where: { writerId },
+      order: [["createdAt", "DESC"]],
+      attributes: ["createdAt"],
+    });
+
+    // Get articles count for current and last month
+    const now = new Date();
+    const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+    const articlesThisMonth = await Article.count({
+      where: {
+        writerId,
+        createdAt: {
+          [Op.gte]: currentMonth,
+        },
+      },
+    });
+
+    const articlesLastMonth = await Article.count({
+      where: {
+        writerId,
+        createdAt: {
+          [Op.gte]: lastMonth,
+          [Op.lt]: currentMonth,
+        },
+      },
+    });
+
+    // Calculate article growth
+    const articleGrowth =
+      articlesLastMonth > 0
+        ? ((articlesThisMonth - articlesLastMonth) / articlesLastMonth) * 100
+        : articlesThisMonth > 0
+          ? 100
+          : 0;
+
+    // Get all articles (not just recent)
+    const allArticles = await Article.findAll({
+      where: { writerId },
+      order: [["createdAt", "DESC"]],
+      attributes: ["id", "title", "status", "createdAt"],
+    });
+
+    console.log(
+      "✅ Writer with performance fetched successfully:",
+      writer.fullName
+    );
 
     return NextResponse.json({
       success: true,
@@ -94,6 +171,24 @@ export async function GET(
         dusun: writer.dusun,
         createdAt: writer.createdAt,
         updatedAt: writer.updatedAt,
+        performance: {
+          totalArticles,
+          publishedArticles,
+          draftArticles,
+          totalViews: 0, // Not available in current schema
+          averageViews: 0, // Not available in current schema
+          lastArticleDate: lastArticle?.createdAt || null,
+          articlesThisMonth,
+          articlesLastMonth,
+          viewGrowth: Math.round(articleGrowth), // Using article growth instead
+        },
+        recentArticles: allArticles.map((article: ArticleModel) => ({
+          id: article.id,
+          title: article.title,
+          status: article.status,
+          views: 0, // Not available in current schema
+          createdAt: article.createdAt,
+        })),
       },
       timestamp: new Date().toISOString(),
     });

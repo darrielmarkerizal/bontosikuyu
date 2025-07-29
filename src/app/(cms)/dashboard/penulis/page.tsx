@@ -13,6 +13,7 @@ import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import { useRouter } from "next/navigation";
 
 import { Writer, WritersResponse } from "@/components/penulis/writer-types";
+import { WriterSkeleton } from "@/components/penulis/writer-skeleton";
 
 export default function PenulisPage() {
   // Data states
@@ -221,56 +222,62 @@ export default function PenulisPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <WriterHeader onAddClick={handleAddWriter} />
+      {loading ? (
+        <WriterSkeleton />
+      ) : (
+        <>
+          {/* Header */}
+          <WriterHeader onAddClick={handleAddWriter} />
 
-      {/* Stats */}
-      <WriterStats
-        totalWriters={overallStats.totalWriters}
-        dusunCounts={overallStats.dusunCounts}
-      />
+          {/* Stats */}
+          <WriterStats
+            totalWriters={overallStats.totalWriters}
+            dusunCounts={overallStats.dusunCounts}
+          />
 
-      {/* Filters */}
-      <WriterFilters
-        search={search}
-        dusun={dusun}
-        dusunOptions={dusunOptions}
-        onSearch={handleSearch}
-        onDusunFilter={handleDusunFilter}
-        onSort={handleSort}
-        currentSort={{ field: sortBy, order: sortOrder }}
-      />
+          {/* Filters */}
+          <WriterFilters
+            search={search}
+            dusun={dusun}
+            dusunOptions={dusunOptions}
+            onSearch={handleSearch}
+            onDusunFilter={handleDusunFilter}
+            onSort={handleSort}
+            currentSort={{ field: sortBy, order: sortOrder }}
+          />
 
-      {/* Table */}
-      <WriterTable
-        writers={writers}
-        loading={loading}
-        onEdit={() => {}}
-        onDelete={handleDeleteWriter}
-      />
+          {/* Table */}
+          <WriterTable
+            writers={writers}
+            loading={loading}
+            onEdit={() => {}}
+            onDelete={handleDeleteWriter}
+          />
 
-      {/* Pagination */}
-      {pagination.totalItems > 0 && (
-        <WriterPagination
-          currentPage={pagination.currentPage}
-          totalPages={pagination.totalPages}
-          totalItems={pagination.totalItems}
-          itemsPerPage={pagination.itemsPerPage}
-          hasNextPage={pagination.hasNextPage}
-          hasPrevPage={pagination.hasPrevPage}
-          onPageChange={handlePageChange}
-        />
+          {/* Pagination */}
+          {pagination.totalItems > 0 && (
+            <WriterPagination
+              currentPage={pagination.currentPage}
+              totalPages={pagination.totalPages}
+              totalItems={pagination.totalItems}
+              itemsPerPage={pagination.itemsPerPage}
+              hasNextPage={pagination.hasNextPage}
+              hasPrevPage={pagination.hasPrevPage}
+              onPageChange={handlePageChange}
+            />
+          )}
+
+          {/* Delete Confirmation Dialog */}
+          <DeleteConfirmDialog
+            isOpen={showDeleteDialog}
+            onClose={() => setShowDeleteDialog(false)}
+            onConfirm={handleConfirmDelete}
+            title="Hapus Penulis"
+            description={`Apakah Anda yakin ingin menghapus penulis "${deletingWriter?.fullName}"? Tindakan ini tidak dapat dibatalkan.`}
+            confirmText="Hapus Penulis"
+          />
+        </>
       )}
-
-      {/* Delete Confirmation Dialog */}
-      <DeleteConfirmDialog
-        isOpen={showDeleteDialog}
-        onClose={() => setShowDeleteDialog(false)}
-        onConfirm={handleConfirmDelete}
-        title="Hapus Penulis"
-        description={`Apakah Anda yakin ingin menghapus penulis "${deletingWriter?.fullName}"? Tindakan ini tidak dapat dibatalkan.`}
-        confirmText="Hapus Penulis"
-      />
     </div>
   );
 }
