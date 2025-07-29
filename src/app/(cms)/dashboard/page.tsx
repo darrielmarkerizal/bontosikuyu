@@ -1,24 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
 import { Clock } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
 import {
   OverviewCards,
   TrafficOverview,
   DeviceBreakdown,
   DataTables,
-  TravelTable,
-  WritersAndLogs,
   PagesAndDusun,
+  WritersAndLogs,
   DashboardLoadingSkeleton,
   ErrorState,
   formatDate,
-  type DashboardData,
-  type User,
-  type ApiResponse,
 } from "@/components/dashboard";
+import { DashboardData, User, ApiResponse } from "@/components/dashboard/types";
+import { getAuthHeaders } from "@/lib/auth-client";
 
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
@@ -38,7 +36,7 @@ export default function DashboardPage() {
       setError(null);
 
       const response = await axios.get<ApiResponse>("/api/dashboard", {
-        withCredentials: true,
+        headers: getAuthHeaders(),
         timeout: 10000,
       });
 
@@ -62,6 +60,9 @@ export default function DashboardPage() {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           errorMessage = "Sesi telah berakhir. Silakan login kembali.";
+          // Redirect to login page
+          window.location.href = "/login";
+          return;
         } else if (error.response?.status === 403) {
           errorMessage = "Anda tidak memiliki akses ke dashboard ini.";
         } else if (error.response?.status === 500) {
@@ -129,14 +130,11 @@ export default function DashboardPage() {
       {/* Data Tables */}
       <DataTables data={dashboardData} />
 
-      {/* Travel Table */}
-      <TravelTable data={dashboardData} />
+      {/* Pages and Dusun */}
+      <PagesAndDusun data={dashboardData} />
 
       {/* Writers and Logs */}
       <WritersAndLogs data={dashboardData} />
-
-      {/* Pages and Dusun */}
-      <PagesAndDusun data={dashboardData} />
     </div>
   );
 }
