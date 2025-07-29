@@ -10,6 +10,7 @@ import { AdminFilters } from "@/components/admin/admin-filters";
 import { AdminTable } from "@/components/admin/admin-table";
 import { AdminForm } from "@/components/admin/admin-form";
 import { AdminPagination } from "@/components/admin/admin-pagination";
+import { AdminSkeleton } from "@/components/admin/admin-skeleton";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
 import {
   Admin,
@@ -335,39 +336,45 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <AdminHeader onAddClick={handleAddAdmin} />
+      {loading ? (
+        <AdminSkeleton />
+      ) : (
+        <>
+          {/* Header */}
+          <AdminHeader onAddClick={handleAddAdmin} />
 
-      {/* Stats */}
-      <AdminStats totalAdmins={overallStats.totalUsers} />
+          {/* Stats */}
+          <AdminStats totalAdmins={overallStats.totalUsers} />
 
-      {/* Filters */}
-      <AdminFilters
-        search={search}
-        onSearch={handleSearch}
-        onSort={handleSort}
-        currentSort={{ field: sortBy, order: sortOrder }}
-      />
+          {/* Filters */}
+          <AdminFilters
+            search={search}
+            onSearch={handleSearch}
+            onSort={handleSort}
+            currentSort={{ field: sortBy, order: sortOrder }}
+          />
 
-      {/* Table */}
-      <AdminTable
-        admins={admins}
-        loading={loading}
-        onEdit={handleEditAdmin}
-        onDelete={handleDeleteAdmin}
-      />
+          {/* Table */}
+          <AdminTable
+            admins={admins}
+            loading={loading}
+            onEdit={handleEditAdmin}
+            onDelete={handleDeleteAdmin}
+          />
 
-      {/* Pagination */}
-      {pagination.totalItems > 0 && (
-        <AdminPagination
-          currentPage={pagination.currentPage}
-          totalPages={pagination.totalPages}
-          totalItems={pagination.totalItems}
-          itemsPerPage={pagination.itemsPerPage}
-          hasNextPage={pagination.hasNextPage}
-          hasPrevPage={pagination.hasPrevPage}
-          onPageChange={handlePageChange}
-        />
+          {/* Pagination */}
+          {pagination.totalItems > 0 && (
+            <AdminPagination
+              currentPage={pagination.currentPage}
+              totalPages={pagination.totalPages}
+              totalItems={pagination.totalItems}
+              itemsPerPage={pagination.itemsPerPage}
+              hasNextPage={pagination.hasNextPage}
+              hasPrevPage={pagination.hasPrevPage}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </>
       )}
 
       {/* Form Dialog */}

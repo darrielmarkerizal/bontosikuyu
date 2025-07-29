@@ -8,6 +8,7 @@ import { LogsFilters } from "@/components/logs/logs-filter";
 import { LogsTable } from "@/components/logs/logs-table";
 import { LogsPagination } from "@/components/logs/logs-pagination";
 import { Log, LogsResponse } from "@/components/logs/logs-types";
+import { LogsSkeleton } from "@/components/logs/logs-skeleton";
 
 export default function LogsPage() {
   const [logs, setLogs] = useState<Log[]>([]);
@@ -115,39 +116,45 @@ export default function LogsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <LogsHeader onRefresh={handleRefresh} loading={loading} />
+      {loading ? (
+        <LogsSkeleton />
+      ) : (
+        <>
+          {/* Header */}
+          <LogsHeader onRefresh={handleRefresh} loading={loading} />
 
-      {/* Stats */}
-      <LogsStats
-        totalLogs={stats.totalLogs}
-        actionCounts={stats.actionCounts}
-        recentActivity={stats.recentActivity}
-      />
+          {/* Stats */}
+          <LogsStats
+            totalLogs={stats.totalLogs}
+            actionCounts={stats.actionCounts}
+            recentActivity={stats.recentActivity}
+          />
 
-      {/* Filters */}
-      <LogsFilters
-        search={search}
-        action={action}
-        actionOptions={actionOptions}
-        onSearch={setSearch}
-        onActionFilter={setAction}
-      />
+          {/* Filters */}
+          <LogsFilters
+            search={search}
+            action={action}
+            actionOptions={actionOptions}
+            onSearch={setSearch}
+            onActionFilter={setAction}
+          />
 
-      {/* Table */}
-      <LogsTable logs={logs} loading={loading} />
+          {/* Table */}
+          <LogsTable logs={logs} loading={loading} />
 
-      {/* Pagination */}
-      {pagination.totalItems > 0 && (
-        <LogsPagination
-          currentPage={pagination.currentPage}
-          totalPages={pagination.totalPages}
-          totalItems={pagination.totalItems}
-          itemsPerPage={pagination.itemsPerPage}
-          hasNextPage={pagination.hasNextPage}
-          hasPrevPage={pagination.hasPrevPage}
-          onPageChange={handlePageChange}
-        />
+          {/* Pagination */}
+          {pagination.totalItems > 0 && (
+            <LogsPagination
+              currentPage={pagination.currentPage}
+              totalPages={pagination.totalPages}
+              totalItems={pagination.totalItems}
+              itemsPerPage={pagination.itemsPerPage}
+              hasNextPage={pagination.hasNextPage}
+              hasPrevPage={pagination.hasPrevPage}
+              onPageChange={handlePageChange}
+            />
+          )}
+        </>
       )}
     </div>
   );

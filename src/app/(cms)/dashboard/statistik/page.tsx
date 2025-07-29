@@ -10,6 +10,7 @@ import { StatisticsOverviewCards } from "@/components/statistic/statistics-overv
 import { StatisticsCharts } from "@/components/statistic/statistics-chart";
 import { StatisticsTables } from "@/components/statistic/statistics-table";
 import { StatisticsResponse } from "@/components/statistic/statistics-types";
+import { StatisticsSkeleton } from "@/components/statistic/statistics-skeleton";
 
 export default function StatisticsPage() {
   const [statistics, setStatistics] = useState<StatisticsResponse | null>(null);
@@ -124,18 +125,7 @@ export default function StatisticsPage() {
   };
 
   if (loading && !statistics) {
-    return (
-      <div className="min-h-screen w-full">
-        <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 max-w-7xl">
-          <StatisticsHeader />
-          <div className="text-center py-12">
-            <p className="text-lg font-medium text-muted-foreground">
-              Sedang memuat data statistik...
-            </p>
-          </div>
-        </div>
-      </div>
-    );
+    return <StatisticsSkeleton />;
   }
 
   if (!statistics) {
