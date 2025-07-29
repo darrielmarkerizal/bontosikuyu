@@ -8,6 +8,8 @@ import { Upload, X, Image as ImageIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import axios from "axios";
 import { toast } from "sonner";
+import { getAuthHeaders } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 interface ImageUploadProps {
   value?: string;
@@ -22,6 +24,7 @@ export function ImageUpload({
   onError,
   initialImageUrl,
 }: ImageUploadProps) {
+  const router = useRouter();
   const [isDragOver, setIsDragOver] = useState(false);
   const [preview, setPreview] = useState<string | null>(
     value || initialImageUrl || null
@@ -67,7 +70,7 @@ export function ImageUpload({
     };
     reader.readAsDataURL(file);
 
-    // Upload via API route
+    // Upload via API route with authentication
     setUploading(true);
     try {
       const formData = new FormData();
@@ -75,6 +78,7 @@ export function ImageUpload({
 
       const response = await axios.post("/api/upload-image", formData, {
         headers: {
+          ...getAuthHeaders(),
           "Content-Type": "multipart/form-data",
         },
       });
@@ -90,6 +94,15 @@ export function ImageUpload({
       }
     } catch (error) {
       console.error("Upload error:", error);
+
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        toast.error("Sesi telah berakhir", {
+          description: "Silakan login kembali",
+        });
+        router.push("/login");
+        return;
+      }
+
       const errorMessage = axios.isAxiosError(error)
         ? error.response?.data?.message || error.message
         : error instanceof Error
@@ -148,6 +161,7 @@ export function ImageUpload({
       const filename = urlParts[urlParts.length - 1];
 
       await axios.delete("/api/delete-image", {
+        headers: getAuthHeaders(),
         data: { filename },
       });
 
@@ -157,6 +171,15 @@ export function ImageUpload({
       toast.success("Gambar berhasil dihapus!");
     } catch (error) {
       console.error("Delete error:", error);
+
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        toast.error("Sesi telah berakhir", {
+          description: "Silakan login kembali",
+        });
+        router.push("/login");
+        return;
+      }
+
       toast.error("Gagal menghapus gambar", {
         description: "Gambar mungkin masih digunakan di tempat lain",
       });

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getTokenFromRequest, verifyToken } from "@/lib/auth";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -8,6 +9,36 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function POST(request: NextRequest) {
   try {
+    // Verify JWT token for authentication
+    const token = getTokenFromRequest(request);
+
+    if (!token) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Token autentikasi diperlukan",
+          error: "No authentication token provided",
+        },
+        { status: 401 }
+      );
+    }
+
+    const decodedToken = verifyToken(token);
+    if (!decodedToken) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Token autentikasi tidak valid",
+          error: "Invalid or expired token",
+        },
+        { status: 401 }
+      );
+    }
+
+    console.log(
+      `✅ Authenticated user: ${decodedToken.username} (${decodedToken.fullName})`
+    );
+
     const formData = await request.formData();
     const file = formData.get("file") as File;
 

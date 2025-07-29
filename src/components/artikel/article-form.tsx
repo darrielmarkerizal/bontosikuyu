@@ -21,6 +21,7 @@ import { Article } from "./article-types";
 import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { getAuthHeaders } from "@/lib/auth-client";
 
 const initialEditorValue = {
   root: {
@@ -187,12 +188,23 @@ export function ArticleForm({
   useEffect(() => {
     const fetchMasterData = async () => {
       try {
-        const response = await axios.get("/api/master-data");
+        const response = await axios.get("/api/master-data", {
+          headers: getAuthHeaders(),
+        });
         if (response.data.success) {
           setMasterData(response.data.data);
         }
       } catch (error) {
         console.error("Error fetching master data:", error);
+
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          toast.error("Sesi telah berakhir", {
+            description: "Silakan login kembali",
+          });
+          router.push("/login");
+          return;
+        }
+
         toast.error("Gagal memuat data master", {
           description: "Tidak dapat memuat data kategori dan penulis",
         });
@@ -202,7 +214,7 @@ export function ArticleForm({
     };
 
     fetchMasterData();
-  }, []);
+  }, [router]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -261,8 +273,10 @@ export function ArticleForm({
               : ("draft" as "draft" | "published" | "archived"),
         });
       } else {
-        // Create new article
-        const response = await axios.post("/api/articles", articleData);
+        // Create new article with authentication
+        const response = await axios.post("/api/articles", articleData, {
+          headers: getAuthHeaders(),
+        });
 
         if (response.data.success) {
           toast.success("Artikel berhasil disimpan!", {
@@ -280,6 +294,14 @@ export function ArticleForm({
 
       if (axios.isAxiosError(error)) {
         const errorData = error.response?.data;
+
+        if (error.response?.status === 401) {
+          toast.error("Sesi telah berakhir", {
+            description: "Silakan login kembali",
+          });
+          router.push("/login");
+          return;
+        }
 
         if (error.response?.status === 400) {
           // Validation errors

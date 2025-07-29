@@ -354,12 +354,6 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
 
               {/* Action Buttons */}
               <div className="mt-2 space-y-1">
-                <SidebarMenuButton asChild>
-                  <a href="/dashboard/settings" className="text-sm">
-                    <Settings className="w-4 h-4" />
-                    {!sidebarCollapsed && <span>Pengaturan</span>}
-                  </a>
-                </SidebarMenuButton>
                 <SidebarMenuButton
                   onClick={handleLogout}
                   disabled={isLoggingOut}
