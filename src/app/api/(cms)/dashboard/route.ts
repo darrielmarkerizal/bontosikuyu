@@ -44,6 +44,16 @@ interface RecentActivity {
     dusun: string;
     createdAt: string;
   }>;
+  recentLogs: Array<{
+    id: number;
+    action: string;
+    description: string;
+    tableName: string;
+    recordId: number | null;
+    userId: number | null;
+    ipAddress: string | null;
+    createdAt: string;
+  }>;
 }
 
 interface QuickStats {
@@ -130,6 +140,17 @@ interface WriterListModel extends SequelizeModel {
   createdAt: string;
 }
 
+interface LogModel extends SequelizeModel {
+  id: number;
+  action: string;
+  description: string;
+  tableName: string;
+  recordId: number | null;
+  userId: number | null;
+  ipAddress: string | null;
+  createdAt: string;
+}
+
 interface StatusCountModel extends SequelizeModel {
   status: string;
   count: string | number;
@@ -192,7 +213,7 @@ export async function GET(request: NextRequest) {
     }
 
     console.log(
-      `�� Authenticated user: ${decodedToken.username} (${decodedToken.fullName})`
+      `✅ Authenticated user: ${decodedToken.username} (${decodedToken.fullName})`
     );
 
     // Import sequelize and models directly
@@ -242,6 +263,7 @@ export async function GET(request: NextRequest) {
       sequelize,
       DataTypes
     );
+    const Log = require("../../../../../models/log.js")(sequelize, DataTypes);
     const CategoryArticle = require("../../../../../models/categoryarticle.js")(
       sequelize,
       DataTypes
@@ -304,6 +326,7 @@ export async function GET(request: NextRequest) {
       recentUmkm,
       recentTravels,
       recentWriters,
+      recentLogs,
 
       // Quick stats
       articlesByStatus,
@@ -364,6 +387,20 @@ export async function GET(request: NextRequest) {
       }),
       Writer.findAll({
         attributes: ["id", "fullName", "dusun", "createdAt"],
+        order: [["createdAt", "DESC"]],
+        limit: 5,
+      }),
+      Log.findAll({
+        attributes: [
+          "id",
+          "action",
+          "description",
+          "tableName",
+          "recordId",
+          "userId",
+          "ipAddress",
+          "createdAt",
+        ],
         order: [["createdAt", "DESC"]],
         limit: 5,
       }),
@@ -547,6 +584,16 @@ export async function GET(request: NextRequest) {
             createdAt: writer.createdAt,
           })
         ),
+        recentLogs: (recentLogs as LogModel[]).map((log: LogModel) => ({
+          id: log.id,
+          action: log.action,
+          description: log.description,
+          tableName: log.tableName,
+          recordId: log.recordId,
+          userId: log.userId,
+          ipAddress: log.ipAddress,
+          createdAt: log.createdAt,
+        })),
       },
       quickStats: {
         articlesByStatus: articlesByStatusData,
