@@ -11,7 +11,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-interface UmkmPaginationProps {
+interface TravelPaginationProps {
   currentPage: number;
   totalPages: number;
   totalItems: number;
@@ -21,7 +21,7 @@ interface UmkmPaginationProps {
   onPageChange: (page: number) => void;
 }
 
-export function UmkmPagination({
+export function TravelPagination({
   currentPage,
   totalPages,
   totalItems,
@@ -29,7 +29,7 @@ export function UmkmPagination({
   hasNextPage,
   hasPrevPage,
   onPageChange,
-}: UmkmPaginationProps) {
+}: TravelPaginationProps) {
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
@@ -86,7 +86,7 @@ export function UmkmPagination({
             <span className="hidden xs:inline"> dari </span>
             <span className="xs:hidden"> / </span>
             <span className="font-medium">{totalItems}</span>
-            <span className="hidden xs:inline"> UMKM</span>
+            <span className="hidden xs:inline"> destinasi wisata</span>
           </div>
 
           {/* Pagination */}
