@@ -18,6 +18,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -38,65 +39,112 @@ import {
   LogOut,
   Settings,
   Shield,
+  Plus,
+  User,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 
-const menuItems = [
+// Organized menu categories
+const menuCategories = [
   {
     title: "Dashboard",
-    url: "/dashboard",
-    icon: Home,
+    items: [
+      {
+        title: "Overview",
+        url: "/dashboard",
+        icon: Home,
+        description: "Ringkasan data utama",
+      },
+    ],
   },
   {
-    title: "Artikel",
-    url: "/dashboard/artikel",
-    icon: FileText,
+    title: "Konten",
+    items: [
+      {
+        title: "Artikel",
+        url: "/dashboard/artikel",
+        icon: FileText,
+        description: "Kelola artikel desa",
+      },
+      {
+        title: "Penulis",
+        url: "/dashboard/penulis",
+        icon: Users,
+        description: "Kelola penulis artikel",
+      },
+      {
+        title: "Monografis",
+        url: "/dashboard/monografis",
+        icon: BookOpen,
+        description: "Data monografis desa",
+      },
+    ],
   },
   {
-    title: "Penulis",
-    url: "/dashboard/penulis",
-    icon: Users,
+    title: "Ekonomi & Pariwisata",
+    items: [
+      {
+        title: "UMKM",
+        url: "/dashboard/umkm",
+        icon: Store,
+        description: "Kelola UMKM desa",
+      },
+      {
+        title: "Pariwisata",
+        url: "/dashboard/pariwisata",
+        icon: MapPin,
+        description: "Kelola destinasi wisata",
+      },
+    ],
   },
   {
-    title: "UMKM",
-    url: "/dashboard/umkm",
-    icon: Store,
-  },
-  {
-    title: "Pariwisata",
-    url: "/dashboard/pariwisata",
-    icon: MapPin,
-  },
-  {
-    title: "Log",
-    url: "/dashboard/log",
-    icon: LogIcon,
-  },
-  {
-    title: "Monografis",
-    url: "/dashboard/monografis",
-    icon: BookOpen,
-  },
-  {
-    title: "Statistik",
-    url: "/dashboard/statistik",
-    icon: BarChart3,
-  },
-  {
-    title: "Admin",
-    url: "/dashboard/admin",
-    icon: Shield,
+    title: "Sistem",
+    items: [
+      {
+        title: "Statistik",
+        url: "/dashboard/statistik",
+        icon: BarChart3,
+        description: "Analisis data website",
+      },
+      {
+        title: "Log Aktivitas",
+        url: "/dashboard/log",
+        icon: LogIcon,
+        description: "Riwayat aktivitas sistem",
+      },
+      {
+        title: "Admin",
+        url: "/dashboard/admin",
+        icon: Shield,
+        description: "Kelola pengguna admin",
+      },
+    ],
   },
 ];
 
-const settingsItems = [
+const quickActions = [
   {
-    title: "Pengaturan",
-    url: "/dashboard/settings",
-    icon: Settings,
+    title: "Artikel Baru",
+    icon: Plus,
+    url: "/dashboard/artikel/tambah",
+    variant: "default" as const,
+  },
+  {
+    title: "Tambah UMKM",
+    icon: Store,
+    url: "/dashboard/umkm/tambah",
+    variant: "outline" as const,
+  },
+  {
+    title: "Tambah Wisata",
+    icon: MapPin,
+    url: "/dashboard/pariwisata/tambah",
+    variant: "outline" as const,
   },
 ];
 
@@ -104,6 +152,7 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const publicPages = ["/login", "/register", "/forgot-password"];
   const isPublicPage = publicPages.some((page) => pathname.includes(page));
 
@@ -247,76 +296,143 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
   const breadcrumbItems = getBreadcrumbItems();
 
   return (
-    <div className="h-screen overflow-hidden flex">
+    <div className="h-screen overflow-hidden flex bg-gradient-to-br from-gray-50 to-gray-100">
       <SidebarProvider>
-        <Sidebar>
+        <Sidebar
+          className={`border-r border-border/40 shadow-lg backdrop-blur-sm bg-white/95 transition-all duration-300 ${
+            sidebarCollapsed ? "w-16" : "w-64"
+          }`}
+        >
+          {/* Collapse button */}
+          <button
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="absolute -right-3 top-4 w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white shadow-lg hover:bg-primary/90 transition-colors z-10"
+          >
+            {sidebarCollapsed ? (
+              <ChevronRight className="w-3 h-3" />
+            ) : (
+              <ChevronLeft className="w-3 h-3" />
+            )}
+          </button>
+
           <SidebarHeader className="border-b border-sidebar-border">
-            <div className="flex flex-col gap-2 py-2 px-3">
-              <div className="flex items-center gap-2">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <Home className="size-4" />
+            <div className="flex flex-col gap-2 py-4 px-3">
+              <div className="flex items-center gap-3">
+                {/* Logo Fallback */}
+                <div className="flex aspect-square size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                  <Home className="w-5 h-5" />
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">
-                    Desa Laiyolo Baru
-                  </span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    CMS Admin
-                  </span>
-                </div>
+                {!sidebarCollapsed && (
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">CMS Admin</span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      Desa Laiyolo Baru
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </SidebarHeader>
 
           <SidebarContent>
-            <SidebarGroup>
-              <SidebarGroupLabel>Menu Utama</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {menuItems.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                        <a href={item.url}>
-                          <item.icon />
-                          <span>{item.title}</span>
-                        </a>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
+            {/* Quick Actions */}
+            {!sidebarCollapsed && (
+              <SidebarGroup>
+                <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3">
+                  Quick Actions
+                </SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <div className="p-3 space-y-2">
+                    {quickActions.map((action) => (
+                      <Button
+                        key={action.title}
+                        size="sm"
+                        variant={action.variant}
+                        className="w-full justify-start h-8"
+                        onClick={() => router.push(action.url)}
+                      >
+                        <action.icon className="w-3 h-3 mr-2" />
+                        {action.title}
+                      </Button>
+                    ))}
+                  </div>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
+
+            {/* Menu Categories */}
+            {menuCategories.map((category) => (
+              <SidebarGroup key={category.title}>
+                {!sidebarCollapsed && (
+                  <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3">
+                    {category.title}
+                  </SidebarGroupLabel>
+                )}
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {category.items.map((item) => (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={isActive(item.url)}
+                          className="group"
+                        >
+                          <a href={item.url}>
+                            <item.icon className="transition-transform group-hover:scale-110" />
+                            {!sidebarCollapsed && <span>{item.title}</span>}
+                          </a>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            ))}
           </SidebarContent>
 
           <SidebarFooter className="border-t border-sidebar-border">
-            <SidebarMenu>
-              {settingsItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-              <SidebarMenuItem>
+            <div className="p-3">
+              {/* User Profile */}
+              <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
+                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                  <User className="w-4 h-4 text-primary-foreground" />
+                </div>
+                {!sidebarCollapsed && (
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium truncate">Admin</div>
+                    <div className="text-xs text-muted-foreground truncate">
+                      admin@laiyolobaru.com
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mt-2 space-y-1">
+                <SidebarMenuButton asChild>
+                  <a href="/dashboard/settings" className="text-sm">
+                    <Settings className="w-4 h-4" />
+                    {!sidebarCollapsed && <span>Pengaturan</span>}
+                  </a>
+                </SidebarMenuButton>
                 <SidebarMenuButton
                   onClick={handleLogout}
                   disabled={isLoggingOut}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 text-sm"
                 >
-                  <LogOut />
-                  <span>{isLoggingOut ? "Keluar..." : "Keluar"}</span>
+                  <LogOut className="w-4 h-4" />
+                  {!sidebarCollapsed && (
+                    <span>{isLoggingOut ? "Keluar..." : "Keluar"}</span>
+                  )}
                 </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
+              </div>
+            </div>
           </SidebarFooter>
           <SidebarRail />
         </Sidebar>
 
         <SidebarInset className="flex flex-col min-h-0 flex-1">
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 bg-background">
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 bg-white/80 backdrop-blur-sm shadow-sm">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
             <Breadcrumb>
@@ -342,8 +458,8 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
             </Breadcrumb>
           </header>
 
-          <main className="flex-1 min-h-0 overflow-y-auto">
-            <div className="p-4">{children}</div>
+          <main className="flex-1 min-h-0 overflow-y-auto bg-gradient-to-br from-gray-50/50 to-gray-100/50">
+            <div className="p-6">{children}</div>
           </main>
         </SidebarInset>
       </SidebarProvider>
