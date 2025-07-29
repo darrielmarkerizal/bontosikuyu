@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import ConditionalLayout from "@/components/conditional-layout";
+
 import { Toaster } from "sonner";
 
 const geistSans = localFont({

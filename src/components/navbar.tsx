@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { WeatherWidget } from "./weather-widget";
 
 const navItems = [
   {
@@ -129,7 +130,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-4">
             {navItems.map((item) => (
               <Link
                 key={item.path}
@@ -145,6 +146,9 @@ export default function Navbar() {
                 )}
               </Link>
             ))}
+
+            {/* Weather Widget */}
+            <WeatherWidget />
           </div>
 
           {/* Enhanced Animated Mobile Menu Button */}
@@ -195,7 +199,7 @@ export default function Navbar() {
         {/* Mobile Navigation */}
         <div
           className={`md:hidden overflow-hidden transition-all duration-300 ${
-            isMenuOpen ? "max-h-64 mt-4" : "max-h-0"
+            isMenuOpen ? "max-h-96 mt-4" : "max-h-0"
           }`}
         >
           <div className="py-2 space-y-1 border-t-2 border-brand-primary/20">
@@ -212,6 +216,11 @@ export default function Navbar() {
                 {item.label}
               </Link>
             ))}
+
+            {/* Weather Widget for Mobile */}
+            <div className="px-4 py-2">
+              <WeatherWidget />
+            </div>
           </div>
         </div>
       </div>
