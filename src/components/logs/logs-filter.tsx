@@ -15,6 +15,18 @@ interface LogsFiltersProps {
   onActionFilter: (val: string) => void;
 }
 
+const actionLabels: { [key: string]: string } = {
+  CREATE: "Pembuatan Data Baru",
+  UPDATE: "Pembaruan Data",
+  DELETE: "Penghapusan Data",
+  LOGIN: "Masuk Sistem",
+  LOGOUT: "Keluar Sistem",
+  VIEW: "Melihat Data",
+  DOWNLOAD: "Mengunduh Data",
+  UPLOAD: "Mengunggah Data",
+  all: "Semua Aksi",
+};
+
 export function LogsFilters({
   search,
   action,
@@ -32,13 +44,13 @@ export function LogsFilters({
       />
       <Select value={action} onValueChange={onActionFilter}>
         <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Aksi" />
+          <SelectValue placeholder="Pilih Aksi" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Semua Aksi</SelectItem>
+          <SelectItem value="all">{actionLabels["all"]}</SelectItem>
           {actionOptions.map((opt) => (
             <SelectItem key={opt} value={opt}>
-              {opt}
+              {actionLabels[opt] || opt}
             </SelectItem>
           ))}
         </SelectContent>

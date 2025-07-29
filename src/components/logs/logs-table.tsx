@@ -43,6 +43,7 @@ export function LogsTable({ logs, loading }: LogsTableProps) {
                 <TableHead>Deskripsi</TableHead>
                 <TableHead>Waktu</TableHead>
                 <TableHead>IP</TableHead>
+                <TableHead>User Agent</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -60,6 +61,9 @@ export function LogsTable({ logs, loading }: LogsTableProps) {
                     })}
                   </TableCell>
                   <TableCell>{log.ipAddress || "-"}</TableCell>
+                  <TableCell className="max-w-xs truncate">
+                    {log.userAgent || "-"}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
