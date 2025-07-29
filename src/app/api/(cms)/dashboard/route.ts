@@ -38,11 +38,11 @@ interface RecentActivity {
     dusun: string;
     createdAt: string;
   }>;
-  recentWriters: Array<{
+  topWriters: Array<{
     id: number;
     fullName: string;
     dusun: string;
-    createdAt: string;
+    articleCount: number;
   }>;
   recentLogs: Array<{
     id: number;
@@ -133,13 +133,6 @@ interface TravelModel extends SequelizeModel {
   createdAt: string;
 }
 
-interface WriterListModel extends SequelizeModel {
-  id: number;
-  fullName: string;
-  dusun: string;
-  createdAt: string;
-}
-
 interface LogModel extends SequelizeModel {
   id: number;
   action: string;
@@ -169,6 +162,14 @@ interface DeviceCountModel extends SequelizeModel {
 interface PageViewCountModel extends SequelizeModel {
   page: string;
   views: string | number;
+}
+
+// Add this interface after the existing interfaces (around line 165)
+interface RawWriterResult {
+  id: number;
+  fullName: string;
+  dusun: string;
+  articleCount: string | number;
 }
 
 // Helper function to safely extract value
@@ -236,7 +237,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Import models directly
+    // Import models directly and set up associations manually
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { DataTypes } = require("sequelize");
 
@@ -286,6 +287,10 @@ export async function GET(request: NextRequest) {
       foreignKey: "writerId",
       as: "writer",
     });
+    Writer.hasMany(Article, {
+      foreignKey: "writerId",
+      as: "articles",
+    });
 
     Umkm.belongsTo(CategoryUmkm, {
       foreignKey: "umkmCategoryId",
@@ -325,7 +330,7 @@ export async function GET(request: NextRequest) {
       recentArticles,
       recentUmkm,
       recentTravels,
-      recentWriters,
+      topWriters,
       recentLogs,
 
       // Quick stats
@@ -385,11 +390,22 @@ export async function GET(request: NextRequest) {
         order: [["createdAt", "DESC"]],
         limit: 5,
       }),
-      Writer.findAll({
-        attributes: ["id", "fullName", "dusun", "createdAt"],
-        order: [["createdAt", "DESC"]],
-        limit: 5,
-      }),
+      // Fixed topWriters query - using raw SQL for better control
+      sequelize.query(
+        `
+        SELECT 
+          w.id,
+          w.fullName,
+          w.dusun,
+          COUNT(a.id) as articleCount
+        FROM Writers w
+        LEFT JOIN Articles a ON w.id = a.writerId
+        GROUP BY w.id, w.fullName, w.dusun
+        ORDER BY articleCount DESC
+        LIMIT 5
+      `,
+        { type: sequelize.QueryTypes.SELECT }
+      ),
       Log.findAll({
         attributes: [
           "id",
@@ -402,7 +418,7 @@ export async function GET(request: NextRequest) {
           "createdAt",
         ],
         order: [["createdAt", "DESC"]],
-        limit: 5,
+        limit: 10,
       }),
 
       // Quick stats
@@ -468,7 +484,7 @@ export async function GET(request: NextRequest) {
         attributes: ["page", [fn("COUNT", col("id")), "views"]],
         group: ["page"],
         order: [[fn("COUNT", col("id")), "DESC"]],
-        limit: 5,
+        limit: 10,
       }),
     ]);
 
@@ -576,12 +592,12 @@ export async function GET(request: NextRequest) {
             createdAt: travel.createdAt,
           })
         ),
-        recentWriters: (recentWriters as WriterListModel[]).map(
-          (writer: WriterListModel) => ({
+        topWriters: (topWriters as RawWriterResult[]).map(
+          (writer: RawWriterResult) => ({
             id: writer.id,
             fullName: writer.fullName,
             dusun: writer.dusun,
-            createdAt: writer.createdAt,
+            articleCount: parseInt(String(writer.articleCount)) || 0,
           })
         ),
         recentLogs: (recentLogs as LogModel[]).map((log: LogModel) => ({

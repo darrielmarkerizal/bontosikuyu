@@ -77,11 +77,11 @@ interface DashboardData {
       dusun: string;
       createdAt: string;
     }>;
-    recentWriters: Array<{
+    topWriters: Array<{
       id: number;
       fullName: string;
       dusun: string;
-      createdAt: string;
+      articleCount: number;
     }>;
     recentLogs: Array<{
       id: number;
@@ -754,43 +754,52 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Recent Activity and Logs */}
+      {/* Top Writers and Recent Logs */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Writers */}
+        {/* Top Writers Table */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Penulis Terbaru
+              Penulis Terproduktif
             </CardTitle>
-            <CardDescription>Penulis yang baru bergabung</CardDescription>
+            <CardDescription>
+              Penulis dengan jumlah artikel terbanyak
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {dashboardData.recentActivity.recentWriters.map((writer) => (
-                <div
-                  key={writer.id}
-                  className="flex items-center justify-between p-3 rounded-lg border"
-                >
-                  <div>
-                    <h4 className="font-medium text-sm">{writer.fullName}</h4>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Building2 className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nama Penulis</TableHead>
+                    <TableHead>Dusun</TableHead>
+                    <TableHead>Jumlah Artikel</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {dashboardData.recentActivity.topWriters.map((writer) => (
+                    <TableRow key={writer.id}>
+                      <TableCell className="font-medium">
+                        {writer.fullName}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
                         {writer.dusun}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="text-xs text-muted-foreground">
-                    {formatDate(writer.createdAt)}
-                  </span>
-                </div>
-              ))}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className="font-medium">
+                          {writer.articleCount} artikel
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </CardContent>
         </Card>
 
-        {/* Recent Logs */}
+        {/* Recent Logs Table */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -800,42 +809,50 @@ export default function DashboardPage() {
             <CardDescription>Log aktivitas sistem terbaru</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {dashboardData.recentActivity.recentLogs.map((log) => (
-                <div
-                  key={log.id}
-                  className="flex items-start gap-3 p-3 rounded-lg border"
-                >
-                  <div className="flex-shrink-0 mt-1">
-                    {getActionIcon(log.action)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      {getActionBadge(log.action)}
-                      <span className="text-xs text-muted-foreground">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Aksi</TableHead>
+                    <TableHead>Deskripsi</TableHead>
+                    <TableHead>Tabel</TableHead>
+                    <TableHead>IP Address</TableHead>
+                    <TableHead>Waktu</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {dashboardData.recentActivity.recentLogs.map((log) => (
+                    <TableRow key={log.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          {getActionIcon(log.action)}
+                          {getActionBadge(log.action)}
+                        </div>
+                      </TableCell>
+                      <TableCell className="max-w-[200px] truncate text-sm">
+                        {log.description}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
                         {log.tableName}
-                      </span>
-                    </div>
-                    <p className="text-sm font-medium">{log.description}</p>
-                    {log.ipAddress && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        IP: {log.ipAddress}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex-shrink-0 text-xs text-muted-foreground">
-                    {formatDate(log.createdAt)}
-                  </div>
-                </div>
-              ))}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {log.ipAddress || "-"}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {formatDate(log.createdAt)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Top Pages and Dusun Distribution */}
+      {/* Top Pages Table and Dusun Distribution */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Pages */}
+        {/* Top Pages Table */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -843,32 +860,36 @@ export default function DashboardPage() {
               Halaman Terpopuler
             </CardTitle>
             <CardDescription>
-              5 halaman dengan tayangan tertinggi
+              10 halaman dengan tayangan tertinggi
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {dashboardData.trafficInsights.topPages.map((page, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-3 rounded-lg border"
-                >
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-sm truncate">
-                      {page.page}
-                    </h4>
-                    <p className="text-xs text-muted-foreground">
-                      Halaman website
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">
-                      {formatNumber(page.views)}
-                    </span>
-                  </div>
-                </div>
-              ))}
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Halaman</TableHead>
+                    <TableHead>Jumlah Tayangan</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {dashboardData.trafficInsights.topPages.map((page, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium max-w-[300px] truncate">
+                        {page.page}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">
+                            {formatNumber(page.views)}
+                          </span>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </CardContent>
         </Card>
