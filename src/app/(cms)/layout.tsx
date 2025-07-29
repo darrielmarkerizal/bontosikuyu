@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   SidebarProvider,
   Sidebar,
@@ -39,6 +39,10 @@ import {
   Settings,
   Shield,
 } from "lucide-react";
+import { useState } from "react";
+import axios from "axios";
+import { toast } from "sonner";
+import Cookies from "js-cookie";
 
 const menuItems = [
   {
@@ -94,17 +98,69 @@ const settingsItems = [
     url: "/dashboard/settings",
     icon: Settings,
   },
-  {
-    title: "Keluar",
-    url: "/login",
-    icon: LogOut,
-  },
 ];
 
 export default function CMSLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const publicPages = ["/login", "/register", "/forgot-password"];
   const isPublicPage = publicPages.some((page) => pathname.includes(page));
+
+  // Handle logout
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+
+    setIsLoggingOut(true);
+
+    try {
+      console.log("🚪 Logout process started");
+
+      // Get token from cookies
+      const token = Cookies.get("token");
+
+      if (token) {
+        // Call logout API to create log entry
+        await axios.post(
+          "/api/logout",
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        console.log("✅ Logout API called successfully");
+      }
+
+      // Remove token from cookies
+      Cookies.remove("token");
+      console.log(" Token removed from cookies");
+
+      // Show success message
+      toast.success("Logout berhasil", {
+        description: "Anda telah keluar dari sistem",
+      });
+
+      // Redirect to login page
+      router.push("/login");
+    } catch (error) {
+      console.error("💥 Logout error:", error);
+
+      // Even if API call fails, still remove token and redirect
+      Cookies.remove("token");
+
+      toast.error("Logout gagal", {
+        description:
+          "Terjadi kesalahan saat logout, tetapi Anda telah keluar dari sistem",
+      });
+
+      router.push("/login");
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   // For public pages (login, register, etc.), return children directly
   if (isPublicPage) {
@@ -173,7 +229,7 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
 
     if (pathname.startsWith("/dashboard/statistik")) {
       return [
-        { title: "Dashboard", href: "/dashboard" },
+        { title: "Dashboard", href: "/dashboard/statistik" },
         { title: "Statistik", href: "/dashboard/statistik", current: true },
       ];
     }
@@ -244,6 +300,16 @@ export default function CMSLayout({ children }: { children: React.ReactNode }) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <LogOut />
+                  <span>{isLoggingOut ? "Keluar..." : "Keluar"}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarFooter>
           <SidebarRail />
