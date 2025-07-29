@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -13,15 +13,33 @@ interface ImageUploadProps {
   value?: string;
   onChange?: (file: File | null, url?: string) => void;
   onError?: (message: string) => void;
+  initialImageUrl?: string | null;
 }
 
-export function ImageUpload({ value, onChange, onError }: ImageUploadProps) {
+export function ImageUpload({
+  value,
+  onChange,
+  onError,
+  initialImageUrl,
+}: ImageUploadProps) {
   const [isDragOver, setIsDragOver] = useState(false);
-  const [preview, setPreview] = useState<string | null>(value || null);
+  const [preview, setPreview] = useState<string | null>(
+    value || initialImageUrl || null
+  );
   const [uploading, setUploading] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [uploadedUrl, setUploadedUrl] = useState<string | null>(value || null);
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(
+    value || initialImageUrl || null
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Update preview and uploadedUrl when initialImageUrl changes
+  useEffect(() => {
+    if (initialImageUrl) {
+      setPreview(initialImageUrl);
+      setUploadedUrl(initialImageUrl);
+    }
+  }, [initialImageUrl]);
 
   const handleFile = async (file: File) => {
     // Validate file type
@@ -116,158 +134,123 @@ export function ImageUpload({ value, onChange, onError }: ImageUploadProps) {
   };
 
   const handleRemove = async () => {
-    // If there's an uploaded URL, delete from Supabase first
-    if (uploadedUrl) {
-      setDeleting(true);
-      try {
-        const response = await axios.delete(`/api/delete-image`, {
-          params: { url: uploadedUrl },
-        });
-
-        if (response.data.success) {
-          console.log("Image deleted from Supabase");
-          toast.success("Gambar berhasil dihapus!", {
-            description: "Gambar telah dihapus dari server",
-          });
-        } else {
-          console.error("Delete error:", response.data.message);
-          toast.error("Gagal menghapus gambar", {
-            description:
-              response.data.message || "Terjadi kesalahan saat menghapus",
-          });
-          // Still remove from UI even if delete fails
-        }
-      } catch (error) {
-        console.error("Delete error:", error);
-        const errorMessage = axios.isAxiosError(error)
-          ? error.response?.data?.message || error.message
-          : error instanceof Error
-            ? error.message
-            : "Unknown error";
-        console.error("Delete error details:", errorMessage);
-        toast.error("Gagal menghapus gambar", {
-          description: errorMessage,
-        });
-        // Still remove from UI even if delete fails
-      } finally {
-        setDeleting(false);
-      }
+    if (!uploadedUrl) {
+      setPreview(null);
+      setUploadedUrl(null);
+      onChange?.(null);
+      return;
     }
 
-    // Remove from UI
-    setPreview(null);
-    setUploadedUrl(null);
-    onChange?.(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    setDeleting(true);
+    try {
+      // Extract filename from URL
+      const urlParts = uploadedUrl.split("/");
+      const filename = urlParts[urlParts.length - 1];
+
+      await axios.delete("/api/delete-image", {
+        data: { filename },
+      });
+
+      setPreview(null);
+      setUploadedUrl(null);
+      onChange?.(null);
+      toast.success("Gambar berhasil dihapus!");
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("Gagal menghapus gambar", {
+        description: "Gambar mungkin masih digunakan di tempat lain",
+      });
+    } finally {
+      setDeleting(false);
     }
   };
 
   return (
-    <div className="space-y-2">
-      <Label>Gambar Unggulan</Label>
-
-      <div
-        className={cn(
-          "relative w-48 h-32 border-2 border-dashed rounded-lg transition-all duration-200 cursor-pointer",
-          (uploading || deleting) && "cursor-not-allowed opacity-50",
-          isDragOver && !uploading && !deleting
-            ? "border-primary bg-primary/5 scale-105"
-            : preview
-              ? "border-green-200 bg-green-50"
-              : "border-muted-foreground/25 bg-muted hover:border-muted-foreground/50 hover:bg-muted/80"
-        )}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onClick={() => !uploading && !deleting && fileInputRef.current?.click()}
-      >
-        {uploading ? (
-          <div className="flex flex-col items-center justify-center h-full text-center p-2">
-            <Loader2 className="h-6 w-6 animate-spin mb-2" />
-            <p className="text-xs text-muted-foreground">Mengupload...</p>
-          </div>
-        ) : preview ? (
-          <>
+    <div className="space-y-4">
+      {/* Preview */}
+      {preview && (
+        <div className="relative">
+          <div className="relative aspect-video w-full max-w-md rounded-lg overflow-hidden border">
             <Image
               src={preview}
               alt="Preview"
               fill
-              className="object-cover rounded-lg"
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
-            <Button
-              type="button"
-              variant="destructive"
-              size="sm"
-              className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRemove();
-              }}
-              disabled={deleting}
-            >
-              {deleting ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                <X className="h-3 w-3" />
-              )}
-            </Button>
-            <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors duration-200 rounded-lg flex items-center justify-center opacity-0 hover:opacity-100">
-              <div className="text-white text-xs font-medium">
-                Klik untuk ganti
-              </div>
-            </div>
-            {uploadedUrl && (
-              <div className="absolute bottom-0 left-0 right-0 bg-green-500 text-white text-xs p-1 text-center">
-                ✓ Uploaded
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center h-full text-center p-2">
-            <div
-              className={cn(
-                "mb-2 transition-colors duration-200",
-                isDragOver ? "text-primary" : "text-muted-foreground"
-              )}
-            >
-              {isDragOver ? (
-                <Upload className="h-6 w-6" />
-              ) : (
-                <ImageIcon className="h-6 w-6" />
-              )}
-            </div>
-            <p
-              className={cn(
-                "text-xs font-medium transition-colors duration-200",
-                isDragOver ? "text-primary" : "text-muted-foreground"
-              )}
-            >
-              {isDragOver ? "Lepas untuk upload" : "Drag & drop atau klik"}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">Maks. 5MB</p>
           </div>
-        )}
-      </div>
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFileInput}
-        className="hidden"
-        disabled={uploading || deleting}
-      />
-
-      <p className="text-xs text-muted-foreground">
-        Format: JPG, PNG, GIF • Maksimal 5MB
-      </p>
-
-      {uploadedUrl && (
-        <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
-          <p className="text-xs text-green-800 font-medium">URL Supabase:</p>
-          <p className="text-xs text-green-600 break-all">{uploadedUrl}</p>
+          <Button
+            type="button"
+            variant="destructive"
+            size="icon"
+            className="absolute top-2 right-2 h-8 w-8"
+            onClick={handleRemove}
+            disabled={deleting}
+          >
+            {deleting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <X className="h-4 w-4" />
+            )}
+          </Button>
         </div>
+      )}
+
+      {/* Upload Area */}
+      {!preview && (
+        <div
+          className={cn(
+            "relative border-2 border-dashed rounded-lg p-6 text-center transition-colors",
+            isDragOver
+              ? "border-primary bg-primary/5"
+              : "border-muted-foreground/25 hover:border-muted-foreground/50"
+          )}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileInput}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            disabled={uploading}
+          />
+
+          <div className="space-y-2">
+            {uploading ? (
+              <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
+            ) : (
+              <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
+            )}
+            <div>
+              <Label className="text-sm font-medium cursor-pointer">
+                {uploading
+                  ? "Mengupload..."
+                  : "Klik untuk upload atau drag & drop"}
+              </Label>
+              <p className="text-xs text-muted-foreground mt-1">
+                PNG, JPG, GIF hingga 5MB
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Upload Button (when preview exists) */}
+      {preview && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="w-full"
+        >
+          <ImageIcon className="mr-2 h-4 w-4" />
+          {uploading ? "Mengupload..." : "Ganti Gambar"}
+        </Button>
       )}
     </div>
   );

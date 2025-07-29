@@ -68,6 +68,7 @@ interface ArticleFormProps {
 export function ArticleForm({
   article,
   isEditing = false,
+  onSave,
   onCancel,
 }: ArticleFormProps) {
   const router = useRouter();
@@ -77,12 +78,110 @@ export function ArticleForm({
     category: article?.category || "",
   });
 
-  const [editorState, setEditorState] =
-    useState<SerializedEditorState>(initialEditorValue);
-  const [featuredImageUrl, setFeaturedImageUrl] = useState<string | null>(null);
+  // Initialize editor state from article content if editing
+  const getInitialEditorState = (): SerializedEditorState => {
+    if (isEditing && article?.content) {
+      try {
+        // Try to parse the content as JSON (Lexical format)
+        const parsed = JSON.parse(article.content);
+        return parsed as SerializedEditorState;
+      } catch {
+        // If parsing fails, create a simple text node with the content
+        return {
+          root: {
+            children: [
+              {
+                children: [
+                  {
+                    detail: 0,
+                    format: 0,
+                    mode: "normal",
+                    style: "",
+                    text: article.content,
+                    type: "text",
+                    version: 1,
+                  },
+                ],
+                direction: "ltr",
+                format: "",
+                indent: 0,
+                type: "paragraph",
+                version: 1,
+              },
+            ],
+            direction: "ltr",
+            format: "",
+            indent: 0,
+            type: "root",
+            version: 1,
+          },
+        } as unknown as SerializedEditorState;
+      }
+    }
+    return initialEditorValue;
+  };
+
+  const [editorState, setEditorState] = useState<SerializedEditorState>(
+    getInitialEditorState()
+  );
+  const [featuredImageUrl, setFeaturedImageUrl] = useState<string | null>(
+    article?.image || null
+  );
   const [masterData, setMasterData] = useState<MasterData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // Update form data when article prop changes (for editing)
+  useEffect(() => {
+    if (article) {
+      setFormData({
+        title: article.title || "",
+        author: article.author || "",
+        category: article.category || "",
+      });
+      setFeaturedImageUrl(article.image || null);
+
+      // Update editor state if content exists
+      if (article.content) {
+        try {
+          const parsed = JSON.parse(article.content);
+          setEditorState(parsed as SerializedEditorState);
+        } catch {
+          // Handle plain text content
+          const textState = {
+            root: {
+              children: [
+                {
+                  children: [
+                    {
+                      detail: 0,
+                      format: 0,
+                      mode: "normal",
+                      style: "",
+                      text: article.content,
+                      type: "text",
+                      version: 1,
+                    },
+                  ],
+                  direction: "ltr",
+                  format: "",
+                  indent: 0,
+                  type: "paragraph",
+                  version: 1,
+                },
+              ],
+              direction: "ltr",
+              format: "",
+              indent: 0,
+              type: "root",
+              version: 1,
+            },
+          } as unknown as SerializedEditorState;
+          setEditorState(textState);
+        }
+      }
+    }
+  }, [article]);
 
   // Fetch master data on component mount
   useEffect(() => {
@@ -151,17 +250,30 @@ export function ArticleForm({
         writerId: parseInt(formData.author),
       };
 
-      const response = await axios.post("/api/articles", articleData);
-
-      if (response.data.success) {
-        toast.success("Artikel berhasil disimpan!", {
-          description: response.data.message,
+      if (isEditing && onSave) {
+        // Call the parent's save function for editing
+        await onSave({
+          ...articleData,
+          id: article?.id,
+          status:
+            status === "published"
+              ? "published"
+              : ("draft" as "draft" | "published" | "archived"),
         });
-
-        // Redirect to articles list
-        router.push("/dashboard/artikel");
       } else {
-        throw new Error(response.data.message || "Gagal menyimpan artikel");
+        // Create new article
+        const response = await axios.post("/api/articles", articleData);
+
+        if (response.data.success) {
+          toast.success("Artikel berhasil disimpan!", {
+            description: response.data.message,
+          });
+
+          // Redirect to articles list
+          router.push("/dashboard/artikel");
+        } else {
+          throw new Error(response.data.message || "Gagal menyimpan artikel");
+        }
       }
     } catch (error) {
       console.error("Save error:", error);
@@ -366,6 +478,7 @@ export function ArticleForm({
               <ImageUpload
                 onChange={handleImageChange}
                 onError={handleImageError}
+                initialImageUrl={featuredImageUrl}
               />
             </CardContent>
           </Card>
@@ -436,6 +549,7 @@ export function ArticleForm({
               <ImageUpload
                 onChange={handleImageChange}
                 onError={handleImageError}
+                initialImageUrl={featuredImageUrl}
               />
             </div>
 

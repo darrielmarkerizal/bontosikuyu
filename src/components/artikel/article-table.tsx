@@ -47,12 +47,6 @@ interface Article {
   updatedAt: string;
 }
 
-interface LexicalNode {
-  type: string;
-  text?: string;
-  children?: LexicalNode[];
-}
-
 interface ArticleTableProps {
   articles: Article[];
   loading?: boolean;
@@ -61,50 +55,17 @@ interface ArticleTableProps {
 const statusConfig = {
   publish: {
     label: "Dipublikasi",
-    className: "bg-green-100 text-green-800 hover:bg-green-200",
+    className:
+      "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100",
   },
   draft: {
     label: "Draft",
-    className: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
+    className: "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100",
   },
 };
 
 export function ArticleTable({ articles }: ArticleTableProps) {
   const router = useRouter();
-
-  const parseLexicalContent = (content: string): string => {
-    try {
-      const parsed = JSON.parse(content);
-
-      if (!parsed.root || !parsed.root.children) {
-        return content;
-      }
-
-      const extractText = (node: LexicalNode): string => {
-        if (node.type === "text") {
-          return node.text || "";
-        }
-
-        if (node.children) {
-          return node.children.map(extractText).join(" ");
-        }
-
-        return "";
-      };
-
-      const textContent = parsed.root.children.map(extractText).join(" ");
-      return textContent.trim();
-    } catch {
-      // If parsing fails, return original content
-      return content;
-    }
-  };
-
-  const truncateText = (text: string, maxLength: number): string => {
-    const cleanText = parseLexicalContent(text);
-    if (cleanText.length <= maxLength) return cleanText;
-    return cleanText.substring(0, maxLength) + "...";
-  };
 
   const formatDate = (dateString: string) => {
     try {
@@ -122,18 +83,20 @@ export function ArticleTable({ articles }: ArticleTableProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[35%] min-w-[200px]">Judul</TableHead>
-                  <TableHead className="w-[12%] min-w-[100px]">
+                  <TableHead className="w-[40%] min-w-[250px]">Judul</TableHead>
+                  <TableHead className="w-[15%] min-w-[120px]">
                     Kategori
                   </TableHead>
-                  <TableHead className="w-[18%] min-w-[140px]">
+                  <TableHead className="w-[20%] min-w-[150px]">
                     Penulis
                   </TableHead>
-                  <TableHead className="w-[10%] min-w-[80px]">Status</TableHead>
                   <TableHead className="w-[12%] min-w-[100px]">
+                    Status
+                  </TableHead>
+                  <TableHead className="w-[13%] min-w-[120px]">
                     Tanggal Dibuat
                   </TableHead>
-                  <TableHead className="w-[13%] min-w-[80px] text-right">
+                  <TableHead className="w-[10%] min-w-[80px] text-right">
                     Aksi
                   </TableHead>
                 </TableRow>
@@ -142,29 +105,21 @@ export function ArticleTable({ articles }: ArticleTableProps) {
                 {articles.map((article) => (
                   <TableRow key={article.id}>
                     <TableCell className="align-middle">
-                      <div className="space-y-1">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <p className="font-medium text-sm truncate cursor-help">
-                              {article.title}
-                            </p>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="max-w-xs">{article.title}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                        <p
-                          className="text-xs text-gray-500 truncate"
-                          title={parseLexicalContent(article.content)}
-                        >
-                          {truncateText(article.content, 80)}
-                        </p>
-                      </div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <p className="font-medium text-sm truncate cursor-help">
+                            {article.title}
+                          </p>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="max-w-xs">{article.title}</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </TableCell>
                     <TableCell className="align-middle">
                       <Badge
                         variant="outline"
-                        className="text-xs whitespace-nowrap"
+                        className="text-xs whitespace-nowrap bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
                       >
                         {article.category.name}
                       </Badge>

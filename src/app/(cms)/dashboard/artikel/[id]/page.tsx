@@ -6,19 +6,22 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   ArrowLeft,
   Edit,
-  Eye,
   Calendar,
   User,
   Tag,
-  Loader2,
   FileText,
+  MapPin,
+  Eye,
+  Clock,
 } from "lucide-react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import axios from "axios";
+import { ArticleDetailSkeleton } from "@/components/artikel/article-detail-skeleton";
 
 interface ArticleDetail {
   id: number;
@@ -160,7 +163,6 @@ export default function ArticleDetailPage() {
     }
   };
 
-  // Update the renderContent function in the component
   const renderContent = (content: string) => {
     const htmlContent = renderLexicalContent(content);
 
@@ -173,14 +175,7 @@ export default function ArticleDetailPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex items-center gap-2">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          <span>Memuat artikel...</span>
-        </div>
-      </div>
-    );
+    return <ArticleDetailSkeleton />;
   }
 
   if (error) {
@@ -228,25 +223,30 @@ export default function ArticleDetailPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleEdit}>
-            <Edit className="mr-2 h-4 w-4" />
-            Edit
-          </Button>
-        </div>
+        <Button onClick={handleEdit}>
+          <Edit className="mr-2 h-4 w-4" />
+          Edit Artikel
+        </Button>
       </div>
 
-      {/* Article Content */}
-      <div className="grid gap-6">
-        {/* Article Header */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
+      {/* Main Content */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Article Content - 2/3 width */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Article Header */}
+          <Card>
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                {/* Status Badge */}
                 <div className="flex items-center gap-2">
                   <Badge
                     variant={
                       article.status === "publish" ? "default" : "secondary"
+                    }
+                    className={
+                      article.status === "publish"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                        : "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
                     }
                   >
                     {article.status === "publish" ? "Dipublikasi" : "Draft"}
@@ -255,107 +255,148 @@ export default function ArticleDetailPage() {
                     ID: {article.id}
                   </span>
                 </div>
-                <h2 className="text-2xl font-bold">{article.title}</h2>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Article Meta */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">Penulis:</span>
-                <span>{article.writer.fullName}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Tag className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">Kategori:</span>
-                <span>{article.category.name}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">Dibuat:</span>
-                <span>
-                  {format(new Date(article.createdAt), "dd MMM yyyy HH:mm", {
-                    locale: id,
-                  })}
-                </span>
-              </div>
-            </div>
 
-            {/* Writer Details */}
-            <div className="bg-muted/50 rounded-lg p-4">
-              <h3 className="font-semibold mb-2">Informasi Penulis</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                <div>
-                  <span className="font-medium">Nama:</span>{" "}
-                  {article.writer.fullName}
+                {/* Title */}
+                <h2 className="text-3xl font-bold leading-tight">
+                  {article.title}
+                </h2>
+
+                {/* Featured Image */}
+                {article.imageUrl && (
+                  <div className="relative aspect-video w-full rounded-lg overflow-hidden">
+                    <Image
+                      src={article.imageUrl}
+                      alt={article.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Article Content */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Konten Artikel
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="prose prose-sm max-w-none">
+                {renderContent(article.content)}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Sidebar - 1/3 width */}
+        <div className="space-y-6">
+          {/* Article Info */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Informasi Artikel</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">Penulis</p>
+                    <p className="text-sm text-muted-foreground">
+                      {article.writer.fullName}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <span className="font-medium">Dusun:</span>{" "}
-                  {article.writer.dusun}
+
+                <div className="flex items-center gap-3">
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">Dusun</p>
+                    <p className="text-sm text-muted-foreground">
+                      {article.writer.dusun}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Tag className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">Kategori</p>
+                    <p className="text-sm text-muted-foreground">
+                      {article.category.name}
+                    </p>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">Dibuat</p>
+                    <p className="text-sm text-muted-foreground">
+                      {format(
+                        new Date(article.createdAt),
+                        "dd MMM yyyy HH:mm",
+                        { locale: id }
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">Terakhir Update</p>
+                    <p className="text-sm text-muted-foreground">
+                      {format(
+                        new Date(article.updatedAt),
+                        "dd MMM yyyy HH:mm",
+                        { locale: id }
+                      )}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            {/* Featured Image */}
-            {article.imageUrl && (
-              <div className="space-y-2">
-                <h3 className="font-semibold">Gambar Unggulan</h3>
-                <div className="relative aspect-video w-full max-w-md">
-                  <Image
-                    src={article.imageUrl}
-                    alt={article.title}
-                    fill
-                    className="rounded-lg object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
+          {/* Quick Stats */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Statistik</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">Total Views</span>
+                  </div>
+                  <span className="text-sm font-medium">0</span>
+                </div>
+
+                <Separator />
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Likes</span>
+                  <span className="text-sm font-medium">0</span>
+                </div>
+
+                <Separator />
+
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Comments</span>
+                  <span className="text-sm font-medium">0</span>
                 </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Article Content */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Konten Artikel
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="bg-muted/30 p-4 rounded-lg">
-              {renderContent(article.content)}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Article Stats */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5" />
-              Statistik Artikel
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-muted/30 rounded-lg">
-                <div className="text-2xl font-bold text-primary">0</div>
-                <div className="text-sm text-muted-foreground">Total Views</div>
-              </div>
-              <div className="text-center p-4 bg-muted/30 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">0</div>
-                <div className="text-sm text-muted-foreground">Likes</div>
-              </div>
-              <div className="text-center p-4 bg-muted/30 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">0</div>
-                <div className="text-sm text-muted-foreground">Comments</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

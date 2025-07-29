@@ -2,6 +2,7 @@ export interface Article {
   id: number;
   title: string;
   excerpt: string;
+  content?: string;
   author: string;
   category: string;
   publishDate: string;

@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, ArrowUpDown, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 interface ArticleFiltersProps {
   search: string;
@@ -36,18 +36,19 @@ export function ArticleFilters({
   onSort,
   currentSort,
 }: ArticleFiltersProps) {
-  const handleSort = (field: string) => {
-    const newOrder =
-      currentSort.field === field && currentSort.order === "ASC"
-        ? "DESC"
-        : "ASC";
-    onSort(field, newOrder);
+  const handleSortChange = (value: string) => {
+    const [field, order] = value.split("-");
+    onSort(field, order as "ASC" | "DESC");
+  };
+
+  const getSortValue = () => {
+    return `${currentSort.field}-${currentSort.order}`;
   };
 
   const clearFilters = () => {
     onSearch("");
-    onStatusFilter("all");
-    onCategoryFilter("all");
+    onStatusFilter("");
+    onCategoryFilter("");
   };
 
   const hasActiveFilters =
@@ -128,26 +129,21 @@ export function ArticleFilters({
               </Select>
             </div>
 
-            {/* Sort Button */}
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleSort("createdAt")}
-                className={`${
-                  currentSort.field === "createdAt"
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
-                    : "hover:bg-gray-100 hover:text-gray-900"
-                }`}
-              >
-                <ArrowUpDown className="mr-2 h-4 w-4" />
-                Tanggal
-                {currentSort.field === "createdAt" && (
-                  <span className="ml-1 text-xs">
-                    {currentSort.order === "ASC" ? "↑" : "↓"}
-                  </span>
-                )}
-              </Button>
+            {/* Sort Select */}
+            <div className="w-full lg:w-48">
+              <Select value={getSortValue()} onValueChange={handleSortChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Urutkan" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="createdAt-DESC">Terbaru</SelectItem>
+                  <SelectItem value="createdAt-ASC">Terlama</SelectItem>
+                  <SelectItem value="title-ASC">Judul A-Z</SelectItem>
+                  <SelectItem value="title-DESC">Judul Z-A</SelectItem>
+                  <SelectItem value="updatedAt-DESC">Update Terbaru</SelectItem>
+                  <SelectItem value="updatedAt-ASC">Update Terlama</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -157,7 +153,10 @@ export function ArticleFilters({
               <span className="text-sm text-gray-600">Filter Aktif:</span>
 
               {search && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge
+                  variant="secondary"
+                  className="text-xs bg-blue-50 text-blue-700 hover:bg-blue-100"
+                >
                   Pencarian: &quot;{search}&quot;
                   <Button
                     variant="ghost"
@@ -171,12 +170,15 @@ export function ArticleFilters({
               )}
 
               {status && status !== "all" && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge
+                  variant="secondary"
+                  className="text-xs bg-green-50 text-green-700 hover:bg-green-100"
+                >
                   Status: {status === "publish" ? "Dipublikasi" : "Draft"}
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => onStatusFilter("all")}
+                    onClick={() => onStatusFilter("")}
                     className="ml-1 h-4 w-4 p-0 hover:bg-transparent"
                   >
                     <X className="h-3 w-3" />
@@ -185,13 +187,16 @@ export function ArticleFilters({
               )}
 
               {categoryId && categoryId !== "all" && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge
+                  variant="secondary"
+                  className="text-xs bg-purple-50 text-purple-700 hover:bg-purple-100"
+                >
                   Kategori:{" "}
                   {categories.find((c) => c.id.toString() === categoryId)?.name}
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => onCategoryFilter("all")}
+                    onClick={() => onCategoryFilter("")}
                     className="ml-1 h-4 w-4 p-0 hover:bg-transparent"
                   >
                     <X className="h-3 w-3" />

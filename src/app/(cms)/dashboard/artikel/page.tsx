@@ -6,8 +6,7 @@ import { ArticleTable } from "@/components/artikel/article-table";
 import { ArticlePagination } from "@/components/artikel/article-pagination";
 import { ArticleStats } from "@/components/artikel/article-stats";
 import { ArticleFilters } from "@/components/artikel/article-filters";
-
-import { Loader2 } from "lucide-react";
+import { ArticleSkeleton } from "@/components/artikel/article-skeleton";
 
 interface Article {
   id: number;
@@ -164,17 +163,7 @@ export default function ArtikelPage() {
   };
 
   if (loading && articles.length === 0) {
-    return (
-      <div className="space-y-6">
-        <ArticleHeader />
-        <div className="flex items-center justify-center h-64">
-          <div className="flex items-center space-x-2">
-            <Loader2 className="h-6 w-6 animate-spin" />
-            <span>Memuat data artikel...</span>
-          </div>
-        </div>
-      </div>
-    );
+    return <ArticleSkeleton />;
   }
 
   return (
