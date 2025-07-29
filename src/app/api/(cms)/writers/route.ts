@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Op } from "sequelize";
+import { getTokenFromRequest, verifyToken } from "@/lib/auth";
 
 // Define proper interfaces for Sequelize models
 interface WriterModel {
@@ -218,6 +219,36 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     console.log("➕ Creating new writer");
+
+    // Verify JWT token for authentication
+    const token = getTokenFromRequest(request);
+
+    if (!token) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Token autentikasi diperlukan",
+          error: "No authentication token provided",
+        },
+        { status: 401 }
+      );
+    }
+
+    const decodedToken = verifyToken(token);
+    if (!decodedToken) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Token autentikasi tidak valid",
+          error: "Invalid or expired token",
+        },
+        { status: 401 }
+      );
+    }
+
+    console.log(
+      `✅ Authenticated user: ${decodedToken.username} (${decodedToken.fullName})`
+    );
 
     // Import sequelize and models directly
     // eslint-disable-next-line @typescript-eslint/no-require-imports

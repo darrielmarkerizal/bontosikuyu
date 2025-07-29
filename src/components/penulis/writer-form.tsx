@@ -25,6 +25,7 @@ import {
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "sonner";
+import { getAuthHeaders } from "@/lib/auth-client";
 
 const dusunOptions = [
   "Dusun Laiyolo",
@@ -100,7 +101,9 @@ export function WriterForm({
         await onSave(form);
       } else {
         // Create new writer
-        await axios.post("/api/writers", form);
+        await axios.post("/api/writers", form, {
+          headers: getAuthHeaders(),
+        });
         toast.success("Penulis berhasil ditambahkan!", {
           description: `${form.fullName} telah ditambahkan ke sistem.`,
         });

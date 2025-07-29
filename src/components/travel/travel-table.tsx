@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/tooltip";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
+import Image from "next/image";
 
 interface Travel {
   id: number;
@@ -205,9 +206,11 @@ export function TravelTable({
                           <div className="flex items-center space-x-3">
                             <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
                               {travel.image ? (
-                                <img
+                                <Image
                                   src={travel.image}
                                   alt={travel.name}
+                                  width={40}
+                                  height={40}
                                   className="h-10 w-10 rounded-full object-cover"
                                 />
                               ) : (

@@ -35,7 +35,6 @@ import {
   MapPin,
   FileText as LogIcon,
   LogOut,
-  Settings,
   Shield,
   User,
   ChevronLeft,

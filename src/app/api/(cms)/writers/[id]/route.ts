@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Op } from "sequelize";
+import { getTokenFromRequest, verifyToken } from "@/lib/auth";
 
 interface WriterModel {
   id: number;
@@ -211,7 +212,37 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    console.log("✏️ Updating writer by ID:", params.id);
+    console.log("✏️ Updating writer:", params.id);
+
+    // Verify JWT token for authentication
+    const token = getTokenFromRequest(request);
+
+    if (!token) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Token autentikasi diperlukan",
+          error: "No authentication token provided",
+        },
+        { status: 401 }
+      );
+    }
+
+    const decodedToken = verifyToken(token);
+    if (!decodedToken) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Token autentikasi tidak valid",
+          error: "Invalid or expired token",
+        },
+        { status: 401 }
+      );
+    }
+
+    console.log(
+      `✅ Authenticated user: ${decodedToken.username} (${decodedToken.fullName})`
+    );
 
     // Import sequelize and models directly
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -442,7 +473,37 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    console.log("🗑️ Deleting writer by ID:", params.id);
+    console.log("🗑️ Deleting writer:", params.id);
+
+    // Verify JWT token for authentication
+    const token = getTokenFromRequest(request);
+
+    if (!token) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Token autentikasi diperlukan",
+          error: "No authentication token provided",
+        },
+        { status: 401 }
+      );
+    }
+
+    const decodedToken = verifyToken(token);
+    if (!decodedToken) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Token autentikasi tidak valid",
+          error: "Invalid or expired token",
+        },
+        { status: 401 }
+      );
+    }
+
+    console.log(
+      `✅ Authenticated user: ${decodedToken.username} (${decodedToken.fullName})`
+    );
 
     // Import sequelize and models directly
     // eslint-disable-next-line @typescript-eslint/no-require-imports

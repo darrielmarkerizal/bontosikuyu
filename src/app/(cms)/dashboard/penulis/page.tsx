@@ -9,13 +9,13 @@ import { WriterStats } from "@/components/penulis/writer-stats";
 import { WriterFilters } from "@/components/penulis/writer-filters";
 import { WriterTable } from "@/components/penulis/writer-table";
 import { WriterPagination } from "@/components/penulis/writer-pagination";
+import { WriterSkeleton } from "@/components/penulis/writer-skeleton";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
+import { Writer, WritersResponse } from "@/components/penulis/writer-types";
+import { getAuthHeaders } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
-import { Writer, WritersResponse } from "@/components/penulis/writer-types";
-import { WriterSkeleton } from "@/components/penulis/writer-skeleton";
-
-export default function PenulisPage() {
+export default function WritersPage() {
   // Data states
   const [writers, setWriters] = useState<Writer[]>([]);
   const [pagination, setPagination] = useState({
@@ -76,7 +76,10 @@ export default function PenulisPage() {
       }
 
       const response = await axios.get<WritersResponse>(
-        `/api/writers?${params}`
+        `/api/writers?${params}`,
+        {
+          headers: getAuthHeaders(),
+        }
       );
 
       if (response.data.success) {
@@ -99,6 +102,14 @@ export default function PenulisPage() {
       console.error("💥 Error fetching writers:", error);
 
       if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          toast.error("Sesi telah berakhir", {
+            description: "Silakan login kembali",
+          });
+          window.location.href = "/login";
+          return;
+        }
+
         if (error.response?.status === 404) {
           // No writers found - this is okay, show empty state
           setWriters([]);
@@ -193,7 +204,9 @@ export default function PenulisPage() {
     try {
       console.log("🗑️ Deleting writer:", deletingWriter.id);
 
-      const response = await axios.delete(`/api/writers/${deletingWriter.id}`);
+      const response = await axios.delete(`/api/writers/${deletingWriter.id}`, {
+        headers: getAuthHeaders(),
+      });
 
       if (response.data.success) {
         toast.success("Penulis berhasil dihapus", {
@@ -209,6 +222,14 @@ export default function PenulisPage() {
       console.error("💥 Error deleting writer:", error);
 
       if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          toast.error("Sesi telah berakhir", {
+            description: "Silakan login kembali",
+          });
+          window.location.href = "/login";
+          return;
+        }
+
         const errorMessage = error.response?.data?.message || error.message;
         toast.error("Gagal menghapus penulis", {
           description: errorMessage,
