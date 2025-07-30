@@ -325,20 +325,30 @@ export async function PUT(
       ],
     });
 
+    if (!updatedArticle) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Gagal mengambil artikel yang diperbarui",
+        },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(
       {
         success: true,
         message: "Artikel berhasil diperbarui",
         data: {
-          id: updatedArticle.id,
-          title: updatedArticle.title,
-          content: updatedArticle.content,
-          status: updatedArticle.status,
-          imageUrl: updatedArticle.imageUrl,
-          category: updatedArticle.category,
-          writer: updatedArticle.writer,
-          createdAt: updatedArticle.createdAt,
-          updatedAt: updatedArticle.updatedAt,
+          id: updatedArticle.get("id"),
+          title: updatedArticle.get("title"),
+          content: updatedArticle.get("content"),
+          status: updatedArticle.get("status"),
+          imageUrl: updatedArticle.get("imageUrl"),
+          category: updatedArticle.get("category"),
+          writer: updatedArticle.get("writer"),
+          createdAt: updatedArticle.get("createdAt"),
+          updatedAt: updatedArticle.get("updatedAt"),
         },
       },
       { status: 200 }
