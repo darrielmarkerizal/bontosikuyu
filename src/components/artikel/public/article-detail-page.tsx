@@ -97,7 +97,7 @@ export default function ArticleDetailPage() {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="animate-pulse">
+          <div>
             <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
             <div className="h-4 bg-gray-200 rounded w-1/4 mb-8"></div>
             <div className="h-64 bg-gray-200 rounded mb-8"></div>
@@ -147,7 +147,7 @@ export default function ArticleDetailPage() {
         <Card className="shadow-lg">
           <CardHeader className="space-y-4">
             {/* Title */}
-            <CardTitle className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight">
+            <CardTitle className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight font-sentient">
               {article.title}
             </CardTitle>
 
@@ -189,7 +189,8 @@ export default function ArticleDetailPage() {
               className="prose prose-lg max-w-none"
               dangerouslySetInnerHTML={{ __html: article.content }}
               style={{
-                fontFamily: "Inter, system-ui, sans-serif",
+                fontFamily:
+                  "var(--font-plus-jakarta-sans), system-ui, sans-serif",
                 lineHeight: "1.6",
               }}
             />

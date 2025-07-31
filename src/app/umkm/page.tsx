@@ -19,7 +19,7 @@ function UmkmLoadingSkeleton() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Banner Skeleton */}
-      <div className="relative h-[60vh] bg-gray-200 animate-pulse">
+      <div className="relative h-[60vh] bg-gray-200">
         <div className="absolute inset-0 bg-gradient-to-r from-brand-secondary/80 to-brand-primary/80">
           <div className="container mx-auto px-4 h-full flex items-center">
             <div className="max-w-2xl space-y-6">
@@ -51,7 +51,7 @@ function UmkmLoadingSkeleton() {
                   key={i}
                   className="bg-white rounded-xl shadow-sm overflow-hidden"
                 >
-                  <div className="h-48 bg-gray-200 animate-pulse"></div>
+                  <div className="h-48 bg-gray-200"></div>
                   <div className="p-6 space-y-3">
                     <div className="h-6 bg-gray-200 rounded w-3/4"></div>
                     <div className="h-4 bg-gray-200 rounded w-1/2"></div>
