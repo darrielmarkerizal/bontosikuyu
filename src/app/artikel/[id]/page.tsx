@@ -4,48 +4,42 @@ export default function Page() {
   return <ArticleDetailPage />;
 }
 
-interface LexicalNode {
-  type?: string;
-  text?: string;
-  children?: LexicalNode[];
-}
-
-// Helper function untuk extract text dari Lexical
-const extractTextFromLexical = (children: LexicalNode[]): string => {
-  let text = "";
-  for (const child of children) {
-    if (child.type === "text" && child.text) {
-      text += child.text + " ";
-    } else if (child.children) {
-      text += extractTextFromLexical(child.children) + " ";
-    }
-  }
-  return text.trim();
+// Helper function untuk extract text dari HTML content
+const extractTextFromHTML = (htmlContent: string): string => {
+  // Remove HTML tags and extract plain text
+  return htmlContent
+    .replace(/<[^>]*>/g, "") // Remove all HTML tags
+    .replace(/&nbsp;/g, " ") // Replace &nbsp; with space
+    .replace(/&amp;/g, "&") // Replace &amp; with &
+    .replace(/&lt;/g, "<") // Replace &lt; with <
+    .replace(/&gt;/g, ">") // Replace &gt; with >
+    .replace(/&quot;/g, '"') // Replace &quot; with "
+    .replace(/&#39;/g, "'") // Replace &#39; with '
+    .replace(/\n+/g, " ") // Replace multiple newlines with space
+    .replace(/\s+/g, " ") // Replace multiple spaces with single space
+    .trim();
 };
 
 const cleanContentForMeta = (content: string): string => {
-  try {
-    const parsed = JSON.parse(content);
-    if (parsed.root && parsed.root.children) {
-      return extractTextFromLexical(parsed.root.children);
-    }
-  } catch {
-    return content
-      .replace(/#{1,6}\s/g, "")
-      .replace(/\*\*(.*?)\*\*/g, "$1")
-      .replace(/\*(.*?)\*/g, "$1")
-      .replace(/\[(.*?)\]\(.*?\)/g, "$1")
-      .replace(/<[^>]*>/g, "")
-      .replace(/\n+/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
+  // Jika mengandung tag HTML, bersihkan sebagai HTML
+  if (content.includes("<") && content.includes(">")) {
+    return extractTextFromHTML(content);
   }
-  return content;
+
+  // Jika tidak, anggap sebagai markdown/plain text
+  return content
+    .replace(/#{1,6}\s/g, "") // Hapus heading markdown
+    .replace(/\*\*(.*?)\*\*/g, "$1") // Bold markdown
+    .replace(/\*(.*?)\*/g, "$1") // Italic markdown
+    .replace(/\[(.*?)\]\(.*?\)/g, "$1") // Link markdown
+    .replace(/<[^>]*>/g, "") // Remove HTML tags just in case
+    .replace(/\n+/g, " ") // Ganti newline
+    .replace(/\s+/g, " ") // Normalize whitespace
+    .trim();
 };
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   try {
-    // Fetch article data for meta tags
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BASE_URL}/api/articles/${params.id}`,
       {
@@ -57,7 +51,6 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
       const data = await response.json();
       const article = data.data;
 
-      // Clean content untuk description
       const cleanedContent = cleanContentForMeta(article.content);
       const description =
         cleanedContent.substring(0, 160) +

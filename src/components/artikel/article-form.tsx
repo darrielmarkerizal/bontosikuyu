@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { SerializedEditorState } from "lexical";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Editor } from "../blocks/editor-00/editor";
 import { ImageUpload } from "./image-upload";
 import { WriterCombobox } from "@/components/ui/writer-combobox";
 import { ArrowLeft, Save, Loader2 } from "lucide-react";
@@ -22,36 +20,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { getAuthHeaders } from "@/lib/auth-client";
-
-const initialEditorValue = {
-  root: {
-    children: [
-      {
-        children: [
-          {
-            detail: 0,
-            format: 0,
-            mode: "normal",
-            style: "",
-            text: "Mulai menulis artikel Anda di sini...",
-            type: "text",
-            version: 1,
-          },
-        ],
-        direction: "ltr",
-        format: "",
-        indent: 0,
-        type: "paragraph",
-        version: 1,
-      },
-    ],
-    direction: "ltr",
-    format: "",
-    indent: 0,
-    type: "root",
-    version: 1,
-  },
-} as unknown as SerializedEditorState;
+import Tiptap from "@/components/ui/Tiptap";
 
 interface MasterData {
   categories: Array<{ id: number; name: string }>;
@@ -79,51 +48,8 @@ export function ArticleForm({
     category: article?.category || "",
   });
 
-  // Initialize editor state from article content if editing
-  const getInitialEditorState = (): SerializedEditorState => {
-    if (isEditing && article?.content) {
-      try {
-        // Try to parse the content as JSON (Lexical format)
-        const parsed = JSON.parse(article.content);
-        return parsed as SerializedEditorState;
-      } catch {
-        // If parsing fails, create a simple text node with the content
-        return {
-          root: {
-            children: [
-              {
-                children: [
-                  {
-                    detail: 0,
-                    format: 0,
-                    mode: "normal",
-                    style: "",
-                    text: article.content,
-                    type: "text",
-                    version: 1,
-                  },
-                ],
-                direction: "ltr",
-                format: "",
-                indent: 0,
-                type: "paragraph",
-                version: 1,
-              },
-            ],
-            direction: "ltr",
-            format: "",
-            indent: 0,
-            type: "root",
-            version: 1,
-          },
-        } as unknown as SerializedEditorState;
-      }
-    }
-    return initialEditorValue;
-  };
-
-  const [editorState, setEditorState] = useState<SerializedEditorState>(
-    getInitialEditorState()
+  const [editorContent, setEditorContent] = useState<string>(
+    article?.content || "<p>Mulai menulis artikel Anda di sini...</p>"
   );
   const [featuredImageUrl, setFeaturedImageUrl] = useState<string | null>(
     article?.image || null
@@ -142,45 +68,7 @@ export function ArticleForm({
       });
       setFeaturedImageUrl(article.image || null);
 
-      // Update editor state if content exists
-      if (article.content) {
-        try {
-          const parsed = JSON.parse(article.content);
-          setEditorState(parsed as SerializedEditorState);
-        } catch {
-          // Handle plain text content
-          const textState = {
-            root: {
-              children: [
-                {
-                  children: [
-                    {
-                      detail: 0,
-                      format: 0,
-                      mode: "normal",
-                      style: "",
-                      text: article.content,
-                      type: "text",
-                      version: 1,
-                    },
-                  ],
-                  direction: "ltr",
-                  format: "",
-                  indent: 0,
-                  type: "paragraph",
-                  version: 1,
-                },
-              ],
-              direction: "ltr",
-              format: "",
-              indent: 0,
-              type: "root",
-              version: 1,
-            },
-          } as unknown as SerializedEditorState;
-          setEditorState(textState);
-        }
-      }
+      // Set editor content
     }
   }, [article]);
 
@@ -248,14 +136,11 @@ export function ArticleForm({
       return;
     }
 
-    // Convert editor state to string content
-    const contentString = JSON.stringify(editorState);
-
     setSaving(true);
     try {
       const articleData = {
         title: formData.title.trim(),
-        content: contentString,
+        content: editorContent,
         status: status === "published" ? "publish" : "draft",
         imageUrl: featuredImageUrl,
         articleCategoryId: parseInt(formData.category),
@@ -435,12 +320,7 @@ export function ArticleForm({
               {/* Content Editor */}
               <div className="space-y-2">
                 <Label>Konten Artikel *</Label>
-                <div className="min-h-[500px] border border-input rounded-md [&_.EditorTheme__paragraph]:my-1 [&_.EditorTheme__heading]:my-2 [&_.EditorTheme__list]:my-1 [&_.EditorTheme__quote]:my-1">
-                  <Editor
-                    editorSerializedState={editorState}
-                    onSerializedChange={(value) => setEditorState(value)}
-                  />
-                </div>
+                <Tiptap content={editorContent} onChange={setEditorContent} />
               </div>
             </CardContent>
           </Card>
@@ -578,12 +458,7 @@ export function ArticleForm({
             {/* Content Editor */}
             <div className="space-y-2">
               <Label>Konten Artikel *</Label>
-              <div className="min-h-[350px] sm:min-h-[400px] border border-input rounded-md [&_.EditorTheme__paragraph]:my-1 [&_.EditorTheme__heading]:my-2 [&_.EditorTheme__list]:my-1 [&_.EditorTheme__quote]:my-1">
-                <Editor
-                  editorSerializedState={editorState}
-                  onSerializedChange={(value) => setEditorState(value)}
-                />
-              </div>
+              <Tiptap content={editorContent} onChange={setEditorContent} />
             </div>
           </CardContent>
         </Card>
