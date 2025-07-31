@@ -196,10 +196,11 @@ export default function EditArtikelPage({ params }: EditArtikelPageProps) {
     return null;
   }
 
-  // Convert API data to form format
+  // Convert API data to form format - KEY FIX: Include content!
   const formArticle: Partial<Article> = {
     id: article.id,
     title: article.title,
+    content: article.content, // This is the key addition!
     excerpt: "", // Not used in form
     author: article.writer.id.toString(),
     category: article.category.id.toString(),

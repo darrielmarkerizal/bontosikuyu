@@ -68,7 +68,12 @@ export function ArticleForm({
       });
       setFeaturedImageUrl(article.image || null);
 
-      // Set editor content
+      // Set editor content - this is the key fix!
+      if (article.content) {
+        setEditorContent(article.content);
+      } else {
+        setEditorContent("<p>Mulai menulis artikel Anda di sini...</p>");
+      }
     }
   }, [article]);
 
