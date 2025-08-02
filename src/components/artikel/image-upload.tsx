@@ -156,14 +156,13 @@ export function ImageUpload({
 
     setDeleting(true);
     try {
-      // Extract filename from URL
-      const urlParts = uploadedUrl.split("/");
-      const filename = urlParts[urlParts.length - 1];
-
-      await axios.delete("/api/delete-image", {
-        headers: getAuthHeaders(),
-        data: { filename },
-      });
+      // FIXED: Send the full image URL as query parameter instead of filename in body
+      await axios.delete(
+        `/api/delete-image?url=${encodeURIComponent(uploadedUrl)}`,
+        {
+          headers: getAuthHeaders(),
+        }
+      );
 
       setPreview(null);
       setUploadedUrl(null);

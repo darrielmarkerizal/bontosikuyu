@@ -47,6 +47,7 @@ export default function EditArtikelPage({ params }: EditArtikelPageProps) {
         const response = await axios.get(`/api/articles/${params.id}`);
 
         if (response.data.success) {
+          console.log("📄 Article data fetched:", response.data.data);
           setArticle(response.data.data);
         } else {
           setError(response.data.message || "Gagal memuat artikel");
@@ -77,6 +78,8 @@ export default function EditArtikelPage({ params }: EditArtikelPageProps) {
   }, [params.id]);
 
   const handleSave = async (articleData: Partial<Article>) => {
+    console.log(" Edit page received article data:", articleData);
+
     try {
       // Convert form data to API format
       const updateData = {
@@ -87,6 +90,8 @@ export default function EditArtikelPage({ params }: EditArtikelPageProps) {
         articleCategoryId: parseInt(articleData.category || "0"),
         writerId: parseInt(articleData.author || "0"),
       };
+
+      console.log("📤 Sending update data to API:", updateData);
 
       const response = await axios.put(
         `/api/articles/${params.id}`,
@@ -209,6 +214,8 @@ export default function EditArtikelPage({ params }: EditArtikelPageProps) {
     views: 0, // Not available from API
     image: article.imageUrl || "",
   };
+
+  console.log("📋 Form article data prepared:", formArticle);
 
   return (
     <ArticleForm

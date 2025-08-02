@@ -83,20 +83,20 @@ export function ArticleTable({ articles }: ArticleTableProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[40%] min-w-[250px]">Judul</TableHead>
-                  <TableHead className="w-[15%] min-w-[120px]">
+                  <TableHead className="w-[28%] max-w-[250px]">Judul</TableHead>
+                  <TableHead className="w-[15%] max-w-[120px]">
                     Kategori
                   </TableHead>
-                  <TableHead className="w-[20%] min-w-[150px]">
+                  <TableHead className="w-[22%] max-w-[200px]">
                     Penulis
                   </TableHead>
-                  <TableHead className="w-[12%] min-w-[100px]">
+                  <TableHead className="w-[12%] max-w-[100px]">
                     Status
                   </TableHead>
-                  <TableHead className="w-[13%] min-w-[120px]">
+                  <TableHead className="w-[13%] max-w-[120px]">
                     Tanggal Dibuat
                   </TableHead>
-                  <TableHead className="w-[10%] min-w-[80px] text-right">
+                  <TableHead className="w-[10%] max-w-[80px] text-right">
                     Aksi
                   </TableHead>
                 </TableRow>
@@ -104,10 +104,10 @@ export function ArticleTable({ articles }: ArticleTableProps) {
               <TableBody>
                 {articles.map((article) => (
                   <TableRow key={article.id}>
-                    <TableCell className="align-middle">
+                    <TableCell className="align-middle max-w-[250px]">
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <p className="font-medium text-sm truncate cursor-help">
+                          <p className="font-medium text-sm truncate cursor-help max-w-[230px]">
                             {article.title}
                           </p>
                         </TooltipTrigger>
@@ -116,43 +116,64 @@ export function ArticleTable({ articles }: ArticleTableProps) {
                         </TooltipContent>
                       </Tooltip>
                     </TableCell>
-                    <TableCell className="align-middle">
-                      <Badge
-                        variant="outline"
-                        className="text-xs whitespace-nowrap bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
-                      >
-                        {article.category.name}
-                      </Badge>
+                    <TableCell className="align-middle max-w-[120px]">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge
+                            variant="outline"
+                            className="text-xs whitespace-nowrap bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 truncate max-w-[100px]"
+                          >
+                            {article.category.name}
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{article.category.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </TableCell>
-                    <TableCell className="align-middle">
-                      <div className="space-y-1">
-                        <p
-                          className="text-sm font-medium truncate"
-                          title={article.writer.fullName}
-                        >
-                          {article.writer.fullName}
-                        </p>
-                        <p
-                          className="text-xs text-gray-500 truncate"
-                          title={article.writer.dusun}
-                        >
-                          {article.writer.dusun}
-                        </p>
-                      </div>
+                    <TableCell className="align-middle max-w-[200px]">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="space-y-1 max-w-[180px]">
+                            <p
+                              className="text-sm font-medium truncate"
+                              title={article.writer.fullName}
+                            >
+                              {article.writer.fullName}
+                            </p>
+                            <p
+                              className="text-xs text-gray-500 truncate"
+                              title={article.writer.dusun}
+                            >
+                              {article.writer.dusun}
+                            </p>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <div>
+                            <p className="font-medium">
+                              {article.writer.fullName}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {article.writer.dusun}
+                            </p>
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
                     </TableCell>
-                    <TableCell className="align-middle">
+                    <TableCell className="align-middle max-w-[100px]">
                       <Badge
-                        className={`${statusConfig[article.status].className} whitespace-nowrap`}
+                        className={`${statusConfig[article.status].className} whitespace-nowrap text-xs`}
                       >
                         {statusConfig[article.status].label}
                       </Badge>
                     </TableCell>
-                    <TableCell className="align-middle">
+                    <TableCell className="align-middle max-w-[120px]">
                       <span className="text-sm text-gray-600 whitespace-nowrap">
                         {formatDate(article.createdAt)}
                       </span>
                     </TableCell>
-                    <TableCell className="text-right align-middle">
+                    <TableCell className="text-right align-middle max-w-[80px]">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="h-8 w-8 p-0">

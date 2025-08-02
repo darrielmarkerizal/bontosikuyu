@@ -59,8 +59,16 @@ export function ArticleForm({
   const [saving, setSaving] = useState(false);
 
   // Update form data when article prop changes (for editing)
+  // FIXED: Added masterData dependency so it runs after master data is loaded
   useEffect(() => {
-    if (article) {
+    if (article && masterData) {
+      console.log(" Updating form data with article:", {
+        title: article.title,
+        author: article.author,
+        category: article.category,
+        content: article.content?.substring(0, 100) + "...",
+      });
+
       setFormData({
         title: article.title || "",
         author: article.author || "",
@@ -75,7 +83,7 @@ export function ArticleForm({
         setEditorContent("<p>Mulai menulis artikel Anda di sini...</p>");
       }
     }
-  }, [article]);
+  }, [article, masterData]); // Added masterData dependency
 
   // Fetch master data on component mount
   useEffect(() => {
@@ -85,6 +93,10 @@ export function ArticleForm({
           headers: getAuthHeaders(),
         });
         if (response.data.success) {
+          console.log(" Master data loaded:", {
+            categories: response.data.data.categories.length,
+            writers: response.data.data.writers.length,
+          });
           setMasterData(response.data.data);
         }
       } catch (error) {
@@ -110,10 +122,15 @@ export function ArticleForm({
   }, [router]);
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    console.log(` Form field changed: ${field} = ${value}`);
+    setFormData((prev) => {
+      const newData = {
+        ...prev,
+        [field]: value,
+      };
+      console.log(` Updated form data:`, newData);
+      return newData;
+    });
   };
 
   const handleImageChange = (file: File | null, url?: string) => {
@@ -125,6 +142,23 @@ export function ArticleForm({
   };
 
   const handleSave = async (status: "draft" | "published" = "draft") => {
+    // Debug: Log current form state
+    console.log("💾 Saving article with form data:", {
+      title: formData.title,
+      author: formData.author,
+      category: formData.category,
+      contentLength: editorContent.length,
+      status,
+    });
+
+    // Additional debug: Check if values are actually strings
+    console.log(" Form data types:", {
+      authorType: typeof formData.author,
+      authorValue: formData.author,
+      categoryType: typeof formData.category,
+      categoryValue: formData.category,
+    });
+
     // Validate required fields
     if (!formData.title.trim()) {
       toast.error("Judul artikel wajib diisi");
@@ -152,15 +186,24 @@ export function ArticleForm({
         writerId: parseInt(formData.author),
       };
 
+      console.log("📤 Sending article data:", articleData);
+      console.log("🔍 Parsed values:", {
+        articleCategoryId: parseInt(formData.category),
+        writerId: parseInt(formData.author),
+        categoryOriginal: formData.category,
+        authorOriginal: formData.author,
+      });
+
       if (isEditing && onSave) {
-        // Call the parent's save function for editing
+        // FIXED: Pass the correct field names to the parent save function
         await onSave({
-          ...articleData,
+          title: articleData.title,
+          content: articleData.content,
+          status: status === "published" ? "published" : "draft",
+          image: articleData.imageUrl || undefined, //
+          category: formData.category, // Pass the original string value
+          author: formData.author, // Pass the original string value
           id: article?.id,
-          status:
-            status === "published"
-              ? "published"
-              : ("draft" as "draft" | "published" | "archived"),
         });
       } else {
         // Create new article with authentication
