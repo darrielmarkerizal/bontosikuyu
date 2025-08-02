@@ -8,10 +8,10 @@ import { TravelHeader } from "@/components/travel/travel-header";
 import { TravelStats } from "@/components/travel/travel-stats";
 import { TravelFilters } from "@/components/travel/travel-filters";
 import { TravelTable } from "@/components/travel/travel-table";
-import { TravelForm } from "@/components/travel/travel-form";
 import { TravelPagination } from "@/components/travel/travel-pagination";
 import { TravelSkeleton } from "@/components/travel/travel-skeleton";
 import { DeleteConfirmDialog } from "@/components/ui/delete-confirm-dialog";
+import { useRouter } from "next/navigation";
 
 interface Travel {
   id: number;
@@ -58,15 +58,9 @@ interface TravelsResponse {
   };
 }
 
-// Add type for form data
-type TravelFormData = {
-  name: string;
-  dusun: string;
-  image: string | null;
-  travelCategoryId: number;
-};
-
 export default function PariwisataPage() {
+  const router = useRouter();
+
   // States
   const [travels, setTravels] = useState<Travel[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -96,8 +90,6 @@ export default function PariwisataPage() {
 
   // UI States
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editingTravel, setEditingTravel] = useState<Travel | null>(null);
   const [deletingTravel, setDeletingTravel] = useState<Travel | null>(null);
 
   // Hooks
@@ -215,14 +207,14 @@ export default function PariwisataPage() {
     setCurrentSort({ field, order });
   };
 
-  const handleAdd = () => {
-    setEditingTravel(null);
-    setShowForm(true);
-  };
+  // const handleAdd = () => {
+  //   setEditingTravel(null);
+  //   setShowForm(true);
+  // };
 
   const handleEdit = (travel: Travel) => {
-    setEditingTravel(travel);
-    setShowForm(true);
+    // Redirect to edit page instead of opening modal
+    router.push(`/dashboard/pariwisata/edit/${travel.id}`);
   };
 
   const handleDelete = (travel: Travel) => {
@@ -252,47 +244,6 @@ export default function PariwisataPage() {
     }
   };
 
-  const handleFormSubmit = async (formData: TravelFormData) => {
-    try {
-      if (editingTravel) {
-        await axios.put(`/api/travels/${editingTravel.id}`, formData);
-        toast.success("Destinasi wisata berhasil diperbarui");
-      } else {
-        await axios.post("/api/travels", formData);
-        toast.success("Destinasi wisata berhasil ditambahkan");
-      }
-      setShowForm(false);
-      setEditingTravel(null);
-      fetchTravels();
-    } catch (error) {
-      console.error("Error saving travel:", error);
-      if (axios.isAxiosError(error)) {
-        const errorMessage = error.response?.data?.message || error.message;
-        toast.error("Gagal menyimpan destinasi wisata", {
-          description: errorMessage,
-        });
-      } else {
-        toast.error("Terjadi kesalahan", {
-          description: "Gagal menyimpan destinasi wisata",
-        });
-      }
-    }
-  };
-
-  const handleRefresh = () => {
-    fetchTravels();
-  };
-
-  const handleExport = () => {
-    // TODO: Implement export functionality
-    toast.info("Fitur ekspor akan segera tersedia");
-  };
-
-  const handleFilter = () => {
-    // TODO: Implement advanced filter functionality
-    toast.info("Fitur filter lanjutan akan segera tersedia");
-  };
-
   if (loading) {
     return <TravelSkeleton />;
   }
@@ -300,12 +251,7 @@ export default function PariwisataPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <TravelHeader
-        onAdd={handleAdd}
-        onRefresh={handleRefresh}
-        onExport={handleExport}
-        onFilter={handleFilter}
-      />
+      <TravelHeader />
 
       {/* Stats */}
       <TravelStats stats={overallStats} />
@@ -344,18 +290,6 @@ export default function PariwisataPage() {
           onPageChange={handlePageChange}
         />
       )}
-
-      {/* Form Modal */}
-      <TravelForm
-        open={showForm}
-        travel={editingTravel}
-        categories={categories}
-        onClose={() => {
-          setShowForm(false);
-          setEditingTravel(null);
-        }}
-        onSubmit={handleFormSubmit}
-      />
 
       {/* Delete Confirmation */}
       <DeleteConfirmDialog

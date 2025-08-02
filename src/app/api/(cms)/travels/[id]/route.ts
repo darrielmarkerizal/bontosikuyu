@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getModels } from "@/lib/models";
 import { Op } from "sequelize";
+import { getTokenFromRequest, verifyToken } from "@/lib/auth";
+import sequelize from "../../../../../../config/database";
+import { DataTypes } from "sequelize";
 
 interface TravelWithCategory {
   id: number;
@@ -65,6 +68,79 @@ interface ExistingTravelData {
     image: string | null;
     travelCategoryId: number;
   };
+}
+
+// Helper function to create log entry
+async function createLog(
+  action: "CREATE" | "UPDATE" | "DELETE",
+  tableName: string,
+  recordId: number,
+  userId: number,
+  oldValues?: Record<string, unknown>,
+  newValues?: Record<string, unknown>,
+  description?: string,
+  request?: NextRequest
+) {
+  try {
+    console.log(
+      `📝 Attempting to create log: ${action} on ${tableName} (ID: ${recordId})`
+    );
+
+    const Log = require("../../../../../../models/log.js")(
+      sequelize,
+      DataTypes
+    );
+
+    const logData: Record<string, unknown> = {
+      action,
+      tableName,
+      recordId,
+      userId,
+      description,
+    };
+
+    if (oldValues) {
+      logData.oldValues = JSON.stringify(oldValues);
+    }
+
+    if (newValues) {
+      logData.newValues = JSON.stringify(newValues);
+    }
+
+    if (request) {
+      const forwarded = request.headers.get("x-forwarded-for");
+      const realIp = request.headers.get("x-real-ip");
+      logData.ipAddress = forwarded?.split(",")[0] || realIp || "unknown";
+      logData.userAgent = request.headers.get("user-agent") || "unknown";
+    }
+
+    console.log(` Log data prepared:`, {
+      action,
+      tableName,
+      recordId,
+      userId,
+      description,
+      hasOldValues: !!oldValues,
+      hasNewValues: !!newValues,
+      hasRequest: !!request,
+    });
+
+    const createdLog = await Log.create(logData);
+    console.log(
+      `✅ Log created successfully: ${action} on ${tableName} (ID: ${recordId}, Log ID: ${createdLog.id})`
+    );
+  } catch (error) {
+    console.error("❌ Error creating log:", error);
+    console.error("❌ Log details:", {
+      action,
+      tableName,
+      recordId,
+      userId,
+      description,
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
+    // Don't throw error - logging failure shouldn't break the main operation
+  }
 }
 
 // GET /api/(cms)/travels/[id] - Get specific travel by ID with related travels
@@ -190,6 +266,36 @@ export async function PUT(
   { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   try {
+    // Verify JWT token for authentication
+    const token = getTokenFromRequest(request);
+
+    if (!token) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Token autentikasi diperlukan",
+          error: "No authentication token provided",
+        },
+        { status: 401 }
+      );
+    }
+
+    const decodedToken = verifyToken(token);
+    if (!decodedToken) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Token autentikasi tidak valid",
+          error: "Invalid or expired token",
+        },
+        { status: 401 }
+      );
+    }
+
+    console.log(
+      `✅ Authenticated user: ${decodedToken.username} (${decodedToken.fullName})`
+    );
+
     const { Travel, TravelCategory } = await getModels();
     const travelId = parseInt(params.id);
 
@@ -222,8 +328,17 @@ export async function PUT(
       );
     }
 
-    // Check if travel exists
-    const existingTravel = await Travel.findByPk(travelId);
+    // Check if travel exists and get old values for logging
+    const existingTravel = await Travel.findByPk(travelId, {
+      include: [
+        {
+          model: TravelCategory,
+          as: "category",
+          attributes: ["id", "name"],
+        },
+      ],
+    });
+
     if (!existingTravel) {
       return NextResponse.json(
         {
@@ -234,6 +349,18 @@ export async function PUT(
         { status: 404 }
       );
     }
+
+    // Get old values for logging
+    const oldValues = {
+      id: existingTravel.get("id"),
+      name: existingTravel.get("name"),
+      dusun: existingTravel.get("dusun"),
+      image: existingTravel.get("image"),
+      travelCategoryId: existingTravel.get("travelCategoryId"),
+      category: existingTravel.get("category")
+        ? (existingTravel.get("category") as { name: string }).name
+        : null,
+    };
 
     // Validate dusun enum
     const validDusuns = [
@@ -256,7 +383,9 @@ export async function PUT(
     }
 
     // Validate category exists
-    const category = await TravelCategory.findByPk(parseInt(travelCategoryId));
+    const category = await TravelCategory.findByPk(parseInt(travelCategoryId), {
+      attributes: ["id", "name"], // Remove description field
+    });
     if (!category) {
       return NextResponse.json(
         {
@@ -330,6 +459,28 @@ export async function PUT(
       ],
     })) as TravelWithCategory;
 
+    // Get new values for logging
+    const newValues = {
+      id: updatedTravel.id,
+      name: updatedTravel.name,
+      dusun: updatedTravel.dusun,
+      image: updatedTravel.image,
+      travelCategoryId: updatedTravel.travelCategoryId,
+      category: updatedTravel.category?.name,
+    };
+
+    // Create log entry for UPDATE action
+    await createLog(
+      "UPDATE",
+      "travels",
+      travelId,
+      decodedToken.id,
+      oldValues,
+      newValues,
+      `Destinasi wisata "${name}" berhasil diperbarui oleh ${decodedToken.fullName}`,
+      request
+    );
+
     console.log("✅ Travel updated successfully:", updatedTravel.name);
 
     return NextResponse.json({
@@ -385,6 +536,36 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   try {
+    // Verify JWT token for authentication
+    const token = getTokenFromRequest(request);
+
+    if (!token) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Token autentikasi diperlukan",
+          error: "No authentication token provided",
+        },
+        { status: 401 }
+      );
+    }
+
+    const decodedToken = verifyToken(token);
+    if (!decodedToken) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Token autentikasi tidak valid",
+          error: "Invalid or expired token",
+        },
+        { status: 401 }
+      );
+    }
+
+    console.log(
+      `✅ Authenticated user: ${decodedToken.username} (${decodedToken.fullName})`
+    );
+
     const { Travel, TravelCategory } = await getModels();
     const travelId = parseInt(params.id);
 
@@ -402,7 +583,7 @@ export async function DELETE(
 
     console.log("🗑️ Deleting travel ID:", travelId);
 
-    // Check if travel exists
+    // Check if travel exists and get data for logging
     const existingTravel = (await Travel.findByPk(travelId, {
       include: [
         {
@@ -424,6 +605,16 @@ export async function DELETE(
       );
     }
 
+    // Get deleted travel data for logging
+    const deletedTravelData = {
+      id: existingTravel.id,
+      name: existingTravel.name,
+      dusun: existingTravel.dusun,
+      image: existingTravel.image,
+      travelCategoryId: existingTravel.travelCategoryId,
+      category: existingTravel.category?.name,
+    };
+
     // Store travel info before deletion for response
     const deletedTravelInfo = {
       id: existingTravel.id,
@@ -436,6 +627,18 @@ export async function DELETE(
     await Travel.destroy({
       where: { id: travelId },
     });
+
+    // Create log entry for DELETE action
+    await createLog(
+      "DELETE",
+      "travels",
+      travelId,
+      decodedToken.id,
+      deletedTravelData, // Old values (the deleted data)
+      undefined, // No new values for DELETE
+      `Destinasi wisata "${existingTravel.name}" berhasil dihapus oleh ${decodedToken.fullName}`,
+      request
+    );
 
     console.log("✅ Travel deleted successfully:", deletedTravelInfo.name);
 
@@ -485,6 +688,36 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   try {
+    // Verify JWT token for authentication
+    const token = getTokenFromRequest(request);
+
+    if (!token) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Token autentikasi diperlukan",
+          error: "No authentication token provided",
+        },
+        { status: 401 }
+      );
+    }
+
+    const decodedToken = verifyToken(token);
+    if (!decodedToken) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Token autentikasi tidak valid",
+          error: "Invalid or expired token",
+        },
+        { status: 401 }
+      );
+    }
+
+    console.log(
+      `✅ Authenticated user: ${decodedToken.username} (${decodedToken.fullName})`
+    );
+
     const { Travel, TravelCategory } = await getModels();
     const travelId = parseInt(params.id);
 
@@ -591,7 +824,9 @@ export async function PATCH(
       }
 
       // Validate category exists
-      const category = await TravelCategory.findByPk(categoryId);
+      const category = await TravelCategory.findByPk(categoryId, {
+        attributes: ["id", "name"], // Remove description field
+      });
       if (!category) {
         return NextResponse.json(
           {

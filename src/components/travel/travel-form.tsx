@@ -17,6 +17,10 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Camera, Info, AlertCircle } from "lucide-react";
+import axios from "axios";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { getAuthHeaders } from "@/lib/auth-client";
 
 interface Travel {
   id: number;
@@ -48,7 +52,7 @@ interface TravelFormProps {
   travel: Travel | null;
   categories: Category[];
   onClose: () => void;
-  onSubmit: (data: TravelFormData) => void;
+  onSubmit?: (data: TravelFormData) => void;
 }
 
 export function TravelForm({
@@ -58,6 +62,7 @@ export function TravelForm({
   onClose,
   onSubmit,
 }: TravelFormProps) {
+  const router = useRouter();
   const [formData, setFormData] = useState<TravelFormData>({
     name: "",
     dusun: "",
@@ -87,7 +92,7 @@ export function TravelForm({
         name: "",
         dusun: "",
         image: null,
-        travelCategoryId: 0,
+        travelCategoryId: 0, // Keep as 0 to show placeholder
       });
     }
     setErrors({});
@@ -136,15 +141,120 @@ export function TravelForm({
 
     setIsSubmitting(true);
     try {
-      await onSubmit({
+      const travelData = {
         name: formData.name.trim(),
         dusun: formData.dusun,
         image: formData.image?.trim() || null,
         travelCategoryId: Number(formData.travelCategoryId),
-      });
-      onClose();
+      };
+
+      if (onSubmit) {
+        // Use provided onSubmit function (for parent component handling)
+        await onSubmit(travelData);
+      } else {
+        // Handle API calls directly with JWT authentication
+        if (travel) {
+          // Update existing travel
+          const response = await axios.put(
+            `/api/travels/${travel.id}`,
+            travelData,
+            {
+              headers: getAuthHeaders(),
+            }
+          );
+
+          if (response.data.success) {
+            toast.success("Destinasi wisata berhasil diperbarui!", {
+              description: response.data.message,
+            });
+            onClose();
+            // Optionally refresh the page or trigger a callback
+            window.location.reload();
+          } else {
+            throw new Error(
+              response.data.message || "Gagal memperbarui destinasi wisata"
+            );
+          }
+        } else {
+          // Create new travel
+          const response = await axios.post("/api/travels", travelData, {
+            headers: getAuthHeaders(),
+          });
+
+          if (response.data.success) {
+            toast.success("Destinasi wisata berhasil ditambahkan!", {
+              description: response.data.message,
+            });
+            onClose();
+            // Optionally refresh the page or trigger a callback
+            window.location.reload();
+          } else {
+            throw new Error(
+              response.data.message || "Gagal menambahkan destinasi wisata"
+            );
+          }
+        }
+      }
     } catch (error) {
       console.error("Error submitting form:", error);
+
+      if (axios.isAxiosError(error)) {
+        const errorData = error.response?.data;
+
+        if (error.response?.status === 401) {
+          toast.error("Sesi telah berakhir", {
+            description: "Silakan login kembali",
+          });
+          router.push("/login");
+          return;
+        }
+
+        if (error.response?.status === 400) {
+          // Validation errors
+          if (errorData?.errors) {
+            const errorMessages = Object.values(errorData.errors)
+              .filter(Boolean)
+              .join(", ");
+            toast.error("Validasi gagal", {
+              description: errorMessages,
+            });
+          } else {
+            toast.error("Data tidak lengkap", {
+              description:
+                errorData?.message ||
+                "Mohon lengkapi semua field yang diperlukan",
+            });
+          }
+        } else if (error.response?.status === 409) {
+          toast.error("Nama destinasi sudah ada", {
+            description:
+              errorData?.message ||
+              "Nama destinasi wisata sudah ada di dusun yang sama",
+          });
+        } else {
+          toast.error(
+            travel
+              ? "Gagal memperbarui destinasi wisata"
+              : "Gagal menambahkan destinasi wisata",
+            {
+              description:
+                errorData?.message || "Terjadi kesalahan saat menyimpan",
+            }
+          );
+        }
+      } else {
+        toast.error(
+          travel
+            ? "Gagal memperbarui destinasi wisata"
+            : "Gagal menambahkan destinasi wisata",
+          {
+            description:
+              error instanceof Error
+                ? error.message
+                : "Terjadi kesalahan yang tidak terduga",
+          }
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -179,6 +289,7 @@ export function TravelForm({
                   onChange={(e) => handleChange("name", e.target.value)}
                   placeholder="Contoh: Pantai Bontosikuyu"
                   className={errors.name ? "border-red-500" : ""}
+                  disabled={isSubmitting}
                 />
                 {errors.name && (
                   <p className="text-sm text-red-500 flex items-center gap-1">
@@ -193,6 +304,7 @@ export function TravelForm({
                 <Select
                   value={formData.dusun}
                   onValueChange={(value) => handleChange("dusun", value)}
+                  disabled={isSubmitting}
                 >
                   <SelectTrigger
                     className={errors.dusun ? "border-red-500" : ""}
@@ -222,6 +334,7 @@ export function TravelForm({
                   onValueChange={(value) =>
                     handleChange("travelCategoryId", value)
                   }
+                  disabled={isSubmitting}
                 >
                   <SelectTrigger
                     className={errors.travelCategoryId ? "border-red-500" : ""}
@@ -255,6 +368,7 @@ export function TravelForm({
                   onChange={(e) => handleChange("image", e.target.value)}
                   placeholder="https://example.com/image.jpg"
                   className={errors.image ? "border-red-500" : ""}
+                  disabled={isSubmitting}
                 />
                 {errors.image && (
                   <p className="text-sm text-red-500 flex items-center gap-1">

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getModels } from "@/lib/models";
 import { Op } from "sequelize";
 import type { WhereOptions } from "sequelize";
+import { getTokenFromRequest, verifyToken } from "@/lib/auth";
+import sequelize from "../../../../../config/database";
+import { DataTypes } from "sequelize";
 
 // Define types for better type safety
 type WhereConditions = WhereOptions;
@@ -38,6 +41,50 @@ interface CategoryCount {
   travelCategoryId: number;
   count: string;
   "category.name": string;
+}
+
+// Helper function to create log entry
+async function createLog(
+  action: "CREATE" | "UPDATE" | "DELETE",
+  tableName: string,
+  recordId: number,
+  userId: number,
+  oldValues?: Record<string, unknown>,
+  newValues?: Record<string, unknown>,
+  description?: string,
+  request?: NextRequest
+) {
+  try {
+    const Log = require("../../../../../models/log.js")(sequelize, DataTypes);
+
+    const logData: Record<string, unknown> = {
+      action,
+      tableName,
+      recordId,
+      userId,
+      description,
+    };
+
+    if (oldValues) {
+      logData.oldValues = JSON.stringify(oldValues);
+    }
+
+    if (newValues) {
+      logData.newValues = JSON.stringify(newValues);
+    }
+
+    if (request) {
+      const forwarded = request.headers.get("x-forwarded-for");
+      const realIp = request.headers.get("x-real-ip");
+      logData.ipAddress = forwarded?.split(",")[0] || realIp || "unknown";
+      logData.userAgent = request.headers.get("user-agent") || "unknown";
+    }
+
+    await Log.create(logData);
+    console.log(`📝 Log created: ${action} on ${tableName} (ID: ${recordId})`);
+  } catch (error) {
+    console.error("Error creating log:", error);
+  }
 }
 
 export async function GET(request: NextRequest) {
@@ -256,6 +303,36 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Verify JWT token for authentication
+    const token = getTokenFromRequest(request);
+
+    if (!token) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Token autentikasi diperlukan",
+          error: "No authentication token provided",
+        },
+        { status: 401 }
+      );
+    }
+
+    const decodedToken = verifyToken(token);
+    if (!decodedToken) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Token autentikasi tidak valid",
+          error: "Invalid or expired token",
+        },
+        { status: 401 }
+      );
+    }
+
+    console.log(
+      `✅ Authenticated user: ${decodedToken.username} (${decodedToken.fullName})`
+    );
+
     const { Travel, TravelCategory } = await getModels();
     const body = await request.json();
 
@@ -296,7 +373,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate category exists
-    const category = await TravelCategory.findByPk(travelCategoryId);
+    const category = await TravelCategory.findByPk(travelCategoryId, {
+      attributes: ["id", "name"],
+    });
     if (!category) {
       return NextResponse.json(
         {
@@ -361,6 +440,25 @@ export async function POST(request: NextRequest) {
         },
       ],
     })) as TravelWithCategory;
+
+    // Create log entry for CREATE action
+    await createLog(
+      "CREATE",
+      "travels",
+      newTravel.id,
+      decodedToken.id,
+      undefined, // No old values for CREATE
+      {
+        id: createdTravel.id,
+        name: createdTravel.name,
+        dusun: createdTravel.dusun,
+        image: createdTravel.image,
+        travelCategoryId: createdTravel.travelCategoryId,
+        category: createdTravel.category?.name,
+      },
+      `Destinasi wisata "${name}" berhasil dibuat oleh ${decodedToken.fullName}`,
+      request
+    );
 
     console.log("✅ Travel created successfully:", newTravel.id);
 
