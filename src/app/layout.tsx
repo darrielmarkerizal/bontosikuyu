@@ -5,6 +5,7 @@ import "./globals.css";
 import ConditionalLayout from "@/components/conditional-layout";
 
 import { Toaster } from "sonner";
+import { Suspense } from "react";
 import { AnalyticsProvider } from "@/components/analytics-provider";
 
 const geistSans = localFont({
@@ -89,9 +90,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="id">
       <body
@@ -103,7 +104,9 @@ export default function RootLayout({
         }}
       >
         <AnalyticsProvider>
-          <ConditionalLayout>{children}</ConditionalLayout>
+          <Suspense fallback={null}>
+            <ConditionalLayout>{children}</ConditionalLayout>
+          </Suspense>
           <Toaster
             position="bottom-right"
             richColors

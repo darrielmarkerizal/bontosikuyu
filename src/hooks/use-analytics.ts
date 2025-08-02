@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 interface AnalyticsData {
   sessionId: string;
@@ -16,7 +16,6 @@ interface AnalyticsData {
 
 export function useAnalytics() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const sessionId = useRef<string>("");
   const pageStartTime = useRef<number>(Date.now());
 
@@ -32,8 +31,7 @@ export function useAnalytics() {
 
   // Track page views
   useEffect(() => {
-    const currentPage =
-      pathname + (searchParams.toString() ? `?${searchParams.toString()}` : "");
+    const currentPage = pathname;
 
     // Track page view
     trackPageView(currentPage);
@@ -46,7 +44,7 @@ export function useAnalytics() {
       const timeOnPage = Date.now() - pageStartTime.current;
       trackPageExit(currentPage, timeOnPage);
     };
-  }, [pathname, searchParams]);
+  }, [pathname]);
 
   const trackSession = async () => {
     try {

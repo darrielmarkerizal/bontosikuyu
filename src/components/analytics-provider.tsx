@@ -1,14 +1,24 @@
 "use client";
 
+import { Suspense } from "react";
 import { useAnalytics } from "@/hooks/use-analytics";
 
 interface AnalyticsProviderProps {
   children: React.ReactNode;
 }
 
-export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
-  // Initialize analytics tracking
+function AnalyticsTracker() {
   useAnalytics();
+  return null;
+}
 
-  return <>{children}</>;
+export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
+  return (
+    <>
+      <Suspense fallback={null}>
+        <AnalyticsTracker />
+      </Suspense>
+      {children}
+    </>
+  );
 }
