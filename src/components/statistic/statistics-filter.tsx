@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Download, RefreshCw, X } from "lucide-react";
+import { Calendar, X } from "lucide-react";
 import { DatePickerWithRange } from "../ui/date-range-picker";
 import { DateRange } from "react-day-picker";
 
@@ -29,9 +29,6 @@ export function StatisticsFilters({
   dateRange,
   onTimeRangeChange,
   onDateRangeChange,
-  onRefresh,
-  onExport,
-  loading,
 }: StatisticsFiltersProps) {
   const timeRangeOptions = [
     { value: "1d", label: "Hari Ini" },
@@ -83,34 +80,6 @@ export function StatisticsFilters({
                   />
                 </div>
               )}
-
-              {/* Action Buttons */}
-              <div className="flex gap-2 sm:ml-auto">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onRefresh}
-                  disabled={loading}
-                  className="flex items-center gap-2 flex-1 sm:flex-none"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                  <span className="hidden xs:inline">
-                    {loading ? "Memuat..." : "Refresh"}
-                  </span>
-                  <span className="xs:hidden">{loading ? "..." : "↻"}</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onExport}
-                  disabled={loading}
-                  className="flex items-center gap-2 flex-1 sm:flex-none"
-                >
-                  <Download className="h-4 w-4" />
-                  <span className="hidden xs:inline">Export</span>
-                  <span className="xs:hidden">↓</span>
-                </Button>
-              </div>
             </div>
           </div>
 

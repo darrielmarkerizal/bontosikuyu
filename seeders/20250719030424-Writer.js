@@ -2,102 +2,48 @@
 
 module.exports = {
   up: async (queryInterface) => {
-    const firstNames = [
-      "Ahmad",
-      "Siti",
-      "Budi",
-      "Aisyah",
-      "Rudi",
-      "Nurul",
-      "Agus",
-      "Dewi",
-      "Hassan",
-      "Fatima",
-      "Iwan",
-      "Lina",
-      "Rizky",
-      "Eka",
-      "Dedi",
-      "Yanti",
-      "Fajar",
-      "Rina",
-      "Tono",
-      "Sari",
-      "Joko",
-      "Mira",
-      "Andi",
-      "Wulan",
-      "Hendra",
-      "Tuti",
-      "Arif",
-      "Lia",
-      "Bayu",
-      "Rita",
+    const writers = [
+      {
+        id: 1,
+        fullName: "Baharuddin",
+        phoneNumber: "+6281111111111",
+        dusun: "Dusun Laiyolo",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 2,
+        fullName: "Nur Febriani",
+        phoneNumber: "+6282222222222",
+        dusun: "Dusun Pangkaje'ne",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 3,
+        fullName: "Aldevano",
+        phoneNumber: "+6283333333333",
+        dusun: "Dusun Timoro",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 4,
+        fullName: "Niken Permata",
+        phoneNumber: "+6284444444444",
+        dusun: "Dusun Kilotepo",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 5,
+        fullName: "Darriel",
+        phoneNumber: "+6285555555555",
+        dusun: "Dusun Laiyolo",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
     ];
-    const lastNames = [
-      "Pratama",
-      "Sari",
-      "Wijaya",
-      "Ningsih",
-      "Saputra",
-      "Lestari",
-      "Rahman",
-      "Putri",
-      "Hidayat",
-      "Kusuma",
-      "Santoso",
-      "Wati",
-      "Purnama",
-      "Siregar",
-      "Utami",
-      "Hadi",
-      "Novita",
-      "Setiawan",
-      "Aminah",
-      "Gunawan",
-    ];
-    const dusuns = [
-      "Dusun Laiyolo",
-      "Dusun Pangkaje'ne",
-      "Dusun Timoro",
-      "Dusun Kilotepo",
-    ];
-
-    const writers = [];
-    const usedPhoneNumbers = new Set();
-
-    for (let i = 0; i < 100; i++) {
-      // Generate unique fullName
-      let fullName;
-      do {
-        fullName = `${
-          firstNames[Math.floor(Math.random() * firstNames.length)]
-        } ${lastNames[Math.floor(Math.random() * lastNames.length)]}`;
-      } while (writers.some((w) => w.fullName === fullName));
-
-      // Generate unique phoneNumber
-      let phoneNumber;
-      do {
-        const phoneSuffix = Math.floor(
-          10000000 + Math.random() * 90000000
-        ).toString(); // 8-digit suffix
-        phoneNumber = `+628${phoneSuffix.padStart(8, "0")}`; // e.g., +62812345678
-      } while (usedPhoneNumbers.has(phoneNumber));
-      usedPhoneNumbers.add(phoneNumber);
-
-      const timestamp = new Date(
-        Date.now() - Math.floor(Math.random() * 150 * 24 * 60 * 60 * 1000)
-      ); // Last 5 months
-
-      writers.push({
-        id: i + 1, // Static ID from 1 to 100
-        fullName,
-        phoneNumber,
-        dusun: dusuns[Math.floor(Math.random() * dusuns.length)],
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      });
-    }
 
     await queryInterface.bulkInsert("Writers", writers, {});
   },
