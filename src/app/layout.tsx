@@ -5,6 +5,7 @@ import "./globals.css";
 import ConditionalLayout from "@/components/conditional-layout";
 
 import { Toaster } from "sonner";
+import { AnalyticsProvider } from "@/components/analytics-provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -101,8 +102,15 @@ export default function RootLayout({
           padding: 0,
         }}
       >
-        <ConditionalLayout>{children}</ConditionalLayout>
-        <Toaster position="bottom-right" richColors closeButton expand={true} />
+        <AnalyticsProvider>
+          <ConditionalLayout>{children}</ConditionalLayout>
+          <Toaster
+            position="bottom-right"
+            richColors
+            closeButton
+            expand={true}
+          />
+        </AnalyticsProvider>
       </body>
     </html>
   );

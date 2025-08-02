@@ -109,6 +109,41 @@ export class Log extends Model<LogAttributes> implements LogAttributes {
   public readonly updatedAt!: Date;
 }
 
+// Add Analytics models interfaces
+export interface AnalyticsSessionAttributes {
+  id?: number;
+  sessionId: string;
+  userId?: number;
+  ipAddress: string;
+  userAgent?: string;
+  deviceType: "desktop" | "mobile" | "tablet" | "unknown";
+  browser?: string;
+  os?: string;
+  country?: string;
+  city?: string;
+  referrer?: string;
+  landingPage: string;
+  isBot: boolean;
+  startTime: Date;
+  endTime?: Date;
+  duration?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface PageViewAttributes {
+  id?: number;
+  sessionId: string;
+  userId?: number;
+  page: string;
+  title?: string;
+  timeOnPage?: number;
+  exitPage?: boolean;
+  viewedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 // Model definitions
 export class User extends Model<UserAttributes> implements UserAttributes {
   public id!: number;
@@ -164,11 +199,61 @@ export class Travel
   public readonly updatedAt!: Date;
 }
 
+// Add Analytics model classes
+export class AnalyticsSession
+  extends Model<AnalyticsSessionAttributes>
+  implements AnalyticsSessionAttributes
+{
+  public id!: number;
+  public sessionId!: string;
+  public userId?: number;
+  public ipAddress!: string;
+  public userAgent?: string;
+  public deviceType!: "desktop" | "mobile" | "tablet" | "unknown";
+  public browser?: string;
+  public os?: string;
+  public country?: string;
+  public city?: string;
+  public referrer?: string;
+  public landingPage!: string;
+  public isBot!: boolean;
+  public startTime!: Date;
+  public endTime?: Date;
+  public duration?: number;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
+export class PageView
+  extends Model<PageViewAttributes>
+  implements PageViewAttributes
+{
+  public id!: number;
+  public sessionId!: string;
+  public userId?: number;
+  public page!: string;
+  public title?: string;
+  public timeOnPage?: number;
+  public exitPage?: boolean;
+  public viewedAt!: Date;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
 // Initialize models
 let modelsInitialized = false;
 
 export async function initializeModels() {
-  if (modelsInitialized) return { User, Article, Log, TravelCategory, Travel };
+  if (modelsInitialized)
+    return {
+      User,
+      Article,
+      Log,
+      TravelCategory,
+      Travel,
+      AnalyticsSession,
+      PageView,
+    };
 
   const sequelize = await getDatabase();
 
@@ -391,6 +476,122 @@ export async function initializeModels() {
     }
   );
 
+  // Initialize AnalyticsSession model
+  AnalyticsSession.init(
+    {
+      sessionId: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+        unique: true,
+      },
+      userId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      ipAddress: {
+        type: DataTypes.STRING(45),
+        allowNull: false,
+      },
+      userAgent: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      deviceType: {
+        type: DataTypes.ENUM("desktop", "mobile", "tablet", "unknown"),
+        allowNull: false,
+        defaultValue: "unknown",
+      },
+      browser: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+      },
+      os: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+      },
+      country: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+      },
+      city: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+      },
+      referrer: {
+        type: DataTypes.STRING(500),
+        allowNull: true,
+      },
+      landingPage: {
+        type: DataTypes.STRING(500),
+        allowNull: false,
+      },
+      isBot: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      startTime: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
+      endTime: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      duration: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+    },
+    {
+      sequelize,
+      modelName: "AnalyticsSession",
+      tableName: "AnalyticsSessions",
+      timestamps: true,
+    }
+  );
+
+  // Initialize PageView model
+  PageView.init(
+    {
+      sessionId: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+      },
+      userId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      page: {
+        type: DataTypes.STRING(500),
+        allowNull: false,
+      },
+      title: {
+        type: DataTypes.STRING(200),
+        allowNull: true,
+      },
+      timeOnPage: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      exitPage: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
+      viewedAt: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
+    },
+    {
+      sequelize,
+      modelName: "PageView",
+      tableName: "PageViews",
+      timestamps: true,
+    }
+  );
+
   // ADD: Define associations
   Travel.belongsTo(TravelCategory, {
     foreignKey: "travelCategoryId",
@@ -402,8 +603,29 @@ export async function initializeModels() {
     as: "travels",
   });
 
+  // Add Analytics associations
+  AnalyticsSession.hasMany(PageView, {
+    foreignKey: "sessionId",
+    sourceKey: "sessionId",
+    as: "pageViews",
+  });
+
+  PageView.belongsTo(AnalyticsSession, {
+    foreignKey: "sessionId",
+    targetKey: "sessionId",
+    as: "session",
+  });
+
   modelsInitialized = true;
-  return { User, Article, Log, TravelCategory, Travel };
+  return {
+    User,
+    Article,
+    Log,
+    TravelCategory,
+    Travel,
+    AnalyticsSession,
+    PageView,
+  };
 }
 
 // Helper function to get models
