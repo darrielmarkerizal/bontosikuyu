@@ -1,5 +1,19 @@
 import { getModels } from "./models";
 
+// Define interfaces for raw query results
+interface RawSessionStats {
+  totalVisitors: string | number;
+  uniqueVisitors: string | number;
+  mobileUsers: string | number;
+  desktopUsers: string | number;
+  tabletUsers: string | number;
+  avgSessionDuration: string | number;
+}
+
+interface RawPageViewStats {
+  totalPageViews: string | number;
+}
+
 export class DailyStatsService {
   /**
    * Generate daily stats for a specific date
@@ -84,31 +98,31 @@ export class DailyStatsService {
         raw: true,
       });
 
-      const stats = sessionStats[0] as any;
-      const pageStats = pageViewStats[0] as any;
+      const stats = sessionStats[0] as unknown as RawSessionStats;
+      const pageStats = pageViewStats[0] as unknown as RawPageViewStats;
       const bounceCount = bounceRateData.length;
       const bounceRate =
-        stats.totalVisitors > 0
-          ? (bounceCount * 100.0) / stats.totalVisitors
+        Number(stats.totalVisitors) > 0
+          ? (bounceCount * 100.0) / Number(stats.totalVisitors)
           : 0;
 
       // Insert or update daily stats
       await models.DailyStats.upsert({
         date,
-        totalVisitors: stats.totalVisitors || 0,
-        uniqueVisitors: stats.uniqueVisitors || 0,
-        totalPageViews: pageStats.totalPageViews || 0,
-        mobileUsers: stats.mobileUsers || 0,
-        desktopUsers: stats.desktopUsers || 0,
-        tabletUsers: stats.tabletUsers || 0,
+        totalVisitors: Number(stats.totalVisitors) || 0,
+        uniqueVisitors: Number(stats.uniqueVisitors) || 0,
+        totalPageViews: Number(pageStats.totalPageViews) || 0,
+        mobileUsers: Number(stats.mobileUsers) || 0,
+        desktopUsers: Number(stats.desktopUsers) || 0,
+        tabletUsers: Number(stats.tabletUsers) || 0,
         bounceRate: parseFloat(bounceRate.toFixed(2)),
-        avgSessionDuration: Math.floor(stats.avgSessionDuration || 0),
+        avgSessionDuration: Math.floor(Number(stats.avgSessionDuration) || 0),
       });
 
       console.log(`✅ Daily stats generated for ${date}:`, {
-        totalVisitors: stats.totalVisitors || 0,
-        uniqueVisitors: stats.uniqueVisitors || 0,
-        totalPageViews: pageStats.totalPageViews || 0,
+        totalVisitors: Number(stats.totalVisitors) || 0,
+        uniqueVisitors: Number(stats.uniqueVisitors) || 0,
+        totalPageViews: Number(pageStats.totalPageViews) || 0,
         bounceRate: parseFloat(bounceRate.toFixed(2)),
       });
 
@@ -116,14 +130,14 @@ export class DailyStatsService {
         success: true,
         data: {
           date,
-          totalVisitors: stats.totalVisitors || 0,
-          uniqueVisitors: stats.uniqueVisitors || 0,
-          totalPageViews: pageStats.totalPageViews || 0,
-          mobileUsers: stats.mobileUsers || 0,
-          desktopUsers: stats.desktopUsers || 0,
-          tabletUsers: stats.tabletUsers || 0,
+          totalVisitors: Number(stats.totalVisitors) || 0,
+          uniqueVisitors: Number(stats.uniqueVisitors) || 0,
+          totalPageViews: Number(pageStats.totalPageViews) || 0,
+          mobileUsers: Number(stats.mobileUsers) || 0,
+          desktopUsers: Number(stats.desktopUsers) || 0,
+          tabletUsers: Number(stats.tabletUsers) || 0,
           bounceRate: parseFloat(bounceRate.toFixed(2)),
-          avgSessionDuration: Math.floor(stats.avgSessionDuration || 0),
+          avgSessionDuration: Math.floor(Number(stats.avgSessionDuration) || 0),
         },
       };
     } catch (error) {
