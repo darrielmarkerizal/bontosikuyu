@@ -144,6 +144,22 @@ export interface PageViewAttributes {
   updatedAt?: Date;
 }
 
+// Add DailyStats interface
+export interface DailyStatsAttributes {
+  id?: number;
+  date: string;
+  totalVisitors: number;
+  uniqueVisitors: number;
+  totalPageViews: number;
+  mobileUsers: number;
+  desktopUsers: number;
+  tabletUsers: number;
+  bounceRate: number;
+  avgSessionDuration: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 // Model definitions
 export class User extends Model<UserAttributes> implements UserAttributes {
   public id!: number;
@@ -240,6 +256,25 @@ export class PageView
   public readonly updatedAt!: Date;
 }
 
+// Add DailyStats model class
+export class DailyStats
+  extends Model<DailyStatsAttributes>
+  implements DailyStatsAttributes
+{
+  public id!: number;
+  public date!: string;
+  public totalVisitors!: number;
+  public uniqueVisitors!: number;
+  public totalPageViews!: number;
+  public mobileUsers!: number;
+  public desktopUsers!: number;
+  public tabletUsers!: number;
+  public bounceRate!: number;
+  public avgSessionDuration!: number;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
 // Initialize models
 let modelsInitialized = false;
 
@@ -253,6 +288,7 @@ export async function initializeModels() {
       Travel,
       AnalyticsSession,
       PageView,
+      DailyStats,
     };
 
   const sequelize = await getDatabase();
@@ -592,6 +628,63 @@ export async function initializeModels() {
     }
   );
 
+  // Initialize DailyStats model
+  DailyStats.init(
+    {
+      date: {
+        type: DataTypes.DATEONLY,
+        allowNull: false,
+        unique: true,
+      },
+      totalVisitors: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      uniqueVisitors: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      totalPageViews: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      mobileUsers: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      desktopUsers: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      tabletUsers: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      bounceRate: {
+        type: DataTypes.DECIMAL(5, 2),
+        allowNull: false,
+        defaultValue: 0,
+      },
+      avgSessionDuration: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+    },
+    {
+      sequelize,
+      modelName: "DailyStats",
+      tableName: "DailyStats",
+      timestamps: true,
+    }
+  );
+
   // ADD: Define associations
   Travel.belongsTo(TravelCategory, {
     foreignKey: "travelCategoryId",
@@ -625,6 +718,7 @@ export async function initializeModels() {
     Travel,
     AnalyticsSession,
     PageView,
+    DailyStats,
   };
 }
 

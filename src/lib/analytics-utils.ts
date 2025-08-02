@@ -1,4 +1,5 @@
 import { getModels } from "@/lib/models";
+import { DailyStatsService } from "@/lib/daily-stats-service";
 
 export class AnalyticsUtils {
   // Get basic stats
@@ -69,5 +70,41 @@ export class AnalyticsUtils {
       group: ["deviceType"],
       raw: true,
     });
+  }
+
+  /**
+   * Get daily stats for dashboard
+   */
+  static async getDailyStatsForDashboard(days: number = 30) {
+    try {
+      const endDate = new Date().toISOString().split("T")[0];
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+      const startDateStr = startDate.toISOString().split("T")[0];
+
+      const stats = await DailyStatsService.getDailyStats(
+        startDateStr,
+        endDate
+      );
+      const summary = await DailyStatsService.getSummaryStats(
+        startDateStr,
+        endDate
+      );
+
+      return {
+        dailyStats: stats.data,
+        summary: summary.data,
+      };
+    } catch (error) {
+      console.error("Failed to get daily stats:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Generate today's stats (for manual trigger)
+   */
+  static async generateTodayStats() {
+    return await DailyStatsService.generateTodayStats();
   }
 }
