@@ -43,6 +43,56 @@ interface SequelizeValidationError extends Error {
   }>;
 }
 
+// Helper function to create log entry
+async function createLog(
+  sequelize: import("sequelize").Sequelize,
+  action: "CREATE" | "UPDATE" | "DELETE",
+  tableName: string,
+  recordId: number,
+  userId: number,
+  oldValues?: Record<string, unknown>,
+  newValues?: Record<string, unknown>,
+  description?: string,
+  request?: NextRequest
+) {
+  try {
+    const Log = require("../../../../../models/log.js")(
+      sequelize,
+      require("sequelize").DataTypes
+    );
+
+    const logData: Record<string, unknown> = {
+      action,
+      tableName,
+      recordId,
+      userId,
+      description,
+    };
+
+    if (oldValues) {
+      logData.oldValues = JSON.stringify(oldValues);
+    }
+
+    if (newValues) {
+      logData.newValues = JSON.stringify(newValues);
+    }
+
+    // Get IP address and user agent from request
+    if (request) {
+      const forwarded = request.headers.get("x-forwarded-for");
+      const realIp = request.headers.get("x-real-ip");
+      logData.ipAddress = forwarded?.split(",")[0] || realIp || "unknown";
+      logData.userAgent = request.headers.get("user-agent") || "unknown";
+    }
+
+    await Log.create(logData);
+    console.log(`📝 Log created: ${action} on ${tableName} (ID: ${recordId})`);
+  } catch (error) {
+    console.error("Error creating log:", error);
+    // Don't throw error - logging failure shouldn't break the main operation
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Import sequelize and models directly
@@ -261,6 +311,7 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
 export async function POST(request: NextRequest) {
   try {
     // Verify JWT token for authentication
@@ -448,6 +499,29 @@ export async function POST(request: NextRequest) {
         },
       ],
     });
+
+    // Create log entry for CREATE action
+    await createLog(
+      sequelize,
+      "CREATE",
+      "articles",
+      createdArticle.id,
+      decodedToken.id,
+      undefined, // No old values for CREATE
+      {
+        id: createdArticle.id,
+        title: createdArticle.title,
+        content: createdArticle.content.substring(0, 100) + "...", // Truncate content for log
+        status: createdArticle.status,
+        imageUrl: createdArticle.imageUrl,
+        articleCategoryId: createdArticle.articleCategoryId,
+        writerId: createdArticle.writerId,
+        category: createdArticle.category?.name,
+        writer: createdArticle.writer?.fullName,
+      },
+      `Artikel "${title}" berhasil dibuat oleh ${decodedToken.fullName}`,
+      request
+    );
 
     return NextResponse.json(
       {

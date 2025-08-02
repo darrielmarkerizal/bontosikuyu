@@ -32,6 +32,55 @@ interface WriterModel extends Model {
   dusun: string;
 }
 
+// Helper function to create log entry
+async function createLog(
+  action: "CREATE" | "UPDATE" | "DELETE",
+  tableName: string,
+  recordId: number,
+  userId: number,
+  oldValues?: Record<string, unknown>,
+  newValues?: Record<string, unknown>,
+  description?: string,
+  request?: NextRequest
+) {
+  try {
+    const Log = require("../../../../../../models/log.js")(
+      sequelize,
+      DataTypes
+    );
+
+    const logData: Record<string, unknown> = {
+      action,
+      tableName,
+      recordId,
+      userId,
+      description,
+    };
+
+    if (oldValues) {
+      logData.oldValues = JSON.stringify(oldValues);
+    }
+
+    if (newValues) {
+      logData.newValues = JSON.stringify(newValues);
+    }
+
+    // Get IP address and user agent from request
+    if (request) {
+      const forwarded = request.headers.get("x-forwarded-for");
+      const realIp = request.headers.get("x-real-ip");
+      logData.ipAddress = forwarded?.split(",")[0] || realIp || "unknown";
+      logData.userAgent = request.headers.get("user-agent") || "unknown";
+    }
+
+    await Log.create(logData);
+    console.log(`📝 Log created: ${action} on ${tableName} (ID: ${recordId})`);
+  } catch (error) {
+    console.error("Error creating log:", error);
+    // Don't throw error - logging failure shouldn't break the main operation
+  }
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -206,8 +255,22 @@ export async function PUT(
       );
     }
 
-    // Check if article exists
-    const existingArticle = await Article.findByPk(articleId);
+    // Check if article exists and get old values for logging
+    const existingArticle = await Article.findByPk(articleId, {
+      include: [
+        {
+          model: CategoryArticle,
+          as: "category",
+          attributes: ["id", "name"],
+        },
+        {
+          model: Writer,
+          as: "writer",
+          attributes: ["id", "fullName", "dusun"],
+        },
+      ],
+    });
+
     if (!existingArticle) {
       return NextResponse.json(
         {
@@ -217,6 +280,20 @@ export async function PUT(
         { status: 404 }
       );
     }
+
+    // Fix the oldValues object in UPDATE
+    const oldValues = {
+      id: existingArticle.get("id"),
+      title: existingArticle.get("title"),
+      content:
+        existingArticle.get("content")?.toString().substring(0, 100) + "...",
+      status: existingArticle.get("status"),
+      imageUrl: existingArticle.get("imageUrl"),
+      articleCategoryId: existingArticle.get("articleCategoryId"),
+      writerId: existingArticle.get("writerId"),
+      category: (existingArticle.get("category") as CategoryModel)?.name,
+      writer: (existingArticle.get("writer") as WriterModel)?.fullName,
+    };
 
     // Parse request body
     const body = await request.json();
@@ -335,6 +412,32 @@ export async function PUT(
       );
     }
 
+    // Fix the newValues object in UPDATE
+    const newValues = {
+      id: updatedArticle.get("id"),
+      title: updatedArticle.get("title"),
+      content:
+        updatedArticle.get("content")?.toString().substring(0, 100) + "...",
+      status: updatedArticle.get("status"),
+      imageUrl: updatedArticle.get("imageUrl"),
+      articleCategoryId: updatedArticle.get("articleCategoryId"),
+      writerId: updatedArticle.get("writerId"),
+      category: (updatedArticle.get("category") as CategoryModel)?.name,
+      writer: (updatedArticle.get("writer") as WriterModel)?.fullName,
+    };
+
+    // Create log entry for UPDATE action
+    await createLog(
+      "UPDATE",
+      "articles",
+      articleId,
+      decodedToken.id,
+      oldValues,
+      newValues,
+      `Artikel "${title}" berhasil diperbarui oleh ${decodedToken.fullName}`,
+      request
+    );
+
     return NextResponse.json(
       {
         success: true,
@@ -430,8 +533,22 @@ export async function DELETE(
       );
     }
 
-    // Check if article exists
-    const existingArticle = await Article.findByPk(articleId);
+    // Check if article exists and get data for logging
+    const existingArticle = await Article.findByPk(articleId, {
+      include: [
+        {
+          model: defineCategoryArticle(sequelize, DataTypes),
+          as: "category",
+          attributes: ["id", "name"],
+        },
+        {
+          model: defineWriter(sequelize, DataTypes),
+          as: "writer",
+          attributes: ["id", "fullName", "dusun"],
+        },
+      ],
+    });
+
     if (!existingArticle) {
       return NextResponse.json(
         {
@@ -442,8 +559,34 @@ export async function DELETE(
       );
     }
 
+    // Fix the deletedArticleData object in DELETE
+    const deletedArticleData = {
+      id: existingArticle.get("id"),
+      title: existingArticle.get("title"),
+      content:
+        existingArticle.get("content")?.toString().substring(0, 100) + "...",
+      status: existingArticle.get("status"),
+      imageUrl: existingArticle.get("imageUrl"),
+      articleCategoryId: existingArticle.get("articleCategoryId"),
+      writerId: existingArticle.get("writerId"),
+      category: (existingArticle.get("category") as CategoryModel)?.name,
+      writer: (existingArticle.get("writer") as WriterModel)?.fullName,
+    };
+
     // Delete article
     await existingArticle.destroy();
+
+    // Create log entry for DELETE action
+    await createLog(
+      "DELETE",
+      "articles",
+      articleId,
+      decodedToken.id,
+      deletedArticleData, // Old values (the deleted data)
+      undefined, // No new values for DELETE (use undefined instead of null)
+      `Artikel "${existingArticle.get("title")}" berhasil dihapus oleh ${decodedToken.fullName}`,
+      request
+    );
 
     return NextResponse.json(
       {
